@@ -1,3 +1,4 @@
 .viewer-prefs
 drake_viewer.out
 *~
+*.slx.autosave
