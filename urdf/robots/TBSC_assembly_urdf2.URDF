@@ -173,4 +173,14 @@
         rpy="0 0 0" />
     </wing>
   </force_element>
+  <force_element name="propeller">
+    <thrust lower_limit="0" upper_limit="100" scale_factor="5.265">
+      <!--see thrustSketch.m for data from the propeller to justify this number -->
+      <parent link="fuselage"/>
+      <origin
+        xyz="0.0264162284363671 -2.37906025566202E-08 0.000889743516961591"
+        rpy="0 0 0" />
+      <axis xyz="1 0 0"/>
+    </thrust>
+  </force_element>
 </robot>
