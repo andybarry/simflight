@@ -2,3 +2,4 @@
 drake_viewer.out
 *~
 *.slx.autosave
+.unitTestData.mat
