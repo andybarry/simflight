@@ -165,16 +165,26 @@
       xyz="0.999433245959699 0 0.0336628410931187" />
   </joint>
   <!--FORCE ELEMENTS ADDED MANUALLY AFTER SOLIDWORKS EXPORT-->
-  <force_element name="fuse_wing">
-    <wing profile="flat plate" chord="0.2097" span=".8636" nominal_speed="10" stall_angle="10">
+  <force_element name="left_wing">
+    <wing profile="flat plate" chord="0.2097" span="0.4318" nominal_speed="10" stall_angle="10">
     	<parent link="fuselage"/>
     	<origin
-          xyz="-0.0349593479683926 0.000331878148872666 0.00735412367732659"
+          xyz="-0.0349593479683926 -0.2159 0.00735412367732659"
           rpy="0 0 0" />
-        <control_surface name="elevon_left" chord="0.0402" span="0.31115" left_edge_position_along_wing="0" />
-        <control_surface name="elevon_right" chord= "0.0402" span="0.31115" left_edge_position_along_wing="0.55245"/>
+        <control_surface name="elevon_left" chord="0.0402" span="0.31115" left_edge_position_along_wing="0" min_deflection="-0.90" max_deflection="0.855" />
     </wing>
   </force_element>
+
+  <force_element name="right_wing">
+    <wing profile="flat plate" chord="0.2097" span="0.4318" nominal_speed="10" stall_angle="10">
+    	<parent link="fuselage"/>
+    	<origin
+          xyz="-0.0349593479683926 0.2159 0.00735412367732659"
+          rpy="0 0 0" />
+        <control_surface name="elevon_right" chord= "0.0402" span="0.31115" left_edge_position_along_wing="0.12065" min_deflection="-0.90" max_deflection="0.855"/>
+    </wing>
+  </force_element>
+
   <force_element name="propeller">
     <thrust lower_limit="0" upper_limit="100" scale_factor="5.265">
       <!--see thrustSketch.m for data from the propeller to justify this number -->
