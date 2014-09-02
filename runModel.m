@@ -1,17 +1,24 @@
+disp('Constructing from URDF...');
 
 options.floating = true;
 r = RigidBodyManipulator('urdf/robots/TBSC_assembly_urdf2.URDF', options);
-v = r.constructVisualizer;
+v = r.constructVisualizer();
 
 %%
 
+disp('Simulating...');
+
 x0 = [0; 0; 0; 0; 0; 0; 10; 0; 0; 0; 0; 0];
 
-constant_traj = ConstantTrajectory([-pi/2 -pi/2 0]);
+constant_traj = ConstantTrajectory([.855 .855 100]);
 constant_traj = constant_traj.setOutputFrame(r.getInputFrame());
 
 feedback_system = cascade(constant_traj, r);
 
-[ytraj, xtraj] = feedback_system.simulate([0 1], x0);
+feedback_visualize_system = cascade(feedback_system, v);
 
-v.playback(xtraj)
+
+
+feedback_visualize_system.simulate([0 1], x0);
+
+%v.playback(xtraj)

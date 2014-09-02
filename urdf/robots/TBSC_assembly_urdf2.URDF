@@ -54,7 +54,7 @@
   </force_element>
 
   <force_element name="propeller">
-    <thrust lower_limit="0" upper_limit="100" scale_factor="5.265">
+    <thrust lower_limit="0" upper_limit="100" scale_factor="0.05159">
       <!--see thrustSketch.m for data from the propeller to justify this number -->
       <parent link="fuselage"/>
       <origin

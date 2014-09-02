@@ -17,7 +17,7 @@ throttlePercent = [-100
 50
 60];
 
-thurst = [0
+thrust = [0
 0
 0
 25
@@ -33,9 +33,11 @@ thurst = [0
 420
 467
 528
-560];
+560]; % in grams
 
-plot(throttlePercent, thurst,'x-');
+thrust_N = thrust * .0098;
+
+plot(throttlePercent, thrust,'x-');
 
 scaledThrottlePercent = (throttlePercent + 80) /1.4
 
@@ -44,12 +46,12 @@ scaledThrottlePercent = (throttlePercent + 80) /1.4
 % Linear model Poly1:
 %      f(x) = p1*x + p2
 % Coefficients (with 95% confidence bounds):
-%        p1 =       5.265  (4.796, 5.734)
-%        p2 =      0.4265  (-25.53, 26.38)
+%        p1 =     0.05159  (0.047, 0.05619)
+%        p2 =    0.004179  (-0.2502, 0.2585)
 % 
 % Goodness of fit:
-%   SSE: 1.513e+04
+%   SSE: 1.453
 %   R-square: 0.9745
 %   Adjusted R-square: 0.9728
-%   RMSE: 31.75
+%   RMSE: 0.3112
 % 
