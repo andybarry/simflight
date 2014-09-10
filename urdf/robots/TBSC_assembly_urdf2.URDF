@@ -5,17 +5,17 @@
     name="fuselage">
     <inertial>
       <origin
-        xyz="-0.0349593479683926 0.000331878148872666 0.00735412367732659"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
-        value="4.1575909457638" />
+        value="0.648412" />
       <inertia
-        ixx="0.185818182108609"
-        ixy="-1.52327104962265E-05"
-        ixz="-0.000130769919432325"
-        iyy="0.0280372247689657"
-        iyz="2.88471517246179E-05"
-        izz="0.21190998352649" />
+        ixx="0.014894"
+        ixy="0.000082"
+        ixz="0.000152"
+        iyy="0.005580"
+        iyz="-0.000001"
+        izz="0.019316" />
     </inertial>
     <visual>
       <origin
@@ -32,11 +32,10 @@
       </material>
     </visual>
   </link>
-  <!--FORCE ELEMENTS ADDED MANUALLY AFTER SOLIDWORKS EXPORT-->
   <force_element name="left_wing">
     <wing profile="flat plate" chord="0.2097" span="0.4318" nominal_speed="10" stall_angle="10">
-    	<parent link="fuselage"/>
-    	<origin
+      <parent link="fuselage"/>
+      <origin
           xyz="-0.0349593479683926 -0.2159 0.00735412367732659"
           rpy="0 0 0" />
         <control_surface name="elevon_left" chord="0.0402" span="0.31115" left_edge_position_along_wing="0" min_deflection="-0.90" max_deflection="0.855" />
@@ -45,8 +44,8 @@
 
   <force_element name="right_wing">
     <wing profile="flat plate" chord="0.2097" span="0.4318" nominal_speed="10" stall_angle="10">
-    	<parent link="fuselage"/>
-    	<origin
+      <parent link="fuselage"/>
+      <origin
           xyz="-0.0349593479683926 0.2159 0.00735412367732659"
           rpy="0 0 0" />
         <control_surface name="elevon_right" chord= "0.0402" span="0.31115" left_edge_position_along_wing="0.12065" min_deflection="-0.90" max_deflection="0.855"/>
@@ -58,7 +57,7 @@
       <!--see thrustSketch.m for data from the propeller to justify this number -->
       <parent link="fuselage"/>
       <origin
-        xyz="0.0264162284363671 -2.37906025566202E-08 0.000889743516961591"
+        xyz="0.0264162284363671 0 0"
         rpy="0 0 0" />
       <axis xyz="1 0 0"/>
     </thrust>
