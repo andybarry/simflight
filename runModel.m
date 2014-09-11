@@ -8,9 +8,9 @@ v = r.constructVisualizer();
 
 disp('Simulating...');
 
-x0 = [0; 0; 0; 0; 0; 0; 10; 0; 0; 0; 0; 0];
+x0 = [0; 0; 0; 0; 0; 0; 15; 0; 0; 0; 0; 0];
 
-constant_traj = ConstantTrajectory([0.1 0.1 100]);
+constant_traj = ConstantTrajectory([0.8 0.8 100]);
 constant_traj = constant_traj.setOutputFrame(r.getInputFrame());
 
 feedback_system = cascade(constant_traj, r);
@@ -18,6 +18,6 @@ feedback_system = cascade(constant_traj, r);
 %feedback_visualize_system = cascade(feedback_system, v);
 %feedback_visualize_system.simulate([0 1], x0);
 
-[ytraj, xtraj] = feedback_system.simulate([0 1], x0);
+[ytraj, xtraj] = feedback_system.simulate([0 .5], x0);
 
 v.playback(xtraj)
