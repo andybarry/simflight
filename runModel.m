@@ -1,7 +1,7 @@
 disp('Constructing from URDF...');
 
 options.floating = true;
-r = RigidBodyManipulator('urdf/robots/TBSC_assembly_urdf2.URDF', options);
+r = RigidBodyManipulator('urdf/robots/TBSC_assembly_urdf2_params.URDF', options);
 %r = RigidBodyManipulator('/home/abarry/drake/drake/examples/Wingeron/Plane.URDF', options);
 v = r.constructVisualizer();
 
@@ -17,7 +17,7 @@ for i = 1 : length(r.force)
 end
 
 %%
-%{
+
 disp('Simulating...');
 
 x0 = [0; 0; 0; 0; 0; 0; 15; 0; 0; 0; 0; 0];
@@ -30,8 +30,6 @@ feedback_system = cascade(constant_traj, r);
 %feedback_visualize_system = cascade(feedback_system, v);
 %feedback_visualize_system.simulate([0 1], x0);
 
-[ytraj, xtraj] = feedback_system.simulate([0 5], x0);
+[ytraj, xtraj] = feedback_system.simulate([0 1], x0);
 
 v.playback(xtraj)
-
-%}
