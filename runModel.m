@@ -5,6 +5,15 @@ r = RigidBodyManipulator('urdf/robots/TBSC_assembly_urdf2_params.URDF', options)
 %r = RigidBodyManipulator('/home/abarry/drake/drake/examples/Wingeron/Plane.URDF', options);
 v = r.constructVisualizer();
 
+%r = r.setParamFrame(CoordinateFrame('TbscParams',2,'p',...
+%        { 'drag_fuselage_xy','drag_fuselage_z' }));
+
+params = r.getParams();
+
+params.drag_fuselage_xy = 1;
+
+r = r.setParams(params);
+
 q = zeros(r.getNumContStates(),1);
 qd = zeros(r.getNumContStates(),1);
 
