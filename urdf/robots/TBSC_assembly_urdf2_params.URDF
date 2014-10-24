@@ -80,10 +80,10 @@
 
   <force_element name="propeller_force">
     <propellor name="propeller" lower_limit="0" upper_limit="100" scale_factor_thrust="0.05159" scale_factor_moment="0">
-  <!--see thrustSketch.m for data from the propeller to justify the scale_factor. The factor between scale_factor_thrust and scale_factor_moment is taken from the quadrotor urdf (which in turn is from the group at Penn) BEFORE DEBUG ZAP WAS: .001263955 -->
+  <!--see thrustSketch.m for data from the propeller to justify the scale_factor. The factor between scale_factor_thrust and scale_factor_moment is taken from the quadrotor urdf (which in turn is from the group at Penn) -->
       <parent link="fuselage"/>
       <origin
-        xyz="0.0264162284363671 0 0"
+        xyz="-.15 0 0"
         rpy="0 0 0" />
       <axis xyz="1 0 0"/>
     </propellor>

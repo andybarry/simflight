@@ -31,7 +31,7 @@ disp('Simulating...');
 
 x0 = [0; 0; 0; 0; 0; 0; 15; 0; 0; 0; 0; 0];
 
-constant_traj = ConstantTrajectory([0.8 0.8 100]);
+constant_traj = ConstantTrajectory([-.8 .8 100]);
 constant_traj = constant_traj.setOutputFrame(r.getInputFrame());
 
 feedback_system = cascade(constant_traj, r);
