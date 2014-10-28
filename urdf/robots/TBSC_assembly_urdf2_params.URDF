@@ -23,6 +23,7 @@
         iyz="0"
         izz="0.019316" />
     </inertial>
+    <!--
     <visual>
       <origin
         xyz="0 0 0"
@@ -36,8 +37,9 @@
         <color
           rgba="0.68 0.68 0.68 1" />
       </material>
-    </visual>
+    </visual> -->
   </link>
+
   <force_element name="left_wing_force">
     <wing name="left_wing" profile="flat plate" chord="0.2097" span="0.4318" nominal_speed="10" stall_angle="10">
       <parent link="fuselage"/>
@@ -77,10 +79,9 @@
     </wing>
   </force_element>
 
-
   <force_element name="propeller_force">
     <propellor name="propeller" lower_limit="0" upper_limit="100" scale_factor_thrust="0.05159" scale_factor_moment="0">
-  <!--see thrustSketch.m for data from the propeller to justify the scale_factor. The factor between scale_factor_thrust and scale_factor_moment is taken from the quadrotor urdf (which in turn is from the group at Penn) -->
+  <!-- see thrustSketch.m for data from the propeller to justify the scale_factor. The factor between scale_factor_thrust and scale_factor_moment is taken from the quadrotor urdf (which in turn is from the group at Penn) -->
       <parent link="fuselage"/>
       <origin
         xyz="-.15 0 0"
@@ -90,12 +91,12 @@
   </force_element>
 
   <force_element name="fuselage_drag_force">
-    <drag name="fuselage_drag" coefficient_drag_x="$drag_fuselage_xy" coefficient_drag_y="$drag_fuselage_xy" coefficient_drag_z="$drag_fuselage_z"
-      area_x="0.008" area_y="0.001" area_z="0">
+    <bluff_body name="fuselage_drag" coefficient_drag_x="$drag_fuselage_xy" coefficient_drag_y="$drag_fuselage_xy" coefficient_drag_z="$drag_fuselage_z"
+      area_x="0.0049" area_y="0.0016" area_z="0.0025" visual_geometry="true">
       <parent link="fuselage" />
       <origin
         xyz="0 0 0" />
-    </drag>
+    </bluff_body>
   </force_element>
 
 </robot>
