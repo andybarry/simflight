@@ -1,4 +1,4 @@
-function [xdot,y] = tbsc_model(t,x,u,varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot_world_drake,y] = tbsc_model(t,x,u,varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
@@ -70,7 +70,7 @@ invJ = diag([1/Jx,1/Jy,1/Jz]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Measured parameters (MKS units):
-wing_area = 0.1811;% m^2
+wing_area = 0.18109692;% m^2
 %out_dist = 132.8/1000; % Moment arm of outer wing section
 %in_dist = 46.4/1000; % Moment arm of inner wing section
 %ail_out_dist_x = 41/1000; % These are behind the COM 
@@ -78,8 +78,8 @@ wing_area = 0.1811;% m^2
 elevL_area = 0.01250823; % m^2
 elevR_area = 0.01250823;
 
-elevL_arm = 0.2298; % in meters
-elevR_arm = 0.2298;
+elevL_arm = 0.12495; % in meters
+elevR_arm = 0.12495;
 
 %rudder_area = (3.80152*1000)/(1000*1000);
 %rudder_arm = 258.36/1000; % m
@@ -309,7 +309,6 @@ rotm_full = blkdiag(rotm, rotm, rotm, rotm);
 
 xdot_world_drake = rotm_full * xdot_world_ani;
 
-xdot = xdot_world_drake;
 
 end
 
