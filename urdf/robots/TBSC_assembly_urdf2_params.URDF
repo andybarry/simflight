@@ -141,7 +141,7 @@
       <axis xyz="1 0 0" />
     </propellor>
   </force_element>
-
+<!--
   <force_element name="fuselage_drag_force">
     <bluff_body name="fuselage_drag" coefficient_drag_x="$drag_fuselage_xy" coefficient_drag_y="$drag_fuselage_xy" coefficient_drag_z="$drag_fuselage_z"
       area_x="0.0049" area_y="0.0016" area_z="0.0025" visual_geometry="true">
@@ -150,5 +150,5 @@
         xyz="0 0 0" />
     </bluff_body>
   </force_element>
-
+-->
 </robot>
