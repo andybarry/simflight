@@ -63,7 +63,7 @@ M_R_fac = 0;
 % Rotational inertias
 Jx = Jx_fac*0.014894; % The numbers are from the solidworks model
 Jy = Jy_fac*0.005580;
-Jz = Jz_fac*0.019316;
+Jz = Jz_fac*0.019316; % TODO: include cross terms from solidworks?
 
 J = diag([Jx,Jy,Jz]);
 invJ = diag([1/Jx,1/Jy,1/Jz]);
@@ -75,10 +75,11 @@ wing_area = 0.1811;% m^2
 %in_dist = 46.4/1000; % Moment arm of inner wing section
 %ail_out_dist_x = 41/1000; % These are behind the COM 
 %ail_in_dist_x = 65/1000; % These are behind the COM
-elevL_area = 0.0125; % m^2
-elevR_area = 0.0125;
-elevL_arm = 280/1000;
-elevR_arm = 280/1000;
+elevL_area = 0.01250823; % m^2
+elevR_area = 0.01250823;
+
+elevL_arm = 0.2298; % in meters
+elevR_arm = 0.2298;
 
 %rudder_area = (3.80152*1000)/(1000*1000);
 %rudder_arm = 258.36/1000; % m
@@ -86,7 +87,7 @@ elevR_arm = 280/1000;
 %stab_arm = 222/1000; % m
 m =  0.648412; % kg (with battery in)
 g = 9.81; % m/s^2
-thr_to_thrust = 0.05159; % kg per unit throttle command
+thr_to_thrust = 0.05159; % kg per unit throttle command TODO: check that this does or does not include a factor of 9.81 (conversion between grams and force)
 
 elevL_comm_to_rad = 8.430084159809215e-04; % TODO FIXME % Multiply raw command by these to get deflection in rads
 elevR_comm_to_rad = 8.430084159809215e-04; % TODO FIXME
@@ -185,8 +186,8 @@ xdot_elevL_body = R_world_to_body*xdot_elevL;
 xdot_elevR = xdots_world + cross(omega_world,[-elevR_arm;0;0]);
 xdot_elevR_body = R_world_to_body*xdot_elevR;
 
-alpha_elevL = atan2(xdot_elevL_body(3),xdot_elevL_body(1)); % TODO: CHECKME: SIGN
-alpha_elevR = atan2(xdot_elevR_body(3),xdot_elevR_body(1)); % TODO: CHECKME: SIGN
+alpha_elevL = atan2(xdot_elevL_body(3),xdot_elevL_body(1));
+alpha_elevR = atan2(xdot_elevR_body(3),xdot_elevR_body(1));
 
 %include lift terms from flat plate theory of elevator
 elevL_lift = elevL_lift_fac*pressure(vel) * elevL_area * ... likely a small term % TODO MAKE SURE THAT PRESSURE(VEL) NOT PRESSURE(UPE/uwa) IS CORRECT
@@ -197,7 +198,7 @@ elevR_lift = elevR_lift_fac*pressure(vel) * elevR_area * ... likely a small term
 
 %Compute drag on elevator using flat plate theory
 elevL_drag = pressure(vel) * elevL_area * Cd_fp(alpha_elevL-elevL); % TODO: pressure(vel) instead of pressure(uwa) OK?
-elevR_drag = pressure(vel) * elevR_area * Cd_fp(alpha_elevR-elevR); % TODO: pressure(vel) instead of pressure(uwa) OK?
+elevR_drag = pressure(vel) * elevR_area * Cd_fp(alpha_elevR-elevR); % : pressure(vel) instead of pressure(uwa) OK?
 
 % Rotate to correct frame
 F_elevL = rotAlpha([elevL_drag; 0; elevL_lift], alpha_elevL); % elevon left
@@ -223,7 +224,7 @@ F_elevR = rotAlpha([elevR_drag; 0; elevR_lift], alpha_elevR); % elevon right
 % Gravity, thrust, and body drag
 F_gravity = R_world_to_body*[0;0;m*g];
 
-F_thrust = thr_fac*thr_to_thrust*thr; % thr_to_thrust was estimated from digital scale experiments
+F_thrust = [thr_fac*thr_to_thrust*thr; 0; 0]; % thr_to_thrust was estimated from digital scale experiments
 
 % Drag due to body (in x-direction)
 body_drag_x =  body_x_drag_fac*pressure(U);
@@ -245,7 +246,7 @@ F_rate_dependent = [F_Q_fac_x*Q;0;F_Q_fac_z*Q]; % These should be small effects 
 % Now moments/rotational stuff
 
 % Moment from wings and ailerons
-d_wing = [0; 0; 0]; % TODO, I think this is 0 because the wing is centered at the COM
+d_wing = [0; 0; 0];
 
 M_wing = cross(d_wing, F_wing);
 
@@ -298,6 +299,17 @@ PQR_dot = invJ*(M_total - cross([P;Q;R],J*[P;Q;R]));
 
 xdot = [xyzdot;rpydot;UVW_dot;PQR_dot];
 
+xdot_world_ani = ConvertToWorldCoords(xdot, R_body_to_world, rpy, [P;Q;R]);
+
+rotm(1:3,1:3) = [ 1,  0,  0;
+                  0, -1,  0;
+                  0,  0, -1];
+
+rotm_full = blkdiag(rotm, rotm, rotm, rotm);
+
+xdot_world_drake = rotm_full * xdot_world_ani;
+
+xdot = xdot_world_drake;
 
 end
 
@@ -370,6 +382,47 @@ end
 
 function pre = pressure(vel) %Dynamic Pressure = .5 rho * v^2
   % rho = 1.1839; % kg/m^3 (density of air)
-pre = .5 * 1.1839 * vel^2; % N/m^2
+pre = .5 * 1.204 * vel^2; % N/m^2
+end
+
+
+function xdot_world = ConvertToWorldCoords(xdot, R_body_to_world, rpy, pqr)
+  
+  xyzdot = xdot(1:3);
+  rpydot = xdot(4:6);
+  UVW_dot = xdot(7:9);
+  pqr_dot = xdot(10:12);
+
+  phi = rpy(1);
+  theta = rpy(2);
+  psi = rpy(3);
+  
+  phidot = rpydot(1);
+  thetadot = rpydot(2);
+  psidot = rpydot(3);
+  
+  R = R_body_to_world;
+  
+  
+  % Now, convert pqr_dot to rpy_ddot
+  [Phi, dPhi] = angularvel2rpydotMatrix([phi;theta;psi]);
+
+  Rdot =  [ 0, sin(phi)*sin(psi) + cos(phi)*cos(psi)*sin(theta),   cos(phi)*sin(psi) - cos(psi)*sin(phi)*sin(theta); ...
+            0, cos(phi)*sin(psi)*sin(theta) - cos(psi)*sin(phi), - cos(phi)*cos(psi) - sin(phi)*sin(psi)*sin(theta); ...
+            0,                              cos(phi)*cos(theta),                               -cos(theta)*sin(phi)]*phidot + ...
+            [ -cos(psi)*sin(theta), cos(psi)*cos(theta)*sin(phi), cos(phi)*cos(psi)*cos(theta); ...
+              -sin(psi)*sin(theta), cos(theta)*sin(phi)*sin(psi), cos(phi)*cos(theta)*sin(psi); ...
+                      -cos(theta),         -sin(phi)*sin(theta),         -cos(phi)*sin(theta)]*thetadot + ...
+                     [ -cos(theta)*sin(psi), - cos(phi)*cos(psi) - sin(phi)*sin(psi)*sin(theta), cos(psi)*sin(phi) - cos(phi)*sin(psi)*sin(theta); ...
+                       cos(psi)*cos(theta),   cos(psi)*sin(phi)*sin(theta) - cos(phi)*sin(psi), sin(phi)*sin(psi) + cos(phi)*cos(psi)*sin(theta); ...
+                                         0,                                                  0,                                                0]*psidot;
+
+  rpy_ddot = Phi*R*pqr_dot + reshape((dPhi*[phidot;thetadot;psidot]),3,3)*R*pqr + ...
+             Phi*Rdot*pqr;
+
+           
+  xdot_world = [xyzdot; rpydot; R_body_to_world*UVW_dot; rpy_ddot];
+
+                     
 end
 
