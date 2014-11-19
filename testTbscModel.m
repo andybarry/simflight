@@ -15,14 +15,14 @@ x = 0;
 y = 0;
 z = 0;
 roll = 1;
-pitch = 1;
-yaw = -1;
+pitch = 0;
+yaw = 0;
 xdot = 15;
-ydot = 1;
-zdot = -1;
+ydot = 0;
+zdot = 0;
 rolldot = 1;
-pitchdot = 1;
-yawdot = 1;
+pitchdot = 0;
+yawdot = 0;
 
 %x0_drake = [0; 0; 0; 0; 0; 0; 15; 0; 0; 1; 0; 0];
 
