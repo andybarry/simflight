@@ -11,10 +11,24 @@ options.floating = true;
 r = RigidBodyManipulator('urdf/robots/TBSC_assembly_for_testing.URDF', options);
 v = r.constructVisualizer();
 
+x = 0;
+y = 0;
+z = 0;
+roll = 1;
+pitch = 1;
+yaw = -1;
+xdot = 15;
+ydot = 1;
+zdot = -1;
+rolldot = 1;
+pitchdot = 1;
+yawdot = 1;
 
-x0_drake = [0; 0; 0; 0; 0; 0; 15; 0; 1; 0; 0; 0];
+%x0_drake = [0; 0; 0; 0; 0; 0; 15; 0; 0; 1; 0; 0];
 
-x0_hand(1:6) = x0_drake(1:6); % todo sign flips
+x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ];
+
+x0_hand(1:6) = x0_drake(1:6);
 
 rotm(1:3,1:3) = [ 1,  0,  0;
                   0, -1,  0;
