@@ -86,6 +86,9 @@ elevR_x_arm = -0.12495;
 elevL_y_arm = -0.276225; % position of the elevon's center in meters on the y-axis (how far left/right it is)
 elevR_y_arm = 0.276225;
 
+elevL_chord = 0.0402;
+elevR_chord = 0.0402;
+
 %rudder_area = (3.80152*1000)/(1000*1000);
 %rudder_arm = 258.36/1000; % m
 %stab_area = 923.175/(1000*1000); % m^2
@@ -94,8 +97,8 @@ m =  0.648412; % kg (with battery in)
 g = 9.81; % m/s^2
 thr_to_thrust = 0.05159; % kg per unit throttle command TODO: check that this does or does not include a factor of 9.81 (conversion between grams and force)
 
-elevL_comm_to_rad = 8.430084159809215e-04; % TODO FIXME % Multiply raw command by these to get deflection in rads
-elevR_comm_to_rad = 8.430084159809215e-04; % TODO FIXME
+elevL_comm_to_rad = 1; % TODO: for now, input is in radians
+elevR_comm_to_rad = 1;
 
 thr_min = 0; % If it's less than 270, prop doesn't spin
 
@@ -261,9 +264,11 @@ d_wing = [0; 0; 0];
 
 M_wing = cross(d_wing, F_wing);
 
-% Moment from elevator
-d_elevL = [elevL_x_arm; elevL_y_arm; 0];
-d_elevR = [elevR_x_arm; elevR_y_arm; 0];
+% Moment from elevon
+
+% TODO: moment arm changes when the elevon moves
+d_elevL = [elevL_x_arm + (elevL_chord/2 - elevL_chord/2*cos(elevL)); elevL_y_arm; elevL_chord/2*sin(elevL)];
+d_elevR = [elevR_x_arm + (elevR_chord/2 - elevR_chord/2*cos(elevR)); elevR_y_arm; elevR_chord/2*sin(elevR)];
 
 M_elevL = cross(d_elevL, F_elevL);
 M_elevR = cross(d_elevR, F_elevR);
