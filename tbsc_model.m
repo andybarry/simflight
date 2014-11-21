@@ -324,22 +324,22 @@ xdot_world_drake = rotm_full * xdot_world_ani;
 end
 
 function cl = Cl_fp(a) % Flat plate model
-if a > pi/2
-    a = pi/2;
-elseif a<-pi/2
-    a = -pi/2;
-end
+% if a > pi/2
+%     a = pi/2;
+% elseif a<-pi/2
+%     a = -pi/2;
+% end
 
 cl = 2*sin(a)*cos(a);
 
 end
 
 function cd = Cd_fp(a) % Flat plate
-if a > pi/2
-    a = pi/2;
-elseif a<-pi/2
-    a = -pi/2;
-end
+% if a > pi/2
+%     a = pi/2;
+% elseif a<-pi/2
+%     a = -pi/2;
+% end
 
 cd = 2*(sin(a)^2);
 
