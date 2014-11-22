@@ -90,6 +90,12 @@ elevR_y_arm = 0.276225;
 elevL_chord = 0.0402;
 elevR_chord = 0.0402;
 
+wingletL_area = 0.01944076;
+wingletR_area = 0.01944076;
+
+wingletL_body_pos = [ -0.08; -0.4318; -0.081954 ];
+wingletR_body_pos = [ -0.08;  0.4318; -0.081954 ];
+
 %rudder_area = (3.80152*1000)/(1000*1000);
 %rudder_arm = 258.36/1000; % m
 %stab_area = 923.175/(1000*1000); % m^2
@@ -176,11 +182,7 @@ wing_drag = pressure(vel_uw) * wing_area * Cd_fp(alpha);
 
 % Collect these forces and represent them in correct frame
 F_wing = rotAlpha([wing_drag; 0; wing_lift], alpha);
-%F_elevL = rotAlpha([elevL_drag; 0; elevL_lift], alpha);
 
-
-%F_right_wing_out = rotAlpha([right_wing_out_drag;0;right_wing_out_lift],alpha);
-%F_right_ail_out = rotAlpha([right_ail_out_drag;0;right_ail_out_lift],alpha);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Forces due to elevons
 
@@ -232,9 +234,34 @@ F_elevR = rotAlpha([elevR_drag; 0; elevR_lift], alpha_elevR); % elevon right
 % Sideslip angle for rudder
 %beta_rud = atan2(V,sqrt(vel^2-V^2) + upe); % Assuming propwash over rudder is same as elevator
 
-% Rudder force flat plate
-%rudder_force_l = pressure(uwe) * rudder_area * Cl_fp(beta_rud + rud);
-%rudder_force_d = pressure(uwe) * rudder_area * Cd_fp(beta_rud + rud);
+% winglet forces (flat plates)
+
+
+
+xdot_wingletL = xdots_world + cross(omega_world, R_body_to_world * wingletL_body_pos);
+xdot_wingletL_body = R_world_to_body*xdot_wingletL;
+xdot_wingletL_body_no_sideslip = [xdot_wingletL_body(1); xdot_wingletL_body(2); 0];
+vel_wingletL = norm(xdot_wingletL_body_no_sideslip);
+
+xdot_wingletR = xdots_world + cross(omega_world, R_body_to_world * wingletR_body_pos);
+xdot_wingletR_body = R_world_to_body*xdot_wingletR;
+xdot_wingletR_body_no_sideslip = [xdot_wingletR_body(1); xdot_wingletR_body(2); 0];
+vel_wingletR = norm(xdot_wingletR_body_no_sideslip);
+
+beta_wingletL = atan2(xdot_wingletL_body_no_sideslip(2), xdot_wingletL_body_no_sideslip(1));
+beta_wingletR = atan2(xdot_wingletR_body_no_sideslip(2), xdot_wingletR_body_no_sideslip(1));
+
+wingletL_lift = pressure(vel_wingletL) * wingletL_area * Cl_fp(beta_wingletL);
+wingletL_drag = pressure(vel_wingletL) * wingletL_area * Cd_fp(beta_wingletL);
+
+wingletR_lift = pressure(vel_wingletR) * wingletR_area * Cl_fp(beta_wingletR);
+wingletR_drag = pressure(vel_wingletR) * wingletR_area * Cd_fp(beta_wingletR);
+
+wingletL_force = [wingletL_drag; wingletL_lift; 0];
+wingletR_force = [wingletR_drag; wingletR_lift; 0];
+
+F_wingletL = [-cos(beta_wingletL), sin(beta_wingletL), 0; -sin(beta_wingletL), -cos(beta_wingletL), 0;0 0 0]*wingletL_force;
+F_wingletR = [-cos(beta_wingletR), sin(beta_wingletR), 0; -sin(beta_wingletR), -cos(beta_wingletR), 0;0 0 0]*wingletR_force;
 
 %rudder_force = [rudder_force_d;rudder_force_l;0];
 
@@ -281,7 +308,8 @@ M_elevR = cross(elevR_body_pos, F_elevR);
 
 % Moment from rudder
 %d_rudder = [-rudder_arm;0;-9/1000]; % -9 mm in z approximately
-%M_rudder = cross(d_rudder,F_rudder);
+M_wingletL = cross(wingletL_body_pos, F_wingletL);
+M_wingletR = cross(wingletR_body_pos, F_wingletR);
 
 % Moment from throttle aerodynamic drag
 M_throttle = [thr_drag_fac*thr; 0; 0];
@@ -302,7 +330,8 @@ rpydot = Phi*omega_world;
 % Dynamics
 % Translational equations
 F_total = F_wing + ... % wing
-          F_elevL + F_elevR + ... % + F_stabilizer + F_rudder + ... % elevator, stabilizer, rudder
+          F_elevL + F_elevR + ...
+          F_wingletL + F_wingletR + ...
           F_gravity + F_thrust + F_body_drag + F_rate_dependent; % gravity, thrust, body drag, rate dependent force
 
 Sw = [0 -R Q; R 0 -P;-Q P 0];
@@ -311,6 +340,7 @@ UVW_dot = -Sw*[U;V;W] + F_total/m;
 % Rotational stuff
 M_total = M_wing + ...
           M_elevL + M_elevR + ... %M_stabilizer + M_rudder + 
+          M_wingletL + M_wingletR + ...
           M_throttle + M_rate_dependent;
         
 PQR_dot = invJ*(M_total - cross([P;Q;R],J*[P;Q;R]));

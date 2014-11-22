@@ -24,21 +24,24 @@ rolldot = 5*rand(1);
 pitchdot = 5*rand(1);
 yawdot = 5*rand(1);
 
-
 u0 = [.5; .5; 100*rand(1)]
+
+
 
 % x = 0;
 % y = 0;
 % z = 0;
-% roll = 1;
-% pitch = 2;
-% yaw = 2;
-% xdot = 15;
-% ydot = 2;
-% zdot = 1;
-% rolldot = 1;
-% pitchdot = 1;
-% yawdot = 1;
+% roll = 0;
+% pitch = 0;
+% yaw = 0;
+% xdot = 0;
+% ydot = 1;
+% zdot = 0;
+% rolldot = 0;
+% pitchdot = 0;
+% yawdot = 0;
+% 
+% u0 = [.5; .5; 0]
 
 %x0_drake = [0; 0; 0; 0; 0; 0; 15; 0; 0; 1; 0; 0];
 

@@ -126,7 +126,7 @@
     </wing>
   </force_element>
 
-<!--
+
     <force_element name="left_winglet_force">
     <wing
       name="left_winglet"
@@ -139,8 +139,8 @@
 
       <parent link="fuselage"/>
       <origin
-          xyz="-0.08 -0.4318 0.081954"
-          rpy="1.5707 0 0" />
+          xyz="-0.08 0.4318 0.081954"
+          rpy="1.57079632679489661923 0 0" />
     </wing>
   </force_element>
 
@@ -156,11 +156,10 @@
 
       <parent link="fuselage"/>
       <origin
-          xyz="-0.08 0.4318 0.081954"
-          rpy="1.5707 0 0" />
+          xyz="-0.08 -0.4318 0.081954"
+          rpy="1.57079632679489661923 0 0" />
     </wing>
   </force_element>
--->
 
   <force_element name="propeller_force">
     <propellor name="propeller" lower_limit="0" upper_limit="100" scale_factor_thrust="0.05159" scale_factor_moment="0.001263955" visual_geometry="true" visual_diameter=".2">
