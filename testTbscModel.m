@@ -11,32 +11,35 @@ options.floating = true;
 r = RigidBodyManipulator('urdf/robots/TBSC_assembly_for_testing.URDF', options);
 v = r.constructVisualizer();
 
-x = 5*rand(1);
-y = 5*rand(1);
-z = 5*rand(1);
-roll = 3*rand(1);
-pitch = 3*rand(1);
-yaw = 3*rand(1);
-xdot = 5*rand(1);
-ydot = 5*rand(1);
-zdot = 5*rand(1);
-rolldot = 5*rand(1);
-pitchdot = 5*rand(1);
-yawdot = 5*rand(1);
-
-% 
-% x = 0*rand(1);
-% y = 0*rand(1);
-% z = 0*rand(1);
-% roll = 0*rand(1);
-% pitch = 0*rand(1);
-% yaw = 0*rand(1);
+% x = 5*rand(1);
+% y = 5*rand(1);
+% z = 5*rand(1);
+% roll = 3*rand(1);
+% pitch = 3*rand(1);
+% yaw = 3*rand(1);
 % xdot = 5*rand(1);
 % ydot = 5*rand(1);
 % zdot = 5*rand(1);
 % rolldot = 5*rand(1);
 % pitchdot = 5*rand(1);
 % yawdot = 5*rand(1);
+
+
+x = 0;
+y = 0;
+z = 0;
+roll = 0;
+pitch = 0;
+yaw = 0;
+xdot = 15;
+ydot = 0;
+zdot = 0;
+rolldot = 0;
+pitchdot = 0;
+yawdot = 0;
+
+
+u0 = [0; 0; 50];
 
 %x0_drake = [0; 0; 0; 0; 0; 0; 15; 0; 0; 1; 0; 0];
 
@@ -75,9 +78,6 @@ pqr = R'*pqr;
 
 x0_hand(10:12) = pqr;
 
-
-
-u0 = [0; 0; 0];
 
 xdot_urdf = r.dynamics(0, x0_drake, u0(3));
 
