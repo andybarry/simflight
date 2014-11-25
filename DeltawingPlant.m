@@ -13,7 +13,13 @@ classdef DeltawingPlant < DrakeSystem
     end
     
     function xdot = dynamics(obj,t,x,u)
+      
+      x = ConvertToModelFrameFromDrakeWorldFrame(x);
+      
       xdot = tbsc_model(t, x, u, 1);
+      
+      % tbsc_model outputs in drake frame
+      
     end
     
     function [y,dy] = output(obj,t,x,u)
