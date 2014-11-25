@@ -1,4 +1,4 @@
-function [xdot_world_drake,y] = tbsc_model(t,x,u,varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot_world_drake,y] = tbsc_model(t,x,u,elev_drag_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
@@ -21,9 +21,9 @@ y = x(1:6);
 %  x(11):Q    (Angular velocity in Y direction, body frame)
 %  x(12):R    (Angular velocity in Z direction, body frame)
 %
-%  u(1):elevL   (Elevon left Command)
-%  u(2):elevR   (Elevon right Command)
-%  u(3):thr   (Throttle command)
+%  u(1):elevL   (Elevon left Command, radians)
+%  u(2):elevR   (Elevon right Command, radians)
+%  u(3):thr   (Throttle command, newtons)
 
 % TODO: ROLL DAMPENING
 % TODO: MOMENT COEFFICIENT
@@ -41,6 +41,9 @@ thr_fac = 1;
 elevL_lift_fac = 1;
 elevR_lift_fac = 1;
 
+elevL_drag_fac = elev_drag_fac;
+elevR_drag_fac = elev_drag_fac;
+
 % Stabilizer
 %stab_force_fac = 1;
 
@@ -54,7 +57,7 @@ F_Q_fac_x = 0;
 F_Q_fac_z = 0;
 
 % Throttle aerodynamic drag
-thr_drag_fac = 0.001263955; % thr_drag_fac*1e-6;
+thr_drag_fac = 0; % TODO: roll from throttle
 
 % Rate dependent moments
 M_P_fac = 0;
@@ -102,16 +105,17 @@ wingletR_body_pos = [ -0.08;  0.4318; -0.081954 ];
 %stab_arm = 222/1000; % m
 m =  0.648412; % kg (with battery in)
 g = 9.81; % m/s^2
-thr_to_thrust = 0.05159; % kg per unit throttle command
+thr_to_thrust = 1; % throttle comes in in newtons now ... was: 0.05159; % kg per unit throttle command
 
-elevL_comm_to_rad = 1; % TODO: for now, input is in radians
+elevL_comm_to_rad = 1;
 elevR_comm_to_rad = 1;
 
-thr_min = 0; % If it's less than 270, prop doesn't spin
+thr_min = 0; % if throttle is below this value, it is zero (below threshold to run prop)
 
-throttle_trim = 0; % At 250, we have 0 propwash speed (according to fit from anemometer readings)
-elevL_trim = 0;
-elevR_trim = 0;
+throttle_trim = 0; %  in newtons
+elevL_trim = 0; % in radians
+elevR_trim = 0; % in radians
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Get states
 rpy = x(4:6);
@@ -137,8 +141,8 @@ omega_world = R_body_to_world*[P;Q;R];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Get control inputs
 
-%Throttle signal is 150-850
-thr = u(3) - throttle_trim; % Shift it
+%Throttle
+thr = u(3) - throttle_trim;
 if thr < (thr_min - throttle_trim)
     thr = 0;
 end
@@ -219,8 +223,8 @@ elevR_lift = elevR_lift_fac*pressure(vel_elevR) * elevR_area * ... likely a smal
     Cl_fp(alpha_elevR-elevR); %angle of deflection of elevon
 
 %Compute drag on elevator using flat plate theory
-elevL_drag = pressure(vel_elevL) * elevL_area * Cd_fp(alpha_elevL-elevL);
-elevR_drag = pressure(vel_elevR) * elevR_area * Cd_fp(alpha_elevR-elevR);
+elevL_drag = elevL_drag_fac * pressure(vel_elevL) * elevL_area * Cd_fp(alpha_elevL-elevL);
+elevR_drag = elevR_drag_fac * pressure(vel_elevR) * elevR_area * Cd_fp(alpha_elevR-elevR);
 
 % Rotate to correct frame
 F_elevL = rotAlpha([elevL_drag; 0; elevL_lift], alpha_elevL); % elevon left
@@ -474,4 +478,3 @@ function xdot_world = ConvertToWorldCoords(xdot, R_body_to_world, rpy, uvw, pqr)
 
                      
 end
-
