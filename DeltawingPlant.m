@@ -10,6 +10,8 @@ classdef DeltawingPlant < DrakeSystem
       obj = obj@DrakeSystem(12,0,3,12,false,true);
       obj = setDirectFeedthrough(obj,0);
       obj = setOutputFrame(obj,getStateFrame(obj));
+      
+      obj = obj.setInputLimits([-0.90; -0.90; 0], [0.855; 0.855; 5.33976]); % input limits in [radians radians newtons]
     end
     
     function xdot = dynamics(obj,t,x,u)

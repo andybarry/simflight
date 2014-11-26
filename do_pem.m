@@ -69,36 +69,21 @@ u0 = [ u.elevonL, u.elevonR, u.throttle ];
 u0 = u0(2:end, :);
 
 
-%% setup comparison to model output
+%% setup comparison to model output for orientation PEM
 
-Udot = est.accel.x;
-Vdot = est.accel.y;
-Wdot = est.accel.z;
+dat = iddata(rpy, u0);
 
-Pdot = diff(est.rotation_rate.x);
-Qdot = diff(est.rotation_rate.y);
-Rdot = diff(est.rotation_rate.z);
+file_name = 'tbsc_model';
 
-% convert to model coordinate frame
-Vdot = -Vdot;
-Wdot = -Wdot;
+order = [3, 3, 12];
 
-Qdot = -Qdot;
-Rdot = -Rdot;
+initial_states = zeros(12, 1);
 
-% hack?
-x0 = x0(2:end, :);
-u0 = u0(2:end, :);
-Udot = Udot(2:end);
-Vdot = Vdot(2:end);
-Wdot = Wdot(2:end);
+parameters = [1];
 
-xdot_compare_measured = [ Udot Vdot, Wdot - 9.81, Pdot, Qdot, Rdot ];
+nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
-%% setup nonlinear least squares to fit accelerations and angular rates
+nlgr = pem(dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
-model_wrapper = @(elev_drag_fac) tbsc_model_wrapper(x0, u0, xdot_compare_measured, elev_drag_fac);
-
-
-[ params, resnorm ] = lsqnonlin(model_wrapper, 1, 0, 100)
-
+figure;
+compare(dat, nlgr);

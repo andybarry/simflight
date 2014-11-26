@@ -11,6 +11,6 @@ function f = tbsc_model_wrapper(x_in, u_in, measured_values, elev_lift_fac)
     f(i) = norm(xdot(7:12)' - measured_values(i,:));
     
   end
-
+  fprintf('.');
 
 end
