@@ -97,8 +97,11 @@ xdot_urdf = r.dynamics(0, x0_drake, u0(3));
 
 
 %% construct from hand-written model
-
+profile on
+for i = 1:1000
 xdot_hand = tbsc_model(0, x0_hand, u0, 1);
+end
+profile off
 
 valuecheck(xdot_hand, xdot_urdf);
 
