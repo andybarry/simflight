@@ -25,6 +25,7 @@ u = ConvertInputUnits(u);
 %% trim to flight times only
 
 [start_time, end_time] = FindActiveTimes(u.logtime, u.throttle_command, 1500);
+end_time = start_time + 0.2;
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
@@ -65,15 +66,12 @@ x0 = [ x, y, z, roll, pitch, yaw, U, V, W, Q, P, R ];
 
 u0 = [ u.elevonL, u.elevonR, u.throttle ];
 
-% hack?
-u0 = u0(2:end, :);
-
 
 %% setup comparison to model output for orientation PEM
 
 dat = iddata(rpy, u0);
 
-file_name = 'tbsc_model';
+file_name = 'tbsc_model_pem_wrapper';
 
 order = [3, 3, 12];
 
@@ -83,7 +81,7 @@ parameters = [1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
-nlgr = pem(dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
+nlgr_fit = pem(dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
-figure;
-compare(dat, nlgr);
+%figure;
+%compare(dat, nlgr_fit);
