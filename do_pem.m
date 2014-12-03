@@ -22,7 +22,7 @@ load([logfile_path, logfile_name]);
 
 u = ConvertInputUnits(u);
 
-%% trim to flight times only
+%% trim to flight times only and setup comparison to model output for orientation PEM
 
 [start_time, end_time] = FindActiveTimes(u.logtime, u.throttle_command, 1500);
 
@@ -37,9 +37,14 @@ t_end = start_time + t_block : t_block : end_time;
 
 dt = 1/140; % approximate servo rate
 
-%% setup comparison to model output for orientation PEM
+for i = 1 : min(length(t_start), length(t_end))
+  dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt);
+end
 
-dat = BuildIdDataRPY(est, u, t_start(1), t_end(1), dt);
+merged_dat = merge(dat{:});
+
+%% run prediction error minimization 
+
 
 file_name = 'tbsc_model_pem_wrapper';
 
@@ -54,7 +59,7 @@ nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
 
 disp('Running pem...');
-nlgr_fit = pem(dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
+nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
 disp('Simulating...');
 %figure;
