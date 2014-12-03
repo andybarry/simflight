@@ -25,22 +25,29 @@ u = ConvertInputUnits(u);
 %% trim to flight times only
 
 [start_time, end_time] = FindActiveTimes(u.logtime, u.throttle_command, 1500);
-end_time = start_time + 0.2;
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
+t_block = 0.5;
+%end_time = start_time + t_block;
 
 
-u = TrimU(start_time, end_time, u);
-imu = TrimIMU(start_time, end_time, imu);
-baro = TrimBaro(start_time, end_time, baro);
-battery = TrimBattery(start_time, end_time, battery);
-est = TrimEst(start_time, end_time, est);
-gps = TrimGPS(start_time, end_time, gps);
-stereo = TrimStereo(start_time, end_time, stereo);
-stereo_replay = TrimStereo(start_time, end_time, stereo_replay);
-stereo_octomap = TrimStereoOctomap(start_time, end_time, stereo_octomap);
-wind_gspeed = TrimWindGspeed(start_time, end_time, wind_gspeed);
+t_start = start_time : t_block : end_time;
+t_end = start_time + t_block : t_block : end_time;
+
+for i = 1:min(length(t_start), length(t_end))
+  
+  u_array{i} = TrimU(t_start(i), t_end(i), u);
+  imu_array{i} = TrimIMU(t_start(i), t_end(i), imu);
+  baro_array{i} = TrimBaro(t_start(i), t_end(i), baro);
+  battery_array{i} = TrimBattery(t_start(i), t_end(i), battery);
+  est_array{i} = TrimEst(t_start(i), t_end(i), est);
+  gps_array{i} = TrimGPS(t_start(i), t_end(i), gps);
+  stereo_array{i} = TrimStereo(t_start(i), t_end(i), stereo);
+  stereo_replay_array{i} = TrimStereo(t_start(i), t_end(i), stereo_replay);
+  stereo_octomap_array{i} = TrimStereoOctomap(t_start(i), t_end(i), stereo_octomap);
+  wind_gspeed_array{i} = TrimWindGspeed(t_start(i), t_end(i), wind_gspeed);
+end
 
 %% setup model inputs
 
@@ -104,13 +111,17 @@ file_name = 'tbsc_model_pem_wrapper';
 
 order = [3, 3, 12];
 
-initial_states = x0;
+initial_states = zeros(12,1); %x0;
 
-parameters = [1; 1; 1; 1; 1];
+parameters = [1; 1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
+setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
+
+disp('Running pem...');
 nlgr_fit = pem(dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
+disp('Simulating...');
 %figure;
 compare(dat, nlgr_fit);
