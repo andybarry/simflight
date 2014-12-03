@@ -28,7 +28,7 @@ u = ConvertInputUnits(u);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
-t_block = 0.2;
+t_block = 0.5;
 %end_time = start_time + t_block;
 
 
@@ -52,15 +52,15 @@ order = [3, 3, 12];
 
 initial_states = zeros(12,1); %x0;
 
-parameters = [1; 1; 1];
+parameters = [1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
 setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
 
 disp('Running pem...');
-nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
+nlgr_fit = pem(dat{3}, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
 disp('Simulating...');
-%figure;
-%compare(dat, nlgr_fit);
+figure;
+compare(dat, nlgr_fit);

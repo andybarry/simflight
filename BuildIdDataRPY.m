@@ -25,5 +25,7 @@ function data = BuildIdDataRPY(est, u, t_start, t_end, dt)
   u0 = [ ppval(t, u.smooth.elevonL); ppval(t, u.smooth.elevonR); ppval(t, u.smooth.throttle) ]';
 
   data = iddata(rpy0, u0, dt);
+  
+  set(data, 'InputName',{'elevL', 'elevR', 'throttle'}, 'OutputName',{'roll','pitch','yaw'})
 
 end

@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot, y] = tbsc_model(t,x,u, elev_lift_fac, elev_drag_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
@@ -30,9 +30,9 @@ y = x(1:6);
 
 %% Parameters fit from data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
-% Jx_fac = 1;
-% Jy_fac = 1;
-% Jz_fac = 1;
+Jx_fac = 0.6;
+Jy_fac = 0.8;
+Jz_fac = 2;
 
 % Throttle/propwash
 thr_fac = 1;
@@ -44,11 +44,11 @@ elevR_lift_fac = 1;
 elevL_drag_fac = 1;
 elevR_drag_fac = 1;
 % 
-% elevL_lift_fac = elev_lift_fac;
-% elevR_lift_fac = elev_lift_fac;
+ elevL_lift_fac = elev_lift_fac;
+ elevR_lift_fac = elev_lift_fac;
 % 
-% elevL_drag_fac = elev_drag_fac;
-% elevR_drag_fac = elev_drag_fac;
+ elevL_drag_fac = elev_drag_fac;
+ elevR_drag_fac = elev_drag_fac;
 
 % Stabilizer
 %stab_force_fac = 1;
