@@ -38,7 +38,7 @@ t_end = start_time + t_block : t_block : end_time;
 dt = 1/140; % approximate servo rate
 
 for i = 1 : min(length(t_start), length(t_end))
-  dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt);
+  dat{i} = BuildIdDataRPYAirspeed(est, baro, u, t_start(i), t_end(i), dt);
 end
 
 %merged_dat = merge(dat{:});
@@ -50,17 +50,21 @@ merged_dat = merge(dat{2}, dat{3});
 
 file_name = 'tbsc_model_pem_wrapper';
 
-order = [3, 3, 12];
+num_outputs = 4;
+num_inputs = 3;
+num_states = 12;
+
+order = [num_outputs, num_inputs, num_states];
 
 initial_states = [0 0 0 0 0 0 10 0 0 0 0 0]';
 
-parameters = [1; 1];
+parameters = [1; 1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
 nlgr = setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
-nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 10 -100 -100 -100 -100 -100 });
-nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 100 100 100 100 100 });
+%nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 10 -100 -100 -100 -100 -100 });
+%nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 100 100 100 100 100 });
 
 disp('Running pem...');
 nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
