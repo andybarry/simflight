@@ -41,7 +41,9 @@ for i = 1 : min(length(t_start), length(t_end))
   dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt);
 end
 
-merged_dat = merge(dat{:});
+%merged_dat = merge(dat{:});
+
+merged_dat = merge(dat{2}, dat{3});
 
 %% run prediction error minimization 
 
@@ -50,17 +52,19 @@ file_name = 'tbsc_model_pem_wrapper';
 
 order = [3, 3, 12];
 
-initial_states = zeros(12,1); %x0;
+initial_states = [0 0 0 0 0 0 10 0 0 0 0 0]';
 
 parameters = [1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
-setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
+nlgr = setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
+nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 10 -100 -100 -100 -100 -100 });
+nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 100 100 100 100 100 });
 
 disp('Running pem...');
-nlgr_fit = pem(dat{3}, nlgr, 'Display', 'Full', 'MaxIter', 100);
+nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
 
 disp('Simulating...');
 figure;
-compare(dat, nlgr_fit);
+compare(merged_dat, nlgr_fit);
