@@ -38,11 +38,14 @@ y = x(1:6);
 thr_fac = 1;
 
 % Elevator
-elevL_lift_fac = 1;
-elevR_lift_fac = 1;
+elev_lift_fac = 1;
+elev_drag_fac = 1;
 
-elevL_drag_fac = 1;
-elevR_drag_fac = 1;
+elevL_lift_fac = elev_lift_fac;
+elevR_lift_fac = elev_lift_fac;
+
+elevL_drag_fac = elev_drag_fac;
+elevR_drag_fac = elev_drag_fac;
 % 
 %  elevL_lift_fac = elev_lift_fac;
 %  elevR_lift_fac = elev_lift_fac;
