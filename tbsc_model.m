@@ -30,8 +30,8 @@ y = x(1:6);
 
 %% Parameters fit from data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
- Jx_fac = 105;%0.6;
- Jy_fac = 10;%0.8;
+ Jx_fac = 1;%0.6;
+ Jy_fac = 1;%0.8;
  Jz_fac = 1;%2;
 
 % Throttle/propwash
@@ -66,8 +66,8 @@ F_Q_fac_z = 0;
 thr_drag_fac = 0; % TODO: roll from throttle
 
 % Rate dependent moments
-M_P_fac = 0;
-M_Q_fac = 0;
+M_P_fac = -1;
+M_Q_fac = -0.05;
 M_R_fac = 0;
 
 
