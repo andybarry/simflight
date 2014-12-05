@@ -1,4 +1,4 @@
-function data = BuildIdDataRPY(est, u, t_start, t_end, dt)
+function data = BuildIdDataRPY(est, u, t_start, t_end, dt, delay_ms)
   % Builds iddata from sensor values
   
   u = TrimU(t_start, t_end, u);
@@ -20,9 +20,9 @@ function data = BuildIdDataRPY(est, u, t_start, t_end, dt)
   yaw_s = spline(est.logtime, rpy_body(:,3));
   
   
-  u.smooth.elevonL = foh(u.logtime', u.elevonL');
-  u.smooth.elevonR = foh(u.logtime', u.elevonR');
-  u.smooth.throttle= foh(u.logtime', u.throttle');
+  u.smooth.elevonL = foh(u.logtime-delay_ms', u.elevonL');
+  u.smooth.elevonR = foh(u.logtime-delay_ms', u.elevonR');
+  u.smooth.throttle= foh(u.logtime-delay_ms', u.throttle');
   
   t0 = max(min(est.logtime), min(u.logtime));
   tf = min(max(est.logtime), max(u.logtime));

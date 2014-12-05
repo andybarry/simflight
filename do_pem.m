@@ -15,6 +15,8 @@ addpath([realtime_path 'scripts/logs']);
 % load data
 load([logfile_path, logfile_name]);
 
+% delay in ms from command to execution
+delay_ms = 20;
 
 %% convert inputs to model units
 
@@ -39,7 +41,7 @@ dt = 1/140; % approximate servo rate
 
 for i = 1 : min(length(t_start), length(t_end))
   %dat{i} = BuildIdDataRPYAirspeed(est, baro, u, t_start(i), t_end(i), dt);
-  dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt);
+  dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt, delay_ms);
 end
 
 %merged_dat = merge(dat{:});
