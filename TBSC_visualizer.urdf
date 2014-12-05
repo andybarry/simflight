@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<robot xmlns="http://drake.mit.edu"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://drake.mit.edu ../../doc/drakeURDF.xsd" name="TBSC_visualizer">
+
+  <link name="fuselage">
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <geometry>
+         <box size="0.2097 0.8636 0.01" />
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="left_winglet">
+    <parent link="fuselage" />
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <geometry>
+         <origin xyz="-0.08 0.4318 0.081954" rpy="1.57079632679489661923 0 0" />
+         <box size="0.1303 0.1492 0.01" />
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="prop">
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <geometry>
+         <origin xyz="-0.15 0 0" rpy="0 1.57079632679489661923 0" />
+         <cylinder length="0.05" radius="0.1016" />
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="right_winglet">
+    <inertial>
+      <mass value="1" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <geometry>
+         <origin xyz="-0.08 -0.4318 0.081954" rpy="1.57079632679489661923 0 0" />
+         <box size="0.1303 0.1492 0.01" />
+      </geometry>
+    </visual>
+  </link>
+
+
+  <link name="left_elevon">
+    <inertial>
+      <mass value="1" />
+      <origin xyz="-0.0201 0.276225 0" rpy="0 0 0" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0201 0.276225 0" rpy="0 0 0" />
+      <geometry>
+         <box size="0.0402 0.31115 0.01" />
+      </geometry>
+      <material name="red">
+        <color rgba="1 .949 .211 1" />
+      </material>
+    </visual>
+  </link>
+
+  <link name="right_elevon">
+    <inertial>
+      <mass value="1" />
+      <origin xyz="-0.0201 -0.276225 0" rpy="0 0 0" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0.083" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0201 -0.276225 0" rpy="0 0 0" />
+      <geometry>
+         <box size="0.0402 0.31115 0.01" />
+      </geometry>
+      <material name="red">
+        <color rgba="1 .949 .211 1" />
+      </material>
+    </visual>
+  </link>
+
+  <joint name="left_elevon_joint" type="continuous">
+    <parent link="fuselage" />
+    <child link="left_elevon" />
+    <origin xyz="-0.10485 0 0" />
+    <axis xyz="0 1 0" />
+  </joint>
+
+  <joint name="right_elevon_joint" type="continuous">
+    <parent link="fuselage" />
+    <child link="right_elevon" />
+    <origin xyz="-0.10485 0 0" />
+    <axis xyz="0 1 0" />
+  </joint>
+
+  <joint name="left_winglet_joint" type="fixed">
+    <parent link="fuselage" />
+    <child link="left_winglet" />
+    <origin xyz="0 0 0" />
+    <axis xyz="0 1 0" />
+  </joint>
+
+  <joint name="right_winglet_joint" type="fixed">
+    <parent link="fuselage" />
+    <child link="right_winglet" />
+    <origin xyz="0 0 0" />
+    <axis xyz="0 1 0" />
+  </joint>
+
+  <joint name="prop_joint" type="continuous">
+    <parent link="fuselage" />
+    <child link="prop" />
+    <origin xyz="0 0 0" />
+    <axis xyz="1 0 0" />
+  </joint>
+
+
+</robot>
