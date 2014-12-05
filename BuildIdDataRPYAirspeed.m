@@ -8,9 +8,17 @@ function data = BuildIdDataRPYAirspeed(est, baro, u, t_start, t_end, dt)
 
   rpy = quat2rpy_array(est.orientation.q0, est.orientation.q1, est.orientation.q2, est.orientation.q3);
 
-  roll_s = spline(est.logtime, rpy(:,1));
-  pitch_s = spline(est.logtime, rpy(:,2));
-  yaw_s = spline(est.logtime, rpy(:,3));
+  rpy_body = zeros(size(rpy));
+  
+  for i = 1 : size(rpy, 1)
+    x_world = [ zeros(3,1); rpy(i,:)'; zeros(6,1)];
+    x_body = ConvertToModelFrameFromDrakeWorldFrame(x_world);
+    rpy_body(i,:) = x_body(4:6);
+  end
+  
+  roll_s = spline(est.logtime, rpy_body(:,1));
+  pitch_s = spline(est.logtime, rpy_body(:,2));
+  yaw_s = spline(est.logtime, rpy_body(:,3));
   
   airspeed_s = spline(baro.logtime, baro.airspeed);
   

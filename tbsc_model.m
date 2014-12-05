@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
@@ -30,16 +30,16 @@ y = x(1:6);
 
 %% Parameters fit from data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
- Jx_fac = 1;%0.6;
- Jy_fac = 1;%0.8;
- Jz_fac = 1;%2;
+ Jx_fac = 0.75;
+ Jy_fac = 3.91;
+ Jz_fac = 1.50;
 
 % Throttle/propwash
 thr_fac = 1;
 
 % Elevator
-elev_lift_fac = 1;
-elev_drag_fac = 1;
+elev_lift_fac = 3.83;
+elev_drag_fac = 1.09;
 
 elevL_lift_fac = elev_lift_fac;
 elevR_lift_fac = elev_lift_fac;
@@ -85,7 +85,10 @@ invJ = diag([1/Jx,1/Jy,1/Jz]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Measured parameters (MKS units):
-wing_area = 0.18109692;% m^2
+%wing_area = 0.18109692;% m^2
+wing_span = 0.8636; % m
+wing_chord = 0.2097;
+wing_area = wing_span * wing_chord;
 %out_dist = 132.8/1000; % Moment arm of outer wing section
 %in_dist = 46.4/1000; % Moment arm of inner wing section
 %ail_out_dist_x = 41/1000; % These are behind the COM 
@@ -195,6 +198,10 @@ wing_drag = pressure(vel_uw) * wing_area * Cd_fp(alpha);
 
 % Collect these forces and represent them in correct frame
 F_wing = rotAlpha([wing_drag; 0; wing_lift], alpha);
+
+% Roll drag force
+
+%M_wing_roll_drag = -sign(P) * 1/6 * 1.204 * Cd_fp(pi/2) * wing_chord * wing_span^3 * P^2
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Forces due to elevons
@@ -419,7 +426,7 @@ elseif a<-pi/2
 end
 
 % These numbers were fit from no-throttle experiments
-cd = 2*(sin(a)^2) - 0.1027*(sin(a)^2) + 0.1716;  % TODO: CHECKME
+cd = 2*(sin(a)^2) - 0.1027*(sin(a)^2) + 0.1716;
 
 end
 

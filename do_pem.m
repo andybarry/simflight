@@ -44,7 +44,8 @@ end
 
 %merged_dat = merge(dat{:});
 
-merged_dat = merge(dat{2}, dat{3});
+%merged_dat = merge(dat{2}, dat{3});
+merged_dat = dat{2};
 
 %% run prediction error minimization 
 
@@ -59,7 +60,7 @@ order = [num_outputs, num_inputs, num_states];
 
 initial_states = [0 0 0 0 0 0 10 0 0 0 0 0]';
 
-parameters = [1; 1; 1;];
+parameters = [1; 1; 1; 1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
 
@@ -85,20 +86,20 @@ nlgr = setinit(nlgr, 'Fixed', {false false false false false false false false f
 nlgr.InitialStates(7).Minimum = 10;
 nlgr.InitialStates(7).Maximum = 15;
 
-nlgr.InitialStates(8).Minimum = -0.5;
-nlgr.InitialStates(8).Maximum = 0.5;
+nlgr.InitialStates(8).Minimum = -1;
+nlgr.InitialStates(8).Maximum = 1;
 
-nlgr.InitialStates(9).Minimum = -0.5;
-nlgr.InitialStates(9).Maximum = 0.5;
+nlgr.InitialStates(9).Minimum = -1;
+nlgr.InitialStates(9).Maximum = 1;
 
-nlgr.InitialStates(10).Minimum = -1;
-nlgr.InitialStates(10).Maximum = 1;
+nlgr.InitialStates(10).Minimum = -5;
+nlgr.InitialStates(10).Maximum = 5;
 
-nlgr.InitialStates(11).Minimum = -1;
-nlgr.InitialStates(11).Maximum = 1;
+nlgr.InitialStates(11).Minimum = -5;
+nlgr.InitialStates(11).Maximum = 5;
 
-nlgr.InitialStates(12).Minimum = -1;
-nlgr.InitialStates(12).Maximum = 1;
+nlgr.InitialStates(12).Minimum = -5;
+nlgr.InitialStates(12).Maximum = 5;
 
 nlgr.Parameters(1).Minimum = 0.1;
 nlgr.Parameters(1).Maximum = 10;

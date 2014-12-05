@@ -18,7 +18,7 @@ classdef DeltawingPlant < DrakeSystem
       
       x = ConvertToModelFrameFromDrakeWorldFrame(x);
       
-      xdot_model_frame = tbsc_model(t, x, u, 1, 1, 1);
+      xdot_model_frame = tbsc_model(t, x, u, 1, 1, 1, 1, 1);
       
       xdot = ConvertXdotModelToDrake(x, xdot_model_frame);
       
