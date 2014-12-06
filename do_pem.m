@@ -30,7 +30,7 @@ u = ConvertInputUnits(u);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
-t_block = 0.5;
+t_block = 0.1;
 %end_time = start_time + t_block;
 
 
@@ -54,7 +54,7 @@ merged_dat = dat{2};
 
 file_name = 'tbsc_model_pem_wrapper';
 
-num_outputs = 3;
+num_outputs = 4;
 num_inputs = 3;
 num_states = 12;
 
@@ -85,7 +85,7 @@ nlgr = setinit(nlgr, 'Fixed', {false false false false false false false false f
 %nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 10 -100 -100 -100 -100 -100 });
 %nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 100 100 100 100 100 });
 
-nlgr.InitialStates(7).Minimum = 10;
+nlgr.InitialStates(7).Minimum = 9;
 nlgr.InitialStates(7).Maximum = 15;
 
 nlgr.InitialStates(8).Minimum = -1;

@@ -30,16 +30,15 @@ y = x(1:6);
 
 %% Parameters fit from data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
+%{
  Jx_fac = 0.75;
  Jy_fac = 3.91;
  Jz_fac = 1.50;
 
-% Throttle/propwash
-thr_fac = 1;
-
 % Elevator
 elev_lift_fac = 3.83;
 elev_drag_fac = 1.09;
+%}
 
 elevL_lift_fac = elev_lift_fac;
 elevR_lift_fac = elev_lift_fac;
@@ -53,8 +52,8 @@ elevR_drag_fac = elev_drag_fac;
 %  elevL_drag_fac = elev_drag_fac;
 %  elevR_drag_fac = elev_drag_fac;
 
-% Stabilizer
-%stab_force_fac = 1;
+% Throttle/propwash
+thr_fac = 1;
 
 % Body drag
 body_x_drag_fac = 0;
