@@ -30,7 +30,7 @@ u = ConvertInputUnits(u);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
-t_block = 0.1;
+t_block = 0.5;
 %end_time = start_time + t_block;
 
 
@@ -44,27 +44,33 @@ for i = 1 : min(length(t_start), length(t_end))
   dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt, delay_ms);
 end
 
+
+merge_nums = [2 ,3];
+
 %merged_dat = merge(dat{:});
 
-%merged_dat = merge(dat{2}, dat{3});
-merged_dat = dat{2};
+%merged_dat = merge(dat{3}, dat{4}, dat{5}, dat{6});
+merged_dat = merge(dat{merge_nums});
+%merged_dat = dat{2};
 
 %% run prediction error minimization 
 
 
 file_name = 'tbsc_model_pem_wrapper';
 
-num_outputs = 4;
+num_outputs = 3;
 num_inputs = 3;
 num_states = 12;
 
 order = [num_outputs, num_inputs, num_states];
 
-initial_states = [0 0 0 0 0 0 10 0 0 0 0 0]';
+%initial_states = repmat([0 0 0 0 0 0 10 0 0 0 0 0]', 1, 2);
 
-parameters = [1; 1; 1; 1; 1];
+initial_states = { [0 0] [0 0] [0 0] [0 0] [0 0] [0 0] [10 10] [0 0] [0 0] [0 0] [0 0] [0 0] };
 
-nlgr = idnlgrey(file_name, order, parameters, initial_states, 0);
+parameters = [1; 1; 1; 1; 1; 0; 0];
+
+nlgr = idnlgrey(file_name, order, parameters, initial_states);
 
 nlgr.InitialStates(1).Name = 'x';
 nlgr.InitialStates(2).Name = 'y';
@@ -82,8 +88,10 @@ nlgr.InitialStates(12).Name = 'R';
 
 
 nlgr = setinit(nlgr, 'Fixed', {false false false false false false false false false false false false});   % Estimate the initial state.
-%nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 10 -100 -100 -100 -100 -100 });
-%nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 100 100 100 100 100 });
+%nlgr.InitialStates(1).Fixed = [false false false false false false false false false false false false];
+%nlgr.InitialStates(2).Fixed = [false false false false false false false false false false false false];
+% nlgr = setinit(nlgr, 'Minimum', {-100 -100 -100 -100 -100 -100 9 -1 -1 -5 -5 -5 });
+% nlgr = setinit(nlgr, 'Maximum', {100 100 100 100 100 100 15 1 1 5 5 5 });
 
 nlgr.InitialStates(7).Minimum = 9;
 nlgr.InitialStates(7).Maximum = 15;
@@ -103,6 +111,46 @@ nlgr.InitialStates(11).Maximum = 5;
 nlgr.InitialStates(12).Minimum = -5;
 nlgr.InitialStates(12).Maximum = 5;
 
+%% estimate initial states
+
+disp('Estimating initial states...');
+
+%x0 = zeros(num_states, length(merge_nums));
+
+x0 = findstates(nlgr, merged_dat)
+% x0 = [0 0
+%          0         0
+%          0         0
+%    -0.1972   -0.2760
+%     0.4608    0.4951
+%    -0.1373   -0.1575
+%     9.1312    9.9785
+%    -0.1730   -0.0407
+%     1.5799    1.0444
+%    -0.5888   -0.7839
+%     0.1672    0.8154
+%    -0.0247   -0.3423];
+
+ for i = 1 : length(merge_nums)
+   
+
+   for j = 1 : num_states
+     nlgr.InitialStates(j).Value(i) = x0(j,i);
+   end
+ 
+ end
+
+
+
+nlgr = setinit(nlgr, 'Fixed', {true true true true true true true true true true true true});
+
+%%
+
+%nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
+%nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
+% 
+
+
 nlgr.Parameters(1).Minimum = 0.1;
 nlgr.Parameters(1).Maximum = 10;
 
@@ -118,10 +166,16 @@ nlgr.Parameters(3).Maximum = 10;
 % nlgr.Parameters(5).Minimum = 0.1;
 % nlgr.Parameters(5).Maximum = 10;
 
+%% plot data
 
+disp('Plotting data...');
+figure(1)
+clf
+plot(merged_dat);
+%% run pem
 
 disp('Running pem...');
-nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 100);
+nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 20);
 
 %% display results
 

@@ -4,6 +4,8 @@ function data = BuildIdDataRPY(est, u, t_start, t_end, dt, delay_ms)
   u = TrimU(t_start, t_end, u);
   est = TrimEst(t_start, t_end, est);
   
+  delay_sec = delay_ms / 1000;
+  
 
   rpy = quat2rpy_array(est.orientation.q0, est.orientation.q1, est.orientation.q2, est.orientation.q3);
 
@@ -20,9 +22,9 @@ function data = BuildIdDataRPY(est, u, t_start, t_end, dt, delay_ms)
   yaw_s = spline(est.logtime, rpy_body(:,3));
   
   
-  u.smooth.elevonL = foh(u.logtime-delay_ms', u.elevonL');
-  u.smooth.elevonR = foh(u.logtime-delay_ms', u.elevonR');
-  u.smooth.throttle= foh(u.logtime-delay_ms', u.throttle');
+  u.smooth.elevonL = foh(u.logtime-delay_sec', u.elevonL');
+  u.smooth.elevonR = foh(u.logtime-delay_sec', u.elevonR');
+  u.smooth.throttle= foh(u.logtime-delay_sec', u.throttle');
   
   t0 = max(min(est.logtime), min(u.logtime));
   tf = min(max(est.logtime), max(u.logtime));
