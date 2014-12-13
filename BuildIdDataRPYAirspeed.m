@@ -1,9 +1,11 @@
-function data = BuildIdDataRPYAirspeed(est, baro, u, t_start, t_end, dt)
+function data = BuildIdDataRPYAirspeed(est, baro, u, t_start, t_end, dt, delay_ms)
   % Builds iddata from sensor values
   
   u = TrimU(t_start, t_end, u);
   est = TrimEst(t_start, t_end, est);
   baro = TrimBaro(t_start, t_end, baro);
+  
+  delay_sec = delay_ms / 1000;
   
 
   rpy = quat2rpy_array(est.orientation.q0, est.orientation.q1, est.orientation.q2, est.orientation.q3);
@@ -20,15 +22,15 @@ function data = BuildIdDataRPYAirspeed(est, baro, u, t_start, t_end, dt)
   pitch_s = spline(est.logtime, rpy_body(:,2));
   yaw_s = spline(est.logtime, rpy_body(:,3));
   
-  airspeed_s = spline(baro.logtime, baro.airspeed);
+  airspeed_s = spline(baro.logtime-delay_sec, baro.airspeed);
   
   
-  u.smooth.elevonL = foh(u.logtime', u.elevonL');
-  u.smooth.elevonR = foh(u.logtime', u.elevonR');
-  u.smooth.throttle= foh(u.logtime', u.throttle');
+  u.smooth.elevonL = foh(u.logtime-delay_sec', u.elevonL');
+  u.smooth.elevonR = foh(u.logtime-delay_sec', u.elevonR');
+  u.smooth.throttle= foh(u.logtime-delay_sec', u.throttle');
   
-  t0 = max(min(est.logtime), min(min(u.logtime), min(baro.logtime)));
-  tf = min(max(est.logtime), max(max(u.logtime), max(baro.logtime)));
+  t0 = max(min(est.logtime), min(min(u.logtime-delay_sec), min(baro.logtime)));
+  tf = min(max(est.logtime), max(max(u.logtime-delay_sec), max(baro.logtime)));
 
   t = t0:dt:tf;
   

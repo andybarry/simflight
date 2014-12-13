@@ -26,8 +26,8 @@ function data = BuildIdDataRPY(est, u, t_start, t_end, dt, delay_ms)
   u.smooth.elevonR = foh(u.logtime-delay_sec', u.elevonR');
   u.smooth.throttle= foh(u.logtime-delay_sec', u.throttle');
   
-  t0 = max(min(est.logtime), min(u.logtime));
-  tf = min(max(est.logtime), max(u.logtime));
+  t0 = max(min(est.logtime), min(u.logtime-delay_sec));
+  tf = min(max(est.logtime), max(u.logtime-delay_sec));
 
   t = t0:dt:tf;
   
