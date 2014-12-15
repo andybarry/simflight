@@ -1,6 +1,9 @@
 
 clear
 
+javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
+javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
+
 %% setup
 realtime_path = '/home/abarry/realtime/';
 logfile_path = '/home/abarry/rlg/logs/2014-04-18-near-goalposts/mat/';
@@ -13,6 +16,9 @@ addpath([realtime_path 'scripts/logs']);
 
 % load data
 load([logfile_path, logfile_name]);
+
+%parameters = { 0.25, 0.89, 0.83, 0.27, 0.18 };
+parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
 
 
 %% convert inputs to model units
@@ -50,11 +56,11 @@ roll = rpy(1,1);
 pitch = rpy(1,2);
 yaw = rpy(1,3);
 xdot = baro.airspeed(1);
-ydot = 0;
-zdot = 0;
-rolldot = 0; % todo?
-pitchdot = 0;
-yawdot = 0;
+ydot = .17;
+zdot = 1.26;
+rolldot = 0.48;
+pitchdot = .18;
+yawdot = -.31;
 
 x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ]
 
@@ -68,7 +74,7 @@ utraj = PPTrajectory(u_pp);
 
 %% build drake objects
 
-p = DeltawingPlant();
+p = DeltawingPlant(parameters);
 
 utraj = utraj.setOutputFrame(p.getInputFrame());
 

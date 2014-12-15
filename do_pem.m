@@ -32,7 +32,7 @@ u = ConvertInputUnits(u);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
-t_block = 0.5;
+t_block = 1;
 %end_time = start_time + t_block;
 
 
@@ -54,7 +54,7 @@ if use_airspeed
 end
   
 
-merge_nums = [2 ,3, 4, 5];
+merge_nums = [1, 2, 3];
 
 %merged_dat = merge(dat{:});
 
@@ -83,15 +83,22 @@ order = [num_outputs, num_inputs, num_states];
 %initial_states = repmat([0 0 0 0 0 0 10 0 0 0 0 0]', 1, 2);
 
 % extract inital state guesses from the data
-for i = 1 : length(merged_airspeed_dat.OutputData)
+if iscell(merged_airspeed_dat.OutputData)
   
-  x0_dat{i} = merged_airspeed_dat.OutputData{i}(1,:);
-  
+  for i = 1 : length(merged_airspeed_dat.OutputData)
+
+    x0_dat{i} = merged_airspeed_dat.OutputData{i}(1,:);
+
+  end
+  num_data = length(merged_airspeed_dat.OutputData);
+else
+  x0_dat{1} = merged_airspeed_dat.OutputData(1,:);
+  num_data = 1;
 end
 
-x0_dat_full{1} = zeros( 1, length(merged_dat.OutputData));
-x0_dat_full{2} = zeros( 1, length(merged_dat.OutputData));
-x0_dat_full{3} = zeros( 1, length(merged_dat.OutputData));
+x0_dat_full{1} = zeros( 1, num_data);
+x0_dat_full{2} = zeros( 1, num_data);
+x0_dat_full{3} = zeros( 1, num_data);
 
 x0_dat_full{4} = [];
 x0_dat_full{5} = [];
@@ -107,12 +114,12 @@ end
 
 %x0_dat_full{7} = [ 9.9607 11.3508 ];%zeros( 1, length(merged_dat.OutputData));
 
-x0_dat_full{8} = zeros( 1, length(merged_dat.OutputData));
-x0_dat_full{9} = zeros( 1, length(merged_dat.OutputData));
+x0_dat_full{8} = zeros( 1, num_data);
+x0_dat_full{9} = zeros( 1, num_data);
 
-x0_dat_full{10} = zeros( 1, length(merged_dat.OutputData));
-x0_dat_full{11} = zeros( 1, length(merged_dat.OutputData));
-x0_dat_full{12} = zeros( 1, length(merged_dat.OutputData));
+x0_dat_full{10} = zeros( 1, num_data);
+x0_dat_full{11} = zeros( 1, num_data);
+x0_dat_full{12} = zeros( 1, num_data);
 
   
 
