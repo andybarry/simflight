@@ -71,7 +71,7 @@ function [utraj, xtraj, prog, r] = runDircol
    xf = [14.9949
          0
    -1
-         0
+         deg2rad(20)
     0.5169
          0
    14.9585
