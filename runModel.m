@@ -19,7 +19,7 @@ r = r.setParams(params);
 
 v = r.constructVisualizer();
 
-v.inspector(zeros(12,1), 1:12)
+%v.inspector(zeros(12,1), 1:12)
 
 %%
 

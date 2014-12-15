@@ -62,15 +62,22 @@ rolldot = 0.48;
 pitchdot = .18;
 yawdot = -.31;
 
-x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ]
+%x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ]
+x0_drake = zeros(12,1);
+x0_drake(7) = 15;
 
 %% build a trajectory for the inputs
 
 dt = 1/140;
 
-u_pp = foh(u.logtime', [u.elevonL u.elevonR u.throttle]');
+%u_pp = foh(u.logtime', [u.elevonL u.elevonR u.throttle]');
+
+% HACK HACK
+u_pp = foh(u.logtime', zeros(length(u.elevonL), 3)');
 
 utraj = PPTrajectory(u_pp);
+
+
 
 %% build drake objects
 

@@ -23,7 +23,16 @@ classdef DeltawingPlant < DrakeSystem
       
     end
     
-    function xdot = dynamics(obj,t,x,u)
+    function [xdot, dxdot] = dynamics(obj, t, x, u)
+      options = struct();
+      options.grad_method = 'numerical';
+      
+      tempfunc = @(t, x, u) obj.dynamics_no_grad(t, x, u);
+      
+      [xdot, dxdot] = geval(tempfunc, t, x, u, options);
+    end
+    
+    function xdot = dynamics_no_grad(obj,t,x,u)
       
       x = ConvertToModelFrameFromDrakeWorldFrame(x);
       
