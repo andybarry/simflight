@@ -9,14 +9,18 @@ classdef HudBotVisualizer < BotVisualizer
        
        obj = obj@BotVisualizer(manip, use_contact_shapes);
       
-       javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-       javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
-      
        obj.pose_msg = mav.pose_t();
        obj.baro_msg = lcmtypes.lcmt_baro_airspeed();
        obj.u_msg = lcmtypes.lcmt_deltawing_u();
        
       
+    end
+    
+    function InitJava()
+      % you must call this when clear java will run successfully
+      
+      javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
+      javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
     end
     
     function draw(obj, t, y)
@@ -38,6 +42,10 @@ classdef HudBotVisualizer < BotVisualizer
       throttle = y(7);
       elevL = y(8);
       elevR = y(9);
+      
+      xdot = y(10);
+      ydot = y(11);
+      zdot = y(12);
       
       
       [elevL, elevR, throttle] = RadiansToServoCommands(elevL, elevR, throttle);
@@ -61,7 +69,7 @@ classdef HudBotVisualizer < BotVisualizer
       obj.u_msg.video_record = 0;
       
       obj.baro_msg.utime = int64(t*1000000);
-      obj.baro_msg.airspeed = y(7);
+      obj.baro_msg.airspeed = xdot;
       obj.baro_msg.baro_altitude = y(3);
       obj.baro_msg.temperature = 0;
       

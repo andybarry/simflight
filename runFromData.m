@@ -1,5 +1,5 @@
 
-clear
+clear all
 
 javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
 javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
