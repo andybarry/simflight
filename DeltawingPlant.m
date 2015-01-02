@@ -54,6 +54,39 @@ classdef DeltawingPlant < DrakeSystem
       x = zeros(12,1);
     end
     
+  end
+  
+  methods (Static)
+    
+    function playback(xtraj, utraj, options)
+      if nargin < 3
+        options = struct()
+      end
+      
+      v = DeltawingPlant.constructVisualizer;
+      
+      traj_and_u = [xtraj; utraj];
+
+      fr = traj_and_u.getOutputFrame();
+
+      transform_func = @(t, x, x_and_u) [ x_and_u(1:6); x_and_u(15); x_and_u(13:14); x_and_u(7:12); zeros(3,1)];
+
+      trans = FunctionHandleCoordinateTransform(17, 0, traj_and_u.getOutputFrame(), v.getInputFrame(), true, true, transform_func, transform_func, transform_func);
+
+      fr.addTransform(trans);
+
+
+      playback(v, traj_and_u, options);
+      
+    end
+      
+    
+    function v = constructVisualizer()
+        options.floating = true;
+        r = RigidBodyManipulator('TBSC_visualizer.urdf', options);
+        v = HudBotVisualizer(r);
+    end
+    
   end  
   
 end

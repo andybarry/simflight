@@ -14,16 +14,36 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddTrajectory(obj, trajectory)
+    function obj = AddTrajectory(obj, xtraj, utraj)
       % Adds a trajectory to the library
       %
-      % @param trajectory trajectory to add
+      % @param xtraj state trajectory
+      % @param utraj input trajectory
       %
       % @retval obj updated object
       
-      typecheck(trajectory, 'PPTrajectory');
       
-      obj.trajectories{end} = trajectory;
+      
+      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj);
+      
+    end
+    
+    function DrawTrajectories(obj)
+      
+      options = struct();
+      options.sphere_size = 0.01;
+      options.color = [1, 0, 0];
+      options.switch_buffers = false;
+      options.lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(), 'trajectory_library');
+      
+      for i = 1:length(obj.trajectories)
+        
+        if i == length(obj.trajectories)
+          options.switch_buffers = true;
+        end
+        
+        DrawTrajectoryLcmGl(obj.trajectories{i}.xtraj, 'trajectory_library', options);
+      end
       
     end
     
