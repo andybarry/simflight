@@ -37,12 +37,23 @@ lib = lib.AddTrajectory(xtraj, utraj);
 
 %% go up
 
-u0 = [0.3 0.3 1 * throttle_max]';
+% first pull up, then fly straight
 
-utraj = ConstantTrajectory(u0);
+t_mark = [0, .2, .3, .5];
+elevs = [0.6, 0.6, 0, 0];
+throttle = [throttle_max, throttle_max, throttle_max, throttle_max];
+
+utraj = PPTrajectory(foh(t_mark, [elevs; elevs; throttle]));
+
 utraj = utraj.setOutputFrame(p.getInputFrame());
 
-xtraj = runInputTape(p, utraj, tf);
+[xtraj, sys] = runInputTape(p, utraj, tf);
+
+Q = eye(12);
+R = eye(3);
+Qf = eye(12);
+
+ltvsys = tvlqr(p, xtraj, utraj, Q, R, Qf)
 
 lib = lib.AddTrajectory(xtraj, utraj);
 

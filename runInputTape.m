@@ -1,4 +1,4 @@
-function xtraj = runInputTape(p, utraj, tf)
+function [xtraj, sys] = runInputTape(p, utraj, tf)
 
 
   x = 0;

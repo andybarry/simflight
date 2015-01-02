@@ -75,8 +75,9 @@ classdef DeltawingPlant < DrakeSystem
 
       fr.addTransform(trans);
 
-
+      warning('off', 'Drake:FunctionHandleTrajectory');
       playback(v, traj_and_u, options);
+      warning('on', 'Drake:FunctionHandleTrajectory');
       
     end
       
