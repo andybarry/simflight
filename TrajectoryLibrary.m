@@ -14,17 +14,18 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddTrajectory(obj, xtraj, utraj)
+    function obj = AddTrajectory(obj, xtraj, utraj, lqrsys)
       % Adds a trajectory to the library
       %
       % @param xtraj state trajectory
       % @param utraj input trajectory
+      % @param lqrsys LTV system that implements TVLQR controller
       %
       % @retval obj updated object
       
       
       
-      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj);
+      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys);
       
     end
     

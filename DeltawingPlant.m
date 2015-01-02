@@ -60,7 +60,7 @@ classdef DeltawingPlant < DrakeSystem
     
     function playback(xtraj, utraj, options)
       if nargin < 3
-        options = struct()
+        options = struct();
       end
       
       v = DeltawingPlant.constructVisualizer;
@@ -78,6 +78,17 @@ classdef DeltawingPlant < DrakeSystem
       warning('off', 'Drake:FunctionHandleTrajectory');
       playback(v, traj_and_u, options);
       warning('on', 'Drake:FunctionHandleTrajectory');
+      
+    end
+    
+    function playback_xtraj(xtraj, options)
+      if nargin < 2
+        options = struct();
+      end
+      
+      utraj = ConstantTrajectory([0; 0; 0]);
+      
+      DeltawingPlant.playback(xtraj, utraj, options);
       
     end
       

@@ -9,9 +9,10 @@ p = DeltawingPlant(parameters);
 
 throttle_max = 5.33976;
 
+tf = 0.5;
+
 %% straight ahead
 
-tf = 0.5;
 
 u0 = [0.2, 0.2, 0.9 * throttle_max]';
 
@@ -20,7 +21,7 @@ utraj = utraj.setOutputFrame(p.getInputFrame());
 
 xtraj = runInputTape(p, utraj, tf);
 
-lib = lib.AddTrajectory(xtraj, utraj);
+%lib = lib.AddTrajectory(xtraj, utraj);
 
 
 
@@ -33,7 +34,7 @@ utraj = utraj.setOutputFrame(p.getInputFrame());
 
 xtraj = runInputTape(p, utraj, tf);
 
-lib = lib.AddTrajectory(xtraj, utraj);
+%lib = lib.AddTrajectory(xtraj, utraj);
 
 %% go up
 
@@ -53,9 +54,9 @@ Q = eye(12);
 R = eye(3);
 Qf = eye(12);
 
-ltvsys = tvlqr(p, xtraj, utraj, Q, R, Qf)
+lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 
-lib = lib.AddTrajectory(xtraj, utraj);
+lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
 
 %% draw
 

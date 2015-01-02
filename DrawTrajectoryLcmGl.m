@@ -4,7 +4,7 @@ function DrawTrajectoryLcmGl(traj, lcmgl_name, options)
   % @param traj trajectory to draw
   % @param lcmgl_name string describing the trajectory
   %   @default 'trajectory'
-  % @param options
+  % @param options options:
   %   <pre>
   %     Options:
   %       sphere_size = 0.05

@@ -4,11 +4,12 @@ classdef TrajectoryInLibrary
   properties
     xtraj;
     utraj;
+    lqrsys; % LQR controller
   end
   
   methods
     
-    function obj = TrajectoryInLibrary(xtraj, utraj)
+    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys)
       
       typecheck(xtraj, 'PPTrajectory');
       
@@ -21,6 +22,7 @@ classdef TrajectoryInLibrary
       obj.xtraj = xtraj;
       obj.utraj = utraj;
       
+      obj.lqrsys = lqrsys;
     end
     
   end
