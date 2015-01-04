@@ -25,11 +25,24 @@
   [ytraj, xtraj] = simulate(feedback_sys, [0 tf], x0);
   disp('done.');
   
+  % compute the utraj from the xtraj
+  breaks = xtraj.getBreaks();
+  for i = 1 : length(breaks)
+    t = breaks(i);
+    
+    u(i,:) = lqr_controller.output(t, [], xtraj.eval(t));
+  end
+  
+  u_spline = spline(breaks, u');
+  
+  utraj = PPTrajectory(u_spline);
+  
+  
   DrawTrajectoryLcmGl(xtraj, 'trajectory', struct('sphere_size', 0.01));
 
-  p.playback_xtraj(xtraj, struct('slider', true));
+  %p.playback_xtraj(xtraj, struct('slider', true));
   
-  %p.playback(xtraj, utraj, struct('slider', true));
+  p.playback(xtraj, utraj, struct('slider', true));
 
 
 %end
