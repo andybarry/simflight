@@ -50,11 +50,15 @@ utraj = utraj.setOutputFrame(p.getInputFrame());
 
 [xtraj, sys] = runInputTape(p, utraj, tf);
 
-Q = eye(12);
-R = eye(3);
+%% create tvlqr controller
+
+Q = diag([10 10 10 1 1 1 .1 .1 .1 .1 .1 .1]);
+R = diag([10 10 10]);
 Qf = eye(12);
 
+disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
+disp('done.');
 
 lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
 
