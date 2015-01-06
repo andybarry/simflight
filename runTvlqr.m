@@ -6,7 +6,7 @@
   z = 0;
   roll = 0;
   pitch = 0;
-  yaw = 0.3;
+  yaw = 0;
   xdot = 13;
   ydot = 0;
   zdot = 0;
