@@ -66,7 +66,7 @@ classdef TrajectoryLibrary
       
       for i = 1 : length(obj.trajectories)
         numstr = sprintf('%05d', i);
-        obj.trajectories{i}.WriteToFile([ filename_prefix '-' numstr '.csv'], dt, overwrite_files);
+        obj.trajectories{i}.WriteToFile([filename_prefix '-' numstr], dt, overwrite_files);
       end
       
       disp('done.');
