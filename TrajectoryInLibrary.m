@@ -25,30 +25,52 @@ classdef TrajectoryInLibrary
       obj.lqrsys = lqrsys;
     end
     
-    function WriteToFile(obj, filename, dt)
+    function WriteToFile(obj, filename, dt, overwrite_files)
+      %
+      % Write files that contain the trajectory information in filename and
+      % filename-u.csv
+      %
+      % @param filename to write
+      % @param dt sampling time for trajectory
+      % @param overwrite_files set to true to overwrite
+      %   @default false
+      
+      if nargin < 4
+        overwrite_files = false;
+      end
 
-        xpoints = [];
+      u_filename = [filename(1:end-4) '-u.csv'];
+      
+      if ~overwrite_files && exist(filename, 'file') ~= 0
+        error(['Not writing trajectory since "' filename '" exists.']);
+      end
+      
+      if ~overwrite_files && exist(u_filename, 'file') ~= 0
+        error(['Not writing trajectory since "' u_filename '" exists.']);
+      end
+      
+      xpoints = [];
 
-        breaks = obj.xtraj.getBreaks();
-        endT = breaks(end);
+      breaks = obj.xtraj.getBreaks();
+      endT = breaks(end);
 
-        counter = 1;
-        for t = 0:dt:endT
-            xpoints(:,counter) = [t; obj.xtraj.eval(t)];
-            counter = counter + 1;
-        end
-        
-        upoints = [];
+      counter = 1;
+      for t = 0:dt:endT
+          xpoints(:,counter) = [t; obj.xtraj.eval(t)];
+          counter = counter + 1;
+      end
 
-        counter = 1;
-        for t = 0:dt:endT
-            upoints(:,counter) = [t; obj.utraj.eval(t)];
-            counter = counter + 1;
-        end
+      upoints = [];
+
+      counter = 1;
+      for t = 0:dt:endT
+          upoints(:,counter) = [t; obj.utraj.eval(t)];
+          counter = counter + 1;
+      end
 
       % write all the xpoints to a file
       
-      u_filename = [filename(1:end-4) '-u.csv'];
+      
 
       disp(['Writing: ' filename]);
       csvwrite(filename, xpoints');

@@ -48,8 +48,17 @@ classdef TrajectoryLibrary
       
     end
     
-    function WriteToFile(obj, filename_prefix)
+    function WriteToFile(obj, filename_prefix, overwrite_files)
       % generate the data files for the C++, onboard code
+      % files will be called: filename_prefix-00001.csv
+      %
+      % @param filename_prefix prefix for trajectories
+      % @param overwrite_files set to true to overwrite
+      %   @default false
+      
+      if nargin < 3
+        overwrite_files = false;
+      end
       
       dt = 0.01;
       
@@ -57,7 +66,7 @@ classdef TrajectoryLibrary
       
       for i = 1 : length(obj.trajectories)
         numstr = sprintf('%05d', i);
-        obj.trajectories{i}.WriteToFile([ filename_prefix '-' numstr '.csv'], dt);
+        obj.trajectories{i}.WriteToFile([ filename_prefix '-' numstr '.csv'], dt, overwrite_files);
       end
       
       disp('done.');
