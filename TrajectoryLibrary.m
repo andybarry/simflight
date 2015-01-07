@@ -48,9 +48,24 @@ classdef TrajectoryLibrary
       
     end
     
+    function WriteToFile(obj, filename_prefix)
+      % generate the data files for the C++, onboard code
+      
+      dt = 0.01;
+      
+      disp('Writing data files...');
+      
+      for i = 1 : length(obj.trajectories)
+        numstr = sprintf('%05d', i);
+        obj.trajectories{i}.WriteToFile([ filename_prefix '-' numstr '.csv'], dt);
+      end
+      
+      disp('done.');
+      
+    end
+    
     
   end
-  
   
   
 end
