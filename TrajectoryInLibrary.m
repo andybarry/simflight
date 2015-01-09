@@ -85,6 +85,15 @@ classdef TrajectoryInLibrary
       
       Kpoints = [];
       
+      kpoint_headers = {'t'};
+      
+      for i = 1 : obj.utraj.dim
+        for j = 1:12
+          kpoint_headers{end+1} = ['k' num2str(i) '_' num2str(j)];
+        end
+      end
+           
+      
       counter = 1;
       for t = 0:dt:endT
         
@@ -113,21 +122,48 @@ classdef TrajectoryInLibrary
 
       % write all the xpoints to a file
       
-      
+      xpoint_headers = { 't', 'x', 'y', 'z', 'roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot'};
 
       disp(['Writing: ' state_filename]);
-      csvwrite(state_filename, xpoints');
+      TrajectoryInLibrary.csvwrite_wtih_headers(state_filename, xpoint_headers, xpoints');
+      
+      upoint_headers = { 't', 'elevL', 'elevR', 'throttle'};
       
       disp(['Writing: ' u_filename]);
-      csvwrite(u_filename, upoints');
+      TrajectoryInLibrary.csvwrite_wtih_headers(u_filename, upoint_headers, upoints');
+      
       
       disp(['Writing: ' controller_filename]);
-      csvwrite(controller_filename, Kpoints');
+      TrajectoryInLibrary.csvwrite_wtih_headers(controller_filename, kpoint_headers, Kpoints');
+      
+      affine_headers = { 't', 'affine_elevL', 'affine_elevR', 'affine_throttle' };
       
       disp(['Writing: ' affine_filename]);
-      csvwrite(affine_filename, affine_points');
+      TrajectoryInLibrary.csvwrite_wtih_headers(affine_filename, affine_headers, affine_points');
       
 
+    end
+    
+  end
+  
+  methods (Static)
+    
+    function csvwrite_wtih_headers(filename, headers, array)
+       
+      assert(~isempty(headers), 'No headers?');
+      
+      head_str = ['"' headers{1}, '"'];
+      
+      for i = 2 : length(headers)
+        head_str = [ head_str, ', "', headers{i}, '"' ];
+      end
+      
+      fid = fopen(filename, 'w');
+      fprintf(fid, '%s\r\n', head_str);
+      fclose(fid);
+      
+      dlmwrite(filename, array, '-append', 'delimiter', ',');
+      
     end
     
   end
