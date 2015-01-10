@@ -152,10 +152,10 @@ classdef TrajectoryInLibrary
        
       assert(~isempty(headers), 'No headers?');
       
-      head_str = ['"' headers{1}, '"'];
+      head_str = headers{1};
       
       for i = 2 : length(headers)
-        head_str = [ head_str, ', "', headers{i}, '"' ];
+        head_str = [ head_str, ', ', headers{i}];
       end
       
       fid = fopen(filename, 'w');
