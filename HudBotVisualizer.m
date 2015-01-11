@@ -16,13 +16,6 @@ classdef HudBotVisualizer < BotVisualizer
       
     end
     
-    function InitJava()
-      % you must call this when clear java will run successfully
-      
-      javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-      javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
-    end
-    
     function draw(obj, t, y)
       
       % call superclass's draw
@@ -84,6 +77,15 @@ classdef HudBotVisualizer < BotVisualizer
       
     end
     
+  end
+  
+  methods(Static)
+    function InitJava()
+      % you must call this when clear java will run successfully
+      
+      javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
+      javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
+    end
   end
   
   properties

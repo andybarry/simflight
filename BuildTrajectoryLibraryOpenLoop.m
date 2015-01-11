@@ -1,6 +1,8 @@
 
 clear
 
+HudBotVisualizer.InitJava();
+
 lib = TrajectoryLibrary();
 
 parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
