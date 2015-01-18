@@ -166,6 +166,24 @@ classdef TrajectoryInLibrary
       
     end
     
+    function x = ConvertStateToStateEstimatorState(x_drake_frame)
+      % Converts the 12-dimensional vector for the aircraft's state into
+      % one that works for the state esimator and should be exported and
+      % used for online control
+      %
+      % @param x_drake_frame input state
+      %
+      % @retval x output state
+      
+      % global position stays in the global frame
+      
+%       x(1:3) = x_drake_frame;
+%       
+%       
+%       x(4:6) = x_
+%       
+    end
+    
   end
   
 end
