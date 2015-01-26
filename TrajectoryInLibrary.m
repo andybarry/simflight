@@ -144,20 +144,22 @@ classdef TrajectoryInLibrary
 
     end
     
-    function ConvertToStateEstimatorFrame(obj)
+    function converted_traj = ConvertToStateEstimatorFrame(obj)
       body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
       
       state_frame = obj.xtraj.getStateFrame();
 
-      transform_func = @(~, ~, x) TrajectoryInLibrary.ConvertStateToStateEstimatorState(x);
+      transform_func = @(~, ~, x) TrajectoryInLibrary.ConvertToEstimatorFrame(x);
 
       trans = FunctionHandleCoordinateTransform(12, 0, bj.xtraj.getStateFrame(), body_coordinate_frame, true, true, transform_func, transform_func, transform_func);
 
       
       state_frame.addTransform(trans);
       
+      xtraj_convert = obj.xtraj.inFrame(body_coordinate_frame);
+      lqrsys_convert = obj.lqrsys.inFrame(body_coordinate_frame);
       
-      % todo
+      converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert);
       
       
       
@@ -185,10 +187,13 @@ classdef TrajectoryInLibrary
       
     end
     
-    function x = ConvertStateToStateEstimatorState(x_drake_frame)
+    function x_est_frame = ConvertToEstimatorFrame(x_drake_frame)
       % Converts the 12-dimensional vector for the aircraft's state into
       % one that works for the state esimator and should be exported and
       % used for online control
+      %
+      % Output state: x, y, z (global frame), roll, pitch, yaw, xdot, ydot,
+      % zdot (body frame), angular velocity (3 numbers)
       %
       % @param x_drake_frame input state
       %
@@ -215,13 +220,16 @@ classdef TrajectoryInLibrary
       %                             // in rad/s.  This is expressed in the body
       %                             // frame.
       
+      % get the rotation matrix for this rpy
+      rotmat = rpy2rotmat(x_drake_frame(4:6));
       
-      x(1:3) = x_drake_frame;
+      x_est_frame(1:3) = x_drake_frame;
       
+      x_est_frame(4:6) = x_drake_frame(4:6);
       
-      %x(4:6) = 
+      x_est_frame(7:9) = rotmat * x_drake_frame(7:9);
       
-      x(7:9) = ConvertGlobalVelocityToBodyVelocity( %todo
+      x_est_frame(10:12) = rpydot2angularvel(x_drake_frame(10:12));
       
     end
     
