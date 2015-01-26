@@ -144,6 +144,25 @@ classdef TrajectoryInLibrary
 
     end
     
+    function ConvertToStateEstimatorFrame(obj)
+      body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
+      
+      state_frame = obj.xtraj.getStateFrame();
+
+      transform_func = @(~, ~, x) TrajectoryInLibrary.ConvertStateToStateEstimatorState(x);
+
+      trans = FunctionHandleCoordinateTransform(12, 0, bj.xtraj.getStateFrame(), body_coordinate_frame, true, true, transform_func, transform_func, transform_func);
+
+      
+      state_frame.addTransform(trans);
+      
+      
+      % todo
+      
+      
+      
+    end
+    
   end
   
   methods (Static)
@@ -177,11 +196,33 @@ classdef TrajectoryInLibrary
       
       % global position stays in the global frame
       
-%       x(1:3) = x_drake_frame;
-%       
-%       
-%       x(4:6) = x_
-%       
+      % Drake frame:
+      % x(1:3): x,y,z, in global frame (ENU coordinates)
+      % x(4:6): rpy
+      % x(7:9): xdot, ydot, zdot, in global frame (ENU coordinates)
+      % x(10:12): rdot, pdot, ydot
+      
+      % State estimator frame:
+      %
+      % double pos[3];              // position x,y,z in meters in local frame (ENU coordinates)
+      % double vel[3];              // velocity in m/s, expressed in body frame
+      % 
+      % double orientation[4];      // rotate vector in body coordinate frame 
+      %                             // (X-forward, Z-down) by this to get that vector
+      %                             // in local frame
+      % 
+      % double rotation_rate[3];    // angular velocity vector of the vehicle
+      %                             // in rad/s.  This is expressed in the body
+      %                             // frame.
+      
+      
+      x(1:3) = x_drake_frame;
+      
+      
+      %x(4:6) = 
+      
+      x(7:9) = ConvertGlobalVelocityToBodyVelocity( %todo
+      
     end
     
   end
