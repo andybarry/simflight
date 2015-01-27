@@ -34,7 +34,7 @@ lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
 
-lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
 
 
 
@@ -56,7 +56,7 @@ lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
 
-lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
 
 %% turn right
 
@@ -76,7 +76,7 @@ lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
 
-lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
 
 %% go up
 
@@ -97,7 +97,7 @@ disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
-lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
 
 
 %% go down
@@ -116,7 +116,7 @@ disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
-lib = lib.AddTrajectory(xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
 
 %% draw
 

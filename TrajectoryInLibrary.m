@@ -5,24 +5,41 @@ classdef TrajectoryInLibrary
     xtraj;
     utraj;
     lqrsys; % LQR controller
+    state_frame; % state frame of the plant
+    body_coordinate_frame;
   end
   
   methods
     
-    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys)
+    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys, state_frame)
       
-      typecheck(xtraj, 'PPTrajectory');
+      typecheck(xtraj, 'Trajectory');
       
       if isa(utraj, 'ConstantTrajectory')
         utraj = PPTrajectory(utraj);
       end
       
-      typecheck(utraj, 'PPTrajectory');
+      typecheck(utraj, 'Trajectory');
       
       obj.xtraj = xtraj;
       obj.utraj = utraj;
       
       obj.lqrsys = lqrsys;
+      obj.state_frame = state_frame;
+      
+      obj.body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
+      
+      % add transform to the body frame
+      to_est_frame = @(~, ~, x) TrajectoryInLibrary.ConvertXVectorToEstimatorFrame(x);
+      to_drake_frame = @(~, ~, x) TrajectoryInLibrary.ConvertXVectorToDrakeFrame(x);
+      
+      trans_to_est = FunctionHandleCoordinateTransform(12, 0, obj.state_frame, obj.body_coordinate_frame, true, true, to_est_frame, to_est_frame, to_est_frame);
+      trans_to_drake = FunctionHandleCoordinateTransform(12, 0, obj.body_coordinate_frame, obj.state_frame, true, true, to_drake_frame, to_drake_frame, to_drake_frame);
+      obj.state_frame.addTransform(trans_to_est);
+      obj.body_coordinate_frame.addTransform(trans_to_drake);
+      
+      obj.xtraj = obj.xtraj.setOutputFrame(obj.state_frame);
+      
     end
     
     function WriteToFile(obj, filename_prefix, dt, overwrite_files)
@@ -145,21 +162,12 @@ classdef TrajectoryInLibrary
     end
     
     function converted_traj = ConvertToStateEstimatorFrame(obj)
-      body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
       
-      state_frame = obj.xtraj.getStateFrame();
 
-      transform_func = @(~, ~, x) TrajectoryInLibrary.ConvertToEstimatorFrame(x);
-
-      trans = FunctionHandleCoordinateTransform(12, 0, bj.xtraj.getStateFrame(), body_coordinate_frame, true, true, transform_func, transform_func, transform_func);
-
+      xtraj_convert = obj.xtraj.inFrame(obj.body_coordinate_frame);
+      lqrsys_convert = obj.lqrsys.inInputFrame(obj.body_coordinate_frame);
       
-      state_frame.addTransform(trans);
-      
-      xtraj_convert = obj.xtraj.inFrame(body_coordinate_frame);
-      lqrsys_convert = obj.lqrsys.inFrame(body_coordinate_frame);
-      
-      converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert);
+      converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
       
       
       
@@ -187,7 +195,7 @@ classdef TrajectoryInLibrary
       
     end
     
-    function x_est_frame = ConvertToEstimatorFrame(x_drake_frame)
+    function x_est_frame = ConvertXVectorToEstimatorFrame(x_drake_frame)
       % Converts the 12-dimensional vector for the aircraft's state into
       % one that works for the state esimator and should be exported and
       % used for online control
@@ -221,17 +229,58 @@ classdef TrajectoryInLibrary
       %                             // frame.
       
       % get the rotation matrix for this rpy
-      rotmat = rpy2rotmat(x_drake_frame(4:6));
       
-      x_est_frame(1:3) = x_drake_frame;
+      % Compute U,V,W from xdot,ydot,zdot
       
-      x_est_frame(4:6) = x_drake_frame(4:6);
+      x_est_frame(1:6) = x_drake_frame(1:6);
       
-      x_est_frame(7:9) = rotmat * x_drake_frame(7:9);
+      rpy = x_drake_frame(4:6);
+      xdot = x_drake_frame(7);
+      ydot = x_drake_frame(8);
+      zdot = x_drake_frame(9);
       
-      x_est_frame(10:12) = rpydot2angularvel(x_drake_frame(10:12));
+      rolldot = x_drake_frame(10);
+      pitchdot = x_drake_frame(11);
+      yawdot = x_drake_frame(12);
+      
+      R_body_to_world = rpy2rotmat(rpy);
+      R_world_to_body = R_body_to_world';
+      UVW = R_world_to_body*[xdot;ydot;zdot];
+
+      % Compute P,Q,R (angular velocity components)
+      pqr = rpydot2angularvel(rpy,[rolldot;pitchdot;yawdot]); % in world frame
+      PQR = R_world_to_body*pqr; % body coordinate frame
+      
+      x_est_frame(7:9) = UVW;
+      
+      x_est_frame(10:12) = PQR;
       
     end
+    
+    function x_drake_frame = ConvertXVectorToDrakeFrame(x_est_frame)
+      
+      x_drake_frame(1:6) = x_est_frame(1:6);
+      
+      rpy = x_est_frame(4:6);
+      UVW = x_est_frame(7:9);
+      
+      R_body_to_world = rpy2rotmat(rpy);
+      
+      vel_world = R_body_to_world  * UVW;
+      
+      x_drake_frame(7:9) = vel_world;
+      
+      PQR = x_est_frame(10:12); % in body frame
+      
+      pqr = R_body_to_world * PQR; % in world frame
+      
+      rpydot = angularvel2rpydot(rpy, pqr);
+      
+      x_drake_frame(10:12) = rpydot;
+      
+      
+    end
+    
     
   end
   
