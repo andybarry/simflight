@@ -29,7 +29,7 @@ classdef TrajectoryInLibrary
       
       obj.body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
       
-      % add transform to the body frame
+      % add transform to/from the body frame
       to_est_frame = @(~, ~, x) TrajectoryInLibrary.ConvertXVectorToEstimatorFrame(x);
       to_drake_frame = @(~, ~, x) TrajectoryInLibrary.ConvertXVectorToDrakeFrame(x);
       
@@ -38,7 +38,7 @@ classdef TrajectoryInLibrary
       obj.state_frame.addTransform(trans_to_est);
       obj.body_coordinate_frame.addTransform(trans_to_drake);
       
-      obj.xtraj = obj.xtraj.setOutputFrame(obj.state_frame);
+      %obj.xtraj = obj.xtraj.setOutputFrame(obj.state_frame);
       
     end
     
@@ -162,14 +162,28 @@ classdef TrajectoryInLibrary
     end
     
     function converted_traj = ConvertToStateEstimatorFrame(obj)
-      
+      % Converts the object's internal trajectories into the frame used by
+      % the onboard state estimator.
+      %
+      % @retval converted object
 
       xtraj_convert = obj.xtraj.inFrame(obj.body_coordinate_frame);
       lqrsys_convert = obj.lqrsys.inInputFrame(obj.body_coordinate_frame);
       
       converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
       
+    end
+    
+    function converted_traj = ConvertToDrakeFrame(obj)
+      % Converts the object's internal trajectories into the frame used by
+      % Drake.
+      %
+      % @retval converted object
       
+      xtraj_convert = obj.xtraj.inFrame(obj.state_frame);
+      lqrsys_convert = obj.lqrsys.inInputFrame(obj.state_frame);
+      
+      converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
       
     end
     
@@ -205,7 +219,7 @@ classdef TrajectoryInLibrary
       %
       % @param x_drake_frame input state
       %
-      % @retval x output state
+      % @retval x_est_frame output state
       
       % global position stays in the global frame
       
@@ -232,7 +246,7 @@ classdef TrajectoryInLibrary
       
       % Compute U,V,W from xdot,ydot,zdot
       
-      x_est_frame(1:6) = x_drake_frame(1:6);
+      x_est_frame(1:6,:) = x_drake_frame(1:6);
       
       rpy = x_drake_frame(4:6);
       xdot = x_drake_frame(7);
@@ -258,8 +272,17 @@ classdef TrajectoryInLibrary
     end
     
     function x_drake_frame = ConvertXVectorToDrakeFrame(x_est_frame)
+      % Converts the 12-dimensional vector for the aircraft's state from
+      % the state estimator into the Drake frame.
+      %
+      % Output state: x, y, z (global frame), roll, pitch, yaw, xdot, ydot,
+      % zdot (global frame), rolldot, pitchdot, yawdot
+      %
+      % @param x_est_frame input state
+      %
+      % @retval x_drake_frame output state
       
-      x_drake_frame(1:6) = x_est_frame(1:6);
+      x_drake_frame(1:6, :) = x_est_frame(1:6);
       
       rpy = x_est_frame(4:6);
       UVW = x_est_frame(7:9);
