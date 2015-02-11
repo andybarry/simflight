@@ -55,6 +55,7 @@ u0(3) = x(5);
 
 Q = eye(12);
 R = 10*eye(3);
+Q(1) = 1e-10; % ignore x-position
 
 
 [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);

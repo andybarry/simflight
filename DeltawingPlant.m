@@ -95,6 +95,7 @@ classdef DeltawingPlant < DrakeSystem
     
     function v = constructVisualizer()
         options.floating = true;
+        HudBotVisualizer.InitJava();
         r = RigidBodyManipulator('TBSC_visualizer.urdf', options);
         v = HudBotVisualizer(r);
     end
