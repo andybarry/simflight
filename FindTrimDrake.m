@@ -57,6 +57,14 @@ Q = eye(12);
 R = 10*eye(3);
 
 
-[A, B, C, D, xdot0] = p.linearize(0, x0, u0); % TODO: this isn't perfect even at the linearization point (?)
+[A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
 
-K = lqr(full(A), full(B), Q, R);
+%% check linearization
+
+(A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)
+
+(A*.1*ones(12,1) + B*.1*ones(3,1) + xdot0) - p.dynamics(0, x0+.1*ones(12,1), u0+.1*ones(3,1))
+
+%% compute lqr controller
+
+K = lqr(full(A), full(B), Q, R)
