@@ -1,4 +1,4 @@
-% find fixed point
+%% find fixed point
 
 clear
 
@@ -39,3 +39,24 @@ full_state(5) = x(1);
 full_state(7) = x(2);
 
 p.dynamics(0, full_state, x(3:5))
+
+
+%% build lqr controller based on that trim
+
+x0 = zeros(12, 1);
+x0(5) = x(1);
+x0(7) = x(2);
+
+u0 = zeros(3,1);
+
+u0(1) = x(3);
+u0(2) = x(4);
+u0(3) = x(5);
+
+Q = eye(12);
+R = 10*eye(3);
+
+
+[A, B, C, D, xdot0] = p.linearize(0, x0, u0); % TODO: this isn't perfect even at the linearization point (?)
+
+K = lqr(full(A), full(B), Q, R);
