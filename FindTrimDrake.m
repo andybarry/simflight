@@ -69,3 +69,19 @@ Q(1) = 1e-10; % ignore x-position
 %% compute lqr controller
 
 K = lqr(full(A), full(B), Q, R)
+
+%% build a Trajectory so that we can use all of the TrajectoryLibrary tools
+
+xtraj = ConstantTrajectory(x0);
+utraj = ConstantTrajectory(u0);
+
+ktraj = ConstantTrajectory(-K);
+affine_traj = ConstantTrajectory(zeros(3,1));
+
+lqrsys = struct();
+lqrsys.D = ktraj;
+lqrsys.y0 = affine_traj;
+
+traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame());
+
+traj.WriteToFile('trajlib/lqr-trim', .01, true);
