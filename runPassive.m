@@ -1,14 +1,12 @@
 %function runPassive
 
-p = DeltawingPlant();
+parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
+
+p = DeltawingPlantWithSensors(parameters);
 
 options.floating = true;
 r = RigidBodyManipulator('urdf/robots/TBSC_assembly_for_drawing.URDF', options);
 v2 = r.constructVisualizer();
-
-v = SBachVisualizer(p);
-v.xlims = [0 10];
-v.ylims = [-5 5];
 
 
 x = 0;

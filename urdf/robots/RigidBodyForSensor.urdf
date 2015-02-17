@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<robot xmlns="http://drake.mit.edu"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://drake.mit.edu ../../doc/drakeURDF.xsd" name="RigidBodyForSensor">
+
+  <link
+    name="base_link">
+    <inertial>
+        <!-- this will get the pitch at u = 0 close to zero
+      <origin
+        xyz="-0.0151655 0 0"
+        rpy="0 0 0" />
+        -->
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.648412" />
+      <inertia
+        ixx="0.014894"
+        ixy="0"
+        ixz="0"
+        iyy="0.005580"
+        iyz="0"
+        izz="0.019316" />
+    </inertial>
+    <!--
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/fuselage.wrl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.68 0.68 0.68 1" />
+      </material>
+    </visual> -->
+  </link>
+</robot>
