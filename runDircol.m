@@ -114,8 +114,8 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
       100];
   end
 
-  %prog = prog.addStateConstraint(BoundingBoxConstraint(xf-bounds_delta, xf+bounds_delta), N);
-  prog = prog.addInputConstraint(ConstantConstraint(u0), N);
+  prog = prog.addStateConstraint(BoundingBoxConstraint(xf-bounds_delta, xf+bounds_delta), N);
+  %prog = prog.addInputConstraint(ConstantConstraint(u0), N);
 
   prog = prog.addRunningCost(@cost);
   
@@ -184,9 +184,11 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
 
   function [h] = finalCost(x)
 
-    h = 20 * sum((xf(1:3) - x(1:3)).^2);
+    h = 0;
     
-    h = h + 1 * sum((xf(4:9) - x(4:9)).^2);
+    %h = 20 * sum((xf(1:3) - x(1:3)).^2);
+    
+    %h = h + 1 * sum((xf(4:9) - x(4:9)).^2);
     
     %dh = [1,zeros(1,size(x,1))];
 

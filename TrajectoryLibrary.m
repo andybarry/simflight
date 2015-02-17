@@ -66,7 +66,7 @@ classdef TrajectoryLibrary
       disp('Writing data files...');
       
       for i = 1 : length(obj.trajectories)
-        numstr = sprintf('%05d', i);
+        numstr = sprintf('%05d', i-1);
         obj.trajectories{i}.WriteToFile([filename_prefix '-' numstr], dt, overwrite_files);
       end
       
