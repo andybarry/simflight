@@ -87,9 +87,11 @@ clf
 plot(command_us, thrust_N, 'x-');
 hold on
 plot(command_us, usToThrust, 'rx-');
-xlabel('Command us');
+xlabel('Command (us)');
 ylabel('Thrust (N)');
-legend('Data', 'Fit');
+legend('Data', 'Fit','Location','NorthWest');
+
+grid on
 
 
 scaledThrottlePercent = (throttlePercent + 80) /1.4

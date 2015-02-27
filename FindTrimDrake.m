@@ -53,8 +53,8 @@ u0(1) = x(3);
 u0(2) = x(4);
 u0(3) = x(5);
 
-Q = eye(12);
-R = 10*eye(3);
+Q = diag([0 0.1 0.1 1 1 1 1 .1 .1 .1 .1 .1]);
+R = diag([10 10 1]);
 Q(1) = 1e-10; % ignore x-position
 
 
@@ -84,4 +84,4 @@ lqrsys.y0 = affine_traj;
 
 traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame());
 
-traj.WriteToFile('trajlib/lqr-trim', .01, true);
+traj.WriteToFile('trajlib/lqr-trim-10000', .01, true);
