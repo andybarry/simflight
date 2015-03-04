@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, body_x_drag_fac, varargin)
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
