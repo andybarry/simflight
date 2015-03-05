@@ -217,13 +217,15 @@ elevL_body_pos = [elevL_x_arm + (elevL_chord/2 - elevL_chord/2*cos(elevL)); elev
 elevR_body_pos = [elevR_x_arm + (elevR_chord/2 - elevR_chord/2*cos(elevR)); elevR_y_arm; -elevR_chord/2*sin(elevR)];
 
 
-xdot_elevL = xdots_world + cross(omega_world, R_body_to_world*elevL_body_pos);
-xdot_elevL_body = R_world_to_body*xdot_elevL;
+%xdot_elevL = xdots_world + cross(omega_world, R_body_to_world*elevL_body_pos);
+%xdot_elevL_body = R_world_to_body*xdot_elevL;
+xdot_elevL_body = [U;V;W] + cross([P;Q;R], elevL_body_pos);
 xdot_elevL_body_no_sideslip = [xdot_elevL_body(1); 0; xdot_elevL_body(3)];
 vel_elevL = norm(xdot_elevL_body_no_sideslip);
 
-xdot_elevR = xdots_world + cross(omega_world, R_body_to_world*elevR_body_pos);
-xdot_elevR_body = R_world_to_body*xdot_elevR;
+%xdot_elevR = xdots_world + cross(omega_world, R_body_to_world*elevR_body_pos);
+%xdot_elevR_body = R_world_to_body*xdot_elevR;
+xdot_elevR_body = [U;V;W] + cross([P;Q;R], elevR_body_pos);
 xdot_elevR_body_no_sideslip = [xdot_elevR_body(1); 0; xdot_elevR_body(3)];
 vel_elevR = norm(xdot_elevR_body_no_sideslip);
 
