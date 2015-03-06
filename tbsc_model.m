@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, body_x_drag_fac, varargin)
+function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, body_x_drag_fac, body_y_drag_fac, body_z_drag_fac, varargin)
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
@@ -56,9 +56,9 @@ elevR_drag_fac = elev_drag_fac;
 thr_fac = 1;
 
 % Body drag
-body_x_drag_fac = 0;
-body_y_drag_fac = 0;
-body_z_drag_fac = 0;
+%body_x_drag_fac = 0;
+%body_y_drag_fac = 0;
+%body_z_drag_fac = 0;
 
 % Rate dependent force
 F_Q_fac_x = 0;

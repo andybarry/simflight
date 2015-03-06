@@ -18,7 +18,7 @@ load([logfile_path, logfile_name]);
 % delay in ms from command to execution
 delay_ms = 20;
 
-use_airspeed = false;
+use_airspeed = true;
 
 %% convert inputs to model units
 
@@ -32,7 +32,7 @@ u = ConvertInputUnits(u);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
-t_block = 1;
+t_block = 0.5;
 %end_time = start_time + t_block;
 
 
@@ -54,7 +54,7 @@ if use_airspeed
 end
   
 
-merge_nums = [1, 2, 3];
+merge_nums = [4];
 
 %merged_dat = merge(dat{:});
 
@@ -126,9 +126,39 @@ x0_dat_full{12} = zeros( 1, num_data);
 
 %initial_states = { [0 0] [0 0] [0 0] [0 0] [0 0] [0 0] [10 10] [0 0] [0 0] [0 0] [0 0] [0 0] };
 
-parameters = [1; 1; 1; 1; 1];
+
+%parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
+parameters = [1; 1; 1; 1; 1; 0.0363; 0.005; 0.005];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
+
+nlgr.Parameters(1).Name = 'Jx';
+nlgr.Parameters(2).Name = 'Jy';
+nlgr.Parameters(3).Name = 'Jz';
+nlgr.Parameters(4).Name = 'Elift';
+nlgr.Parameters(5).Name = 'Edrag';
+nlgr.Parameters(6).Name = 'Bx_dr';
+nlgr.Parameters(7).Name = 'By_dr';
+nlgr.Parameters(8).Name = 'Bz_dr';
+
+nlgr.Parameters(1).Minimum = 0;
+nlgr.Parameters(2).Minimum = 0;
+nlgr.Parameters(3).Minimum = 0;
+nlgr.Parameters(4).Minimum = 0;
+nlgr.Parameters(5).Minimum = 0;
+nlgr.Parameters(6).Minimum = 0;
+nlgr.Parameters(7).Minimum = 0;
+nlgr.Parameters(8).Minimum = 0;
+
+nlgr.Parameters(1).Maximum = 3;
+nlgr.Parameters(2).Maximum = 3;
+nlgr.Parameters(3).Maximum = 3;
+nlgr.Parameters(4).Maximum = 3;
+nlgr.Parameters(5).Maximum = 3;
+nlgr.Parameters(6).Maximum = 0.5;
+nlgr.Parameters(7).Maximum = 0.5;
+nlgr.Parameters(8).Maximum = 0.5;
+
 
 nlgr.InitialStates(1).Name = 'x';
 nlgr.InitialStates(2).Name = 'y';
@@ -248,6 +278,7 @@ disp(' ------------- Initial States -------------');
 DisplayNlgr(nlgr_fit.InitialStates);
 disp(' ------------- Parameters  -------------');
 DisplayNlgr(nlgr_fit.Parameters);
+disp(' ---------------------------------------');
 
 
 
