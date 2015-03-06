@@ -9,7 +9,7 @@ function DisplayNlgr(states)
     
     for j = 1 : length(states(i).Value)
     
-      fprintf('\t% 4.2f', states(i).Value(j));
+      fprintf('\t% 4.3f', states(i).Value(j));
       
     end
     
