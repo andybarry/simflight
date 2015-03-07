@@ -6,7 +6,7 @@ p = NonlinearProgram(5);
 %p = p.setSolver('fmincon');
 
 %parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
-parameters = {1; 1; 1; 1; 1; 0.036}
+parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
 
 func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
@@ -28,7 +28,7 @@ p = p.addConstraint(c);
 %p = p.addConstraint(c2);
 
 
-[x, objval, exitflag] = p.solve( [0; 20; 0; 0; 3.5] )
+[x, objval, exitflag] = p.solve( [0; 18; 0; 0; 3.5] )
 
 
 
@@ -41,9 +41,6 @@ full_state(5) = x(1);
 full_state(7) = x(2);
 
 p.dynamics(0, full_state, x(3:5))
-
-
-%% build lqr controller based on that trim
 
 x0 = zeros(12, 1);
 x0(5) = x(1);
@@ -60,6 +57,11 @@ disp(x0);
 
 disp('u0:')
 disp(u0);
+
+
+%% build lqr controller based on that trim
+
+
 
 Q = diag([0 0.1 0.1 1 1 1 1 .1 .1 .1 .1 .1]);
 R = diag([10 10 1]);
