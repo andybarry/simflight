@@ -33,7 +33,7 @@ u = ConvertInputUnits(u);
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
 
-t_block = 0.75;
+t_block = 1.0;
 
 t_shift = 0;
 
@@ -57,7 +57,7 @@ end
   
 
 %merge_nums = [1, 2, 3, 4];
-merge_nums = [1, 3, 4];
+merge_nums = [1, 2, 3];
 
 %merged_dat = merge(dat{:});
 
@@ -158,7 +158,7 @@ nlgr.Parameters(2).Maximum = 5;
 nlgr.Parameters(3).Maximum = 5;
 nlgr.Parameters(4).Maximum = 5;
 nlgr.Parameters(5).Maximum = 5;
-nlgr.Parameters(6).Maximum = 0.04;
+nlgr.Parameters(6).Maximum = 0.07;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
 
@@ -241,8 +241,8 @@ nlgr = setinit(nlgr, 'Fixed', {true true true true true true true false false fa
 %%
 
 
-%nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
-%nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
+nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
+nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
 %  
 %RR = [ones(length(parameters),1); 1e-5*ones(5,1)];
 %RR(7,7) = RR(7,7)*10;
@@ -268,8 +268,8 @@ nlgr = setinit(nlgr, 'Fixed', {true true true true true true true false false fa
 
 roll_weight = 1;
 pitch_weight = 1;
-yaw_weight = 0.25;
-airspeed_weight = 0.015;
+yaw_weight = 0.75;
+airspeed_weight = 0.025;
 
 output_weights = diag([roll_weight, pitch_weight, yaw_weight, airspeed_weight]);
 

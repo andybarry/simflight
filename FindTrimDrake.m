@@ -5,8 +5,10 @@ clear
 p = NonlinearProgram(5);
 %p = p.setSolver('fmincon');
 
+%parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
+parameters = {1; 1; 1; 1; 1; 0.036}
 
-func = @(in) tbsc_model_less_vars(in(1:2), in(3:5));
+func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
 
 % min_xdot = 5;
@@ -29,7 +31,7 @@ p = p.addConstraint(c);
 [x, objval, exitflag] = p.solve( [0; 20; 0; 0; 3.5] )
 
 
-parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
+
 
 p = DeltawingPlant(parameters);
 
@@ -52,6 +54,12 @@ u0 = zeros(3,1);
 u0(1) = x(3);
 u0(2) = x(4);
 u0(3) = x(5);
+
+disp('x0:')
+disp(x0);
+
+disp('u0:')
+disp(u0);
 
 Q = diag([0 0.1 0.1 1 1 1 1 .1 .1 .1 .1 .1]);
 R = diag([10 10 1]);

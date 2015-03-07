@@ -1,8 +1,8 @@
-function [xdot, y] = tbsc_model_sdp(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, varargin) % Jx_fac,Jy_fac,Jz_fac,elev_lift_fac,F_Q_fac_x,F_Q_fac_z,thr_to_sp_ail,thr_vel_fac_ail,thr_to_sp_elev,thr_vel_fac_elev,varargin) % M_P_fac,M_Q_fac,M_R_fac,varargin) 
+function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, body_x_drag_fac, varargin)
 % Model derived from Ani's SBach model
 
 % Set output (first six states)
-y = x(1:6);
+y = x(1:7);
 
 
 % @param t time
@@ -56,7 +56,7 @@ elevR_drag_fac = elev_drag_fac;
 thr_fac = 1;
 
 % Body drag
-body_x_drag_fac = 0;
+% body_x_drag_fac = 0;
 body_y_drag_fac = 0;
 body_z_drag_fac = 0;
 
@@ -154,9 +154,9 @@ omega_world = R_body_to_world*[P;Q;R];
 
 %Throttle
 thr = u(3) - throttle_trim;
-% if thr < (thr_min - throttle_trim)
-%     thr = 0;
-% end
+if thr < (thr_min - throttle_trim)
+    thr = 0;
+end
 % thr = thr_fac*max(thr,0); % Scale it and don't let it go negative
 
 % positive AilL is negative lift (front of aileron tips downwards)
@@ -217,13 +217,15 @@ elevL_body_pos = [elevL_x_arm + (elevL_chord/2 - elevL_chord/2*cos(elevL)); elev
 elevR_body_pos = [elevR_x_arm + (elevR_chord/2 - elevR_chord/2*cos(elevR)); elevR_y_arm; -elevR_chord/2*sin(elevR)];
 
 
-xdot_elevL = xdots_world + cross(omega_world, R_body_to_world*elevL_body_pos);
-xdot_elevL_body = R_world_to_body*xdot_elevL;
+%xdot_elevL = xdots_world + cross(omega_world, R_body_to_world*elevL_body_pos);
+%xdot_elevL_body = R_world_to_body*xdot_elevL;
+xdot_elevL_body = [U;V;W] + cross([P;Q;R], elevL_body_pos);
 xdot_elevL_body_no_sideslip = [xdot_elevL_body(1); 0; xdot_elevL_body(3)];
 vel_elevL = norm(xdot_elevL_body_no_sideslip);
 
-xdot_elevR = xdots_world + cross(omega_world, R_body_to_world*elevR_body_pos);
-xdot_elevR_body = R_world_to_body*xdot_elevR;
+%xdot_elevR = xdots_world + cross(omega_world, R_body_to_world*elevR_body_pos);
+%xdot_elevR_body = R_world_to_body*xdot_elevR;
+xdot_elevR_body = [U;V;W] + cross([P;Q;R], elevR_body_pos);
 xdot_elevR_body_no_sideslip = [xdot_elevR_body(1); 0; xdot_elevR_body(3)];
 vel_elevR = norm(xdot_elevR_body_no_sideslip);
 
@@ -301,7 +303,7 @@ body_drag_y = body_y_drag_fac * pressure(V) * wing_area; % Just a rough initial 
 % Drag due to wing in z-direction
 body_drag_z = body_z_drag_fac * pressure(W) * wing_area;
 
-F_body_drag = [body_drag_x;-sign(V)*body_drag_y;-sign(W)*body_drag_z];
+F_body_drag = [-sign(U)*body_drag_x;-sign(V)*body_drag_y;-sign(W)*body_drag_z];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Additional angular rate dependent forces

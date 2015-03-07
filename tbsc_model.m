@@ -303,7 +303,7 @@ body_drag_y = body_y_drag_fac * pressure(V) * wing_area; % Just a rough initial 
 % Drag due to wing in z-direction
 body_drag_z = body_z_drag_fac * pressure(W) * wing_area;
 
-F_body_drag = [body_drag_x;-sign(V)*body_drag_y;-sign(W)*body_drag_z];
+F_body_drag = [-sign(U)*body_drag_x;-sign(V)*body_drag_y;-sign(W)*body_drag_z];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Additional angular rate dependent forces
