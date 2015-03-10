@@ -63,13 +63,15 @@ disp(u0);
 
 
 
-Q = diag([0 0.1 0.1 1 1 1 1 .1 .1 .1 .1 .1]);
-R = diag([10 10 1]);
-Q(1) = 1e-10; % ignore x-position
+Q = diag([0 0 0 1 1 .25 1 .1 .1 .1 .1 .1]);
+Q(1,1) = 1e-10; % ignore x-position
+Q(2,2) = 1e-10; % ignore y-position
+Q(3,3) = 1e-10; % ignore z-position
 
+
+R = diag([10 10 10]);
 
 [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
-
 %% check linearization
 
 (A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)
