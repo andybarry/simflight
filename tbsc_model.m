@@ -259,13 +259,15 @@ F_elevR = rotAlpha([elevR_drag; 0; elevR_lift], alpha_elevR); % elevon right
 
 
 
-xdot_wingletL = xdots_world + cross(omega_world, R_body_to_world * wingletL_body_pos);
-xdot_wingletL_body = R_world_to_body*xdot_wingletL;
+%xdot_wingletL = xdots_world + cross(omega_world, R_body_to_world * wingletL_body_pos);
+%xdot_wingletL_body = R_world_to_body*xdot_wingletL;
+xdot_wingletL_body = [U;V;W] + cross([P;Q;R], wingletL_body_pos);
 xdot_wingletL_body_no_sideslip = [xdot_wingletL_body(1); xdot_wingletL_body(2); 0];
 vel_wingletL = norm(xdot_wingletL_body_no_sideslip);
 
-xdot_wingletR = xdots_world + cross(omega_world, R_body_to_world * wingletR_body_pos);
-xdot_wingletR_body = R_world_to_body*xdot_wingletR;
+%xdot_wingletR = xdots_world + cross(omega_world, R_body_to_world * wingletR_body_pos);
+%xdot_wingletR_body = R_world_to_body*xdot_wingletR;
+xdot_wingletR_body = [U;V;W] + cross([P;Q;R], wingletR_body_pos);
 xdot_wingletR_body_no_sideslip = [xdot_wingletR_body(1); xdot_wingletR_body(2); 0];
 vel_wingletR = norm(xdot_wingletR_body_no_sideslip);
 
