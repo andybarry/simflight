@@ -1,7 +1,7 @@
 
 % load logs
 
-%clear
+clear
 dir = '2015-03-31-field-test/gps-logs/';
 filename = 'lcmlog_2015_03_31_11.mat';
 
@@ -10,6 +10,7 @@ filename = 'lcmlog_2015_03_31_11.mat';
 dir_prefix = '/home/abarry/rlg/logs/';
 dir = [ dir_prefix dir ];
 
+addpath('/home/abarry/realtime/scripts/logs');
 loadDeltawing
 
 
@@ -18,22 +19,24 @@ loadDeltawing
 t_start = t_starts(6);
 t_end = t_ends(6);
 
+u = TrimU(t_start, t_end, u);
+est = TrimEst(t_start, t_end, est);
 
-% build state for controller
-
-[~, index_t0] = min(abs(u.logtime - t_start));
-
-
-quat_t0 = [est.orientation.q0(index_t0) est.orientation.q1(index_t0) est.orientation.q2(index_t0) est.orientation.q3(index_t0)];
-
-rpy_t0 = quat2rpy(quat_t0);
-
-pos_t0 = [ est.pos.x(index_t0); est.pos.y(index_t0); est.pos.z(index_t0) ];
+%%
 
 
+yaw_t0 = est.orientation.yaw(1);
+
+
+est.drake_frame = zeros(length(est.pos.x), 12);
+for i = 1 : length(est.pos.x)
+
+  x_drake_frame = ConvertStateEstimatorToDrakeFrame(est.est_frame(i,:)');
+
+  est.drake_frame(i,:) = x_drake_frame;
+end
 
 
 
 
 
-controller_state = ConvertStateEstimatorToDrakeFrame(x_est_frame);

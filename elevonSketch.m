@@ -188,6 +188,7 @@ plot(command_us_left2, radians_left2, '*');
 xlabel('Command (us)');
 ylabel('Deflection (rad)');
 title('Airplane #2, Elevon Left');
+
 grid on
 
 % -- cftool --
@@ -210,7 +211,7 @@ fit_us2 = 1100:1950;
 fit_left2 = 0.002195 * fit_us2 - 3.017;
 hold on
 plot(fit_us2, fit_left2, 'r-');
-
+legend('Data', 'Linear Fit', 'Location', 'NorthWest');
 
 
 
@@ -269,6 +270,7 @@ plot(command_us_right2, radians_right2, '*');
 xlabel('Command (us)');
 ylabel('Deflection (rad)');
 title('Airplane #2, Elevon Right');
+
 grid on
 
 % -- cftool --
@@ -288,4 +290,5 @@ fit_us2 = 1100:1950;
 fit_right2 = -0.0019 * fit_us2 + 2.811; % min = 1209, max = 1809
 hold on
 plot(fit_us2, fit_right2, 'r-');
+%legend('Data', 'Linear Fit');
 
