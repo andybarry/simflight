@@ -69,7 +69,7 @@ Q(2,2) = 1e-10; % ignore y-position
 Q(3,3) = 1e-10; % ignore z-position
 
 
-R = diag([10 10 10]);
+R = diag([15 15 15]);
 
 [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
 %% check linearization
@@ -96,4 +96,4 @@ lqrsys.y0 = affine_traj;
 
 traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame());
 
-traj.WriteToFile('trajlib/lqr-trim-10000', .01, true);
+traj.WriteToFile('trajlib/lqr-trim-10002', .01, true);
