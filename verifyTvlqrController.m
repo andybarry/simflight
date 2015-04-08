@@ -53,6 +53,15 @@ for i = 1 : length(u.logtime)
 
   u_out(:,i) = u0 + K * error;
   
+  % compute percentages of contribution for each state
+  delta_u = K * error;
+  
+  for state_num = 1 : 12
+    
+    contrib(:,state_num) = (K(:,state_num) * error(state_num) ) ./ delta_u;
+    %TODO
+  end
+  
 end
 
 % convert to servo commands
