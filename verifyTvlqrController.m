@@ -1,7 +1,7 @@
 
 % load logs
 
-clear
+%clear
 
 FindTrimDrake
 
@@ -22,32 +22,30 @@ loadDeltawing
 
 t_start = t_starts(6);
 t_end = t_ends(6);
-
+%%
 u = TrimU(t_start, t_end, u);
 est = TrimEst(t_start, t_end, est);
 
 %%
 
-
-x_t0 = est.pos.x(1);
-y_t0 = est.pos.y(1);
-z_t0 = est.pos.z(1);
-yaw_t0 = est.orientation.yaw(1);
+init_state = ConvertStateEstimatorToDrakeFrame(est.est_frame(1,:));
+rpy = init_state(4:6);
+Mz = rotz(-rpy(3));
 
 x0 = traj.xtraj.eval(0);
 u0 = traj.utraj.eval(0);
 
 K = traj.lqrsys.D.eval(0);
 
-est.drake_frame = zeros(length(est.pos.x), 12);
-for i = 1 : length(est.pos.x)
-  this_x = est.est_frame(i,:)';
+est.drake_frame = zeros(length(u.logtime), 12);
+for i = 1 : length(u.logtime)
   
-  this_x(1) = this_x(1) - x_t0;
-  this_x(2) = this_x(2) - y_t0;
-  this_x(3) = this_x(3) - z_t0;
-  this_x(6) = this_x(6) - yaw_t0;
-  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x);
+  [~, idx] = min(abs(u.logtime(i) - est.logtime));
+  %idx = i;
+  
+  this_x = est.est_frame(idx, :);
+  
+  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x, Mz);
 
   est.drake_frame(i,:) = x_drake_frame;
   
@@ -66,7 +64,7 @@ figure(1)
 clf
 plot(u.logtime, u.elevonL)
 hold on
-plot(est.logtime, u_out_servo(1,:)','r');
+plot(u.logtime, u_out_servo(1,:)','r');
 
 legend('Actual','Replay');
 
@@ -76,6 +74,15 @@ figure(2)
 clf
 plot(u.logtime, u.elevonR)
 hold on
-plot(est.logtime, u_out_servo(2,:)','r');
+plot(u.logtime, u_out_servo(2,:)','r');
+
+legend('Actual','Replay');
+
+
+figure(3)
+clf
+plot(u.logtime, u.throttle)
+hold on
+plot(u.logtime, u_out_servo(3,:)','r');
 
 legend('Actual','Replay');
