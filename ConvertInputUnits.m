@@ -1,5 +1,5 @@
 function u = ConvertInputUnits(u_in)
-
+  error('this function is outdated.  Look at loadDeltawing and ReadSimpleConfigServos.m');
   % convert from microsecond command pulse lengths to radians and
   % percentage
   

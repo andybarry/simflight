@@ -69,7 +69,7 @@ Q(2,2) = 1e-10; % ignore y-position
 Q(3,3) = 1e-10; % ignore z-position
 
 
-R = diag([15 15 15]);
+R = diag([25 25 25]);
 
 [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
 %% check linearization

@@ -1,7 +1,11 @@
 
 % load logs
 
-%clear
+clear
+
+FindTrimDrake
+
+
 dir = '2015-03-31-field-test/gps-logs/';
 filename = 'lcmlog_2015_03_31_11.mat';
 
@@ -43,11 +47,35 @@ for i = 1 : length(est.pos.x)
   this_x(2) = this_x(2) - y_t0;
   this_x(3) = this_x(3) - z_t0;
   this_x(6) = this_x(6) - yaw_t0;
-  x_drake_frame = ConvertStateEstimatorToDrakeFrame(est.est_frame(i,:)');
+  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x);
 
   est.drake_frame(i,:) = x_drake_frame;
   
   error = x_drake_frame - x0;
 
-  u_out(:,i) = u0 -K * error;
+  u_out(:,i) = u0 + K * error;
+  
 end
+
+% convert to servo commands
+u_out_servo(1,:) = round(u_out(1,:) * rad_to_servo.elevL_slope + rad_to_servo.elevL_y_intercept);
+u_out_servo(2,:) = round(u_out(2,:) * rad_to_servo.elevR_slope + rad_to_servo.elevR_y_intercept);
+u_out_servo(3,:) = round(u_out(3,:) * rad_to_servo.throttle_slope + rad_to_servo.throttle_y_intercept);
+
+figure(1)
+clf
+plot(u.logtime, u.elevonL)
+hold on
+plot(est.logtime, u_out_servo(1,:)','r');
+
+legend('Actual','Replay');
+
+
+
+figure(2)
+clf
+plot(u.logtime, u.elevonR)
+hold on
+plot(est.logtime, u_out_servo(2,:)','r');
+
+legend('Actual','Replay');

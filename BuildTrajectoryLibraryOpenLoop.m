@@ -5,7 +5,7 @@ HudBotVisualizer.InitJava();
 
 lib = TrajectoryLibrary();
 
-parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
+parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
 
 p = DeltawingPlant(parameters);
 
