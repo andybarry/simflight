@@ -58,8 +58,12 @@ for i = 1 : length(u.logtime)
   
   for state_num = 1 : 12
     
-    contrib(:,state_num) = (K(:,state_num) * error(state_num) ) ./ delta_u;
-    %TODO
+    this_contrib = (K(:,state_num) * error(state_num) );
+    
+    contrib_elevL(state_num, i) = this_contrib(1);
+    contrib_elevR(state_num, i) = this_contrib(2);
+    contrib_throttle(state_num, i) = this_contrib(3);
+    
   end
   
 end
@@ -95,3 +99,38 @@ hold on
 plot(u.logtime, u_out_servo(3,:)','r');
 
 legend('Actual','Replay');
+
+figure(4)
+clf
+plot(u.logtime, rad2deg(contrib_elevL(4, :)'), 'b');
+hold on
+plot(u.logtime, rad2deg(contrib_elevL(5, :)'), 'r');
+plot(u.logtime, rad2deg(contrib_elevL(6, :)'), 'k');
+plot(u.logtime, rad2deg(contrib_elevL(7, :)'), '--b');
+plot(u.logtime, rad2deg(contrib_elevL(8, :)'), '--r');
+plot(u.logtime, rad2deg(contrib_elevL(9, :)'), '--k');
+plot(u.logtime, rad2deg(contrib_elevL(10, :)'), 'g');
+plot(u.logtime, rad2deg(contrib_elevL(11, :)'), '--g');
+plot(u.logtime, rad2deg(contrib_elevL(12, :)'), '-.b');
+xlabel('Time (s)');
+ylabel('Deg deflection');
+%legend('x', 'y', 'z', 'roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');
+legend('roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');
+
+
+figure(5)
+clf
+plot(u.logtime, rad2deg(contrib_elevR(4, :)'), 'b');
+hold on
+plot(u.logtime, rad2deg(contrib_elevR(5, :)'), 'r');
+plot(u.logtime, rad2deg(contrib_elevR(6, :)'), 'k');
+plot(u.logtime, rad2deg(contrib_elevR(7, :)'), '--b');
+plot(u.logtime, rad2deg(contrib_elevR(8, :)'), '--r');
+plot(u.logtime, rad2deg(contrib_elevR(9, :)'), '--k');
+plot(u.logtime, rad2deg(contrib_elevR(10, :)'), 'g');
+plot(u.logtime, rad2deg(contrib_elevR(11, :)'), '--g');
+plot(u.logtime, rad2deg(contrib_elevR(12, :)'), '-.b');
+xlabel('Time (s)');
+ylabel('Deg deflection');
+%legend('x', 'y', 'z', 'roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');
+legend('roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');
