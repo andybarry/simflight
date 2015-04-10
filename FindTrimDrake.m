@@ -94,6 +94,8 @@ lqrsys = struct();
 lqrsys.D = ktraj;
 lqrsys.y0 = affine_traj;
 
-traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame());
+comments = sprintf('%s', [prettymat('Q', Q) prettymat('R', R)]);
+
+traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), comments);
 
 traj.WriteToFile('trajlib/lqr-trim-10002', .01, true);

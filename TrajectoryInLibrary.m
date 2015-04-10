@@ -7,12 +7,14 @@ classdef TrajectoryInLibrary
     lqrsys; % LQR controller
     state_frame; % state frame of the plant
     body_coordinate_frame;
+    comments; % comments to be written to a file
   end
   
   methods
     
-    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys, state_frame)
-      
+    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys, state_frame, comments)
+      % @param comments string to put in the comments file.  Usually
+      % something like prettymat('Q', Q)
       typecheck(xtraj, 'Trajectory');
       
       if isa(utraj, 'ConstantTrajectory')
@@ -26,6 +28,12 @@ classdef TrajectoryInLibrary
       
       obj.lqrsys = lqrsys;
       obj.state_frame = state_frame;
+      
+      if nargin < 4
+        comments = '';
+      end
+      
+      obj.comments = comments;
       
       obj.body_coordinate_frame = CoordinateFrame('body_frame_delta', 12, 'x');
       
@@ -65,6 +73,8 @@ classdef TrajectoryInLibrary
       
       affine_filename = [filename_prefix '-affine.csv'];
       
+      comment_filename = [filename_prefix '-comments.txt'];
+      
       if ~overwrite_files && exist(state_filename, 'file') ~= 0
         error(['Not writing trajectory since "' state_filename '" exists.']);
       end
@@ -79,6 +89,10 @@ classdef TrajectoryInLibrary
       
       if ~overwrite_files && exist(affine_filename, 'file') ~= 0
         error(['Not writing trajectory since "' affine_filename '" exists.']);
+      end
+      
+      if ~overwrite_files && exist(comment_filename, 'file') ~= 0
+        error(['Not writing trajectory since "' comment_filename '" exists.']);
       end
       
       xpoints = [];
@@ -157,6 +171,11 @@ classdef TrajectoryInLibrary
       
       disp(['Writing: ' affine_filename]);
       TrajectoryInLibrary.csvwrite_wtih_headers(affine_filename, affine_headers, affine_points');
+      
+      disp(['Writing: ' comment_filename]);
+      fid = fopen(comment_filename, 'w');
+      fprintf(fid, '%s', obj.comments);
+      fclose(fid);
       
 
     end
