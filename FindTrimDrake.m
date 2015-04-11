@@ -28,7 +28,7 @@ p = p.addConstraint(c);
 %p = p.addConstraint(c2);
 
 
-[x, objval, exitflag] = p.solve( [0; 18; 0; 0; 3.5] )
+[x, objval, exitflag] = p.solve( [0; 18; 0; 0; 3.5] );
 
 
 
@@ -40,7 +40,7 @@ full_state = zeros(12,1);
 full_state(5) = x(1);
 full_state(7) = x(2);
 
-p.dynamics(0, full_state, x(3:5))
+%p.dynamics(0, full_state, x(3:5));
 
 x0 = zeros(12, 1);
 x0(5) = x(1);
@@ -52,18 +52,38 @@ u0(1) = x(3);
 u0(2) = x(4);
 u0(3) = x(5);
 
-disp('x0:')
-disp(x0);
-
-disp('u0:')
-disp(u0);
+% disp('x0:')
+% disp(x0);
+% 
+% disp('u0:')
+% disp(u0);
 
 
 %% build lqr controller based on that trim
 
 
+% I'd like to get Q and R tuned to give something close to APM's nominal
+% PID values (omitting I since LQR can't do that)
+%
+% Roll:
+%   P: 0.4
+%   I: 0.04
+%   D: 0.02
+%
+% Pitch:
+%   P: 0.4
+%   I: 0.04
+%   D: 0.02
+%
+% Yaw:
+%   P: 1.0
+%   I: 0
+%   D: 0
 
-Q = diag([0 0 0 1 1 .25 1 .1 .1 .1 .1 .1]);
+
+
+
+Q = diag([0 0 0 10 2 .25 0.1 .0001 .0001 .1 .01 .1]);
 Q(1,1) = 1e-10; % ignore x-position
 Q(2,2) = 1e-10; % ignore y-position
 Q(3,3) = 1e-10; % ignore z-position
@@ -74,13 +94,37 @@ R = diag([25 25 25]);
 [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
 %% check linearization
 
-(A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)
+%(A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)
 
-(A*.1*ones(12,1) + B*.1*ones(3,1) + xdot0) - p.dynamics(0, x0+.1*ones(12,1), u0+.1*ones(3,1))
+%(A*.1*ones(12,1) + B*.1*ones(3,1) + xdot0) - p.dynamics(0, x0+.1*ones(12,1), u0+.1*ones(3,1))
 
 %% compute lqr controller
 
-K = lqr(full(A), full(B), Q, R)
+K = lqr(full(A), full(B), Q, R);
+
+%% compte difference to PID gains K
+
+K_pd = zeros(3,12);
+
+% roll P
+K_pd(1,4) = -0.4;
+K_pd(2,4) = 0.4;
+
+% roll D
+K_pd(1,10) = -0.02;
+K_pd(2,10) = 0.02;
+
+% pitch P
+K_pd(1,5) = -0.4;
+K_pd(2,5) = -0.4;
+
+% pitch D
+K_pd(1,11) = -0.02;
+K_pd(2,11) = -0.02;
+
+K
+K_pd
+
 
 %% build a Trajectory so that we can use all of the TrajectoryLibrary tools
 
