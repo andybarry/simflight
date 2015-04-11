@@ -4,31 +4,28 @@ clear
 
 %% setup
 realtime_path = '/home/abarry/realtime/';
-logfile_path = '/home/abarry/rlg/logs/2014-04-18-near-goalposts/mat/';
+logfile_path = '/home/abarry/rlg/logs/2015-03-31-field-test/gps-logs/';
 
-logfile_name = 'pass1-processed.mat';
+logfile_name = 'lcmlog_2015_03_31_11.mat';
 
 % add log parsing scripts to path
 
 addpath([realtime_path 'scripts/logs']);
 
 % load data
-load([logfile_path, logfile_name]);
+dir = logfile_path;
+filename = logfile_name;
+
+loadDeltawing
 
 % delay in ms from command to execution
 delay_ms = 20;
 
 use_airspeed = true;
 
-%% convert inputs to model units
-
-% convert servos
-
-u = ConvertInputUnits(u);
-
 %% trim to flight times only and setup comparison to model output for orientation PEM
 
-[start_time, end_time] = FindActiveTimes(u.logtime, u.throttle_command, 1500);
+[start_time, end_time] = FindActiveTimes(u.cmd.logtime, u.cmd.throttle, 1500);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
