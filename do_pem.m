@@ -25,12 +25,18 @@ use_airspeed = true;
 
 %% trim to flight times only and setup comparison to model output for orientation PEM
 
-[start_time, end_time] = FindActiveTimes(u.cmd.logtime, u.cmd.throttle, 1500);
+[start_time, end_time] = FindActiveTimes(est.logtime, est.pos.z, 9.0);
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
+%% temp %%
 
-t_block = 1.0;
+start_time = start_time + 50;
+end_time = start_time + .1;
+
+%%
+
+t_block = .1;
 
 t_shift = 0;
 
@@ -41,7 +47,7 @@ t_end = start_time + t_block + t_shift : t_block : end_time;
 dt = 1/140; % approximate servo rate
 
 for i = 1 : min(length(t_start), length(t_end))
-  airspeed_dat{i} = BuildIdDataRPYAirspeed(est, baro, u, t_start(i), t_end(i), dt, delay_ms);
+  airspeed_dat{i} = BuildIdDataRPYAirspeed(est, airspeed_unchecked, u, t_start(i), t_end(i), dt, delay_ms);
   dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt, delay_ms);
   
   
@@ -54,7 +60,9 @@ end
   
 
 %merge_nums = [1, 2, 3, 4];
-merge_nums = [1, 2, 3];
+%merge_nums = [1, 2, 3];
+%merge_nums = [100, 150, 200];
+merge_nums = [1];
 
 %merged_dat = merge(dat{:});
 
@@ -266,7 +274,8 @@ nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters cl
 roll_weight = 1;
 pitch_weight = 1;
 yaw_weight = 0.75;
-airspeed_weight = 0.025;
+%airspeed_weight = 0.025;
+airspeed_weight = 0.25;
 
 output_weights = diag([roll_weight, pitch_weight, yaw_weight, airspeed_weight]);
 
