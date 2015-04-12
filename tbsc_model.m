@@ -1,7 +1,7 @@
 function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, body_x_drag_fac, varargin)
 % Model derived from Ani's SBach model
 
-% Set output (first six states)
+% Set output (first seven states)
 y = x(1:7);
 
 

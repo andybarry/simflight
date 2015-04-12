@@ -19,7 +19,13 @@ filename = logfile_name;
 loadDeltawing
 
 % delay in ms from command to execution
-delay_ms = 20;
+
+% delay is zero because we are using servo_out, which is the message after
+% it has come back from the APM to the CPU
+
+warning('delay = -10 ms');
+delay_ms = -10;
+
 
 use_airspeed = true;
 
@@ -32,11 +38,11 @@ assert(length(start_time) == 1, 'Number of active times ~= 1');
 %% temp %%
 
 start_time = start_time + 50;
-end_time = start_time + .1;
+%end_time = start_time + 20;
 
 %%
 
-t_block = .1;
+t_block = 1;
 
 t_shift = 0;
 
@@ -48,21 +54,31 @@ dt = 1/140; % approximate servo rate
 
 for i = 1 : min(length(t_start), length(t_end))
   airspeed_dat{i} = BuildIdDataRPYAirspeed(est, airspeed_unchecked, u, t_start(i), t_end(i), dt, delay_ms);
-  dat{i} = BuildIdDataRPY(est, u, t_start(i), t_end(i), dt, delay_ms);
   
   
 end
 
-if use_airspeed
+%if use_airspeed
     dat = airspeed_dat;
    
-end
-  
+%end
+%   
+% for i = 1 : length(airspeed_dat)
+%   plot(airspeed_dat{i})
+%   title(i)
+%   drawnow
+%   pause
+% end
+% 
 
 %merge_nums = [1, 2, 3, 4];
 %merge_nums = [1, 2, 3];
 %merge_nums = [100, 150, 200];
-merge_nums = [1];
+
+% interesting data: 4, 8, 9, 16, 20
+merge_nums = [8, 16];
+
+
 
 %merged_dat = merge(dat{:});
 
@@ -158,11 +174,11 @@ nlgr.Parameters(6).Minimum = 0.005;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
-nlgr.Parameters(1).Maximum = 5;
-nlgr.Parameters(2).Maximum = 5;
-nlgr.Parameters(3).Maximum = 5;
-nlgr.Parameters(4).Maximum = 5;
-nlgr.Parameters(5).Maximum = 5;
+nlgr.Parameters(1).Maximum = 20;
+nlgr.Parameters(2).Maximum = 20;
+nlgr.Parameters(3).Maximum = 20;
+nlgr.Parameters(4).Maximum = 20;
+nlgr.Parameters(5).Maximum = 20;
 nlgr.Parameters(6).Maximum = 0.07;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -246,8 +262,8 @@ nlgr = setinit(nlgr, 'Fixed', {true true true true true true true false false fa
 %%
 
 
-nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
-nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
+%nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
+%nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
 %  
 %RR = [ones(length(parameters),1); 1e-5*ones(5,1)];
 %RR(7,7) = RR(7,7)*10;
@@ -274,8 +290,7 @@ nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters cl
 roll_weight = 1;
 pitch_weight = 1;
 yaw_weight = 0.75;
-%airspeed_weight = 0.025;
-airspeed_weight = 0.25;
+airspeed_weight = 0.025;
 
 output_weights = diag([roll_weight, pitch_weight, yaw_weight, airspeed_weight]);
 
@@ -284,7 +299,7 @@ nlgr.Algorithm.Weighting = output_weights;
 %% plot data
 
 disp('Plotting data...');
-figure(1)
+figure(25);
 clf
 plot(merged_dat);
 %% run pem
