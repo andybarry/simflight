@@ -23,8 +23,8 @@ loadDeltawing
 % delay is zero because we are using servo_out, which is the message after
 % it has come back from the APM to the CPU
 
-warning('delay = -10 ms');
-delay_ms = -10;
+warning('delay = -20 ms');
+delay_ms = -20;
 
 
 use_airspeed = true;
