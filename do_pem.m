@@ -174,11 +174,11 @@ nlgr.Parameters(6).Minimum = 0.005;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
-nlgr.Parameters(1).Maximum = 20;
-nlgr.Parameters(2).Maximum = 20;
-nlgr.Parameters(3).Maximum = 20;
-nlgr.Parameters(4).Maximum = 20;
-nlgr.Parameters(5).Maximum = 20;
+nlgr.Parameters(1).Maximum = 5;
+nlgr.Parameters(2).Maximum = 5;
+nlgr.Parameters(3).Maximum = 5;
+nlgr.Parameters(4).Maximum = 5;
+nlgr.Parameters(5).Maximum = 5;
 nlgr.Parameters(6).Maximum = 0.07;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -262,8 +262,8 @@ nlgr = setinit(nlgr, 'Fixed', {true true true true true true true false false fa
 %%
 
 
-%nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
-%nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
+nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
+nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
 %  
 %RR = [ones(length(parameters),1); 1e-5*ones(5,1)];
 %RR(7,7) = RR(7,7)*10;

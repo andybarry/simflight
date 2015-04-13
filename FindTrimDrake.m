@@ -6,7 +6,8 @@ p = NonlinearProgram(5);
 %p = p.setSolver('fmincon');
 
 %parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
-parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
+parameters_old_before_3_31_2015 = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
+parameters = { 0.254; 0.171; 4.048; 0.266; 0.0001; 0.036};
 
 func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
@@ -83,7 +84,7 @@ u0(3) = x(5);
 
 
 
-Q = diag([0 0 0 10 2 .25 0.1 .0001 .0001 .1 .01 .1]);
+Q = diag([0 0 0 10 50 .25 0.1 .0001 .0001 .1 .01 .1]);
 Q(1,1) = 1e-10; % ignore x-position
 Q(2,2) = 1e-10; % ignore y-position
 Q(3,3) = 1e-10; % ignore z-position

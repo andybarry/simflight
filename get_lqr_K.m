@@ -67,7 +67,7 @@ function cost = get_lqr_K(Q)
   K
   
 
-  cost = norm(K - K_pd)
+  cost = norm(K(1,:) - K_pd(1,:))
 
 
 
