@@ -23,8 +23,9 @@ loadDeltawing
 % delay is zero because we are using servo_out, which is the message after
 % it has come back from the APM to the CPU
 
-warning('delay = -20 ms');
-delay_ms = -20;
+delay_ms = 20;
+%warning(['delay = ' num2str(delay_ms) ' ms']);
+
 
 
 use_airspeed = true;
@@ -76,7 +77,7 @@ end
 %merge_nums = [100, 150, 200];
 
 % interesting data: 4, 8, 9, 16, 20
-merge_nums = [8, 16];
+merge_nums = [4, 8, 9]%, 16, 20];
 
 
 
@@ -152,7 +153,7 @@ x0_dat_full{12} = zeros( 1, num_data);
 
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
-parameters = [1; 1; 1; 1; 1; 0.036];
+parameters = [1; 0.15; 1; 1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
@@ -161,7 +162,7 @@ nlgr.Parameters(2).Name = 'Jy';
 nlgr.Parameters(3).Name = 'Jz';
 nlgr.Parameters(4).Name = 'Elift';
 nlgr.Parameters(5).Name = 'Edrag';
-nlgr.Parameters(6).Name = 'Bx_dr';
+%nlgr.Parameters(6).Name = 'M_Q_fac';
 % nlgr.Parameters(7).Name = 'By_dr';
 % nlgr.Parameters(8).Name = 'Bz_dr';
 
@@ -170,7 +171,7 @@ nlgr.Parameters(2).Minimum = 0;
 nlgr.Parameters(3).Minimum = 0;
 nlgr.Parameters(4).Minimum = 0;
 nlgr.Parameters(5).Minimum = 0;
-nlgr.Parameters(6).Minimum = 0.005;
+%nlgr.Parameters(6).Minimum = -5;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
@@ -179,7 +180,7 @@ nlgr.Parameters(2).Maximum = 5;
 nlgr.Parameters(3).Maximum = 5;
 nlgr.Parameters(4).Maximum = 5;
 nlgr.Parameters(5).Maximum = 5;
-nlgr.Parameters(6).Maximum = 0.07;
+%nlgr.Parameters(6).Maximum = 5;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
 
@@ -264,10 +265,17 @@ nlgr = setinit(nlgr, 'Fixed', {true true true true true true true false false fa
 
 nlgr.Algorithm.Regularization.Lambda = 0.01; % use regularization
 nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters close to initial guesses
-%  
-%RR = [ones(length(parameters),1); 1e-5*ones(5,1)];
-%RR(7,7) = RR(7,7)*10;
-%nlgr.Algorithm.Regularization.R = RR;
+
+num_experiments = length(merge_nums);
+num_states_floating = 5;
+
+RR = diag([0.01 * ones(length(parameters),1); 0.01*ones(num_experiments * num_states_floating, 1)]);
+
+RR(2,2) = 1000;
+RR(4,4) = 10000;
+
+
+nlgr.Algorithm.Regularization.R = RR;
 
 
 % nlgr.Parameters(1).Minimum = 0.1;
@@ -288,7 +296,7 @@ nlgr.Algorithm.Regularization.Nominal = 'model'; % attempt to keep parameters cl
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 1;
+pitch_weight = 2.5;
 yaw_weight = 0.75;
 airspeed_weight = 0.025;
 
@@ -302,6 +310,7 @@ disp('Plotting data...');
 figure(25);
 clf
 plot(merged_dat);
+
 %% run pem
 
 disp('Running pem...');

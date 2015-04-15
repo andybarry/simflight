@@ -2,7 +2,7 @@
 clear
 
 %% load delay logs
-
+%{
 realtime_path = '/home/abarry/realtime/';
 logfile_path = '/home/abarry/rlg/logs/2014-12-05-delay-estimation/mat/';
 
@@ -18,6 +18,9 @@ dir = logfile_path;
 filename = logfile_name;
 
 loadDeltawing
+%}
+
+load estimate_delay_processed.mat
 
 
 %% set up data
@@ -29,7 +32,7 @@ u_data = u.elevonL;
 
 figure(1)
 clf
-plotyy(optotrak.logtime, optotrak_data, u.logtime, u_data)
+plotyy(optotrak.logtime, -optotrak_data, u.logtime, u_data)
 legend('optotrak','u');
 
 % create splines of the data
@@ -46,7 +49,7 @@ t_end = 28.6;
 x_s = spline(optotrak.logtime(optotrak_idx_start:optotrak_idx_end), optotrak_data(optotrak_idx_start:optotrak_idx_end));
 u_r_s = foh(u.logtime(u_idx_start:u_idx_end)', u_data((u_idx_start:u_idx_end))');
 
-dt = 1/250;
+dt = 1/10000;
 t = t_start:dt:t_end;
 
 x_eval = ppval(x_s, t);

@@ -22,15 +22,24 @@ function data = BuildIdDataRPYAirspeed(est, airspeed, u, t_start, t_end, dt, del
   pitch_s = spline(est.logtime, rpy_body(:,2));
   yaw_s = spline(est.logtime, rpy_body(:,3));
   
-  airspeed_s = spline(airspeed.logtime-delay_sec, airspeed.airspeed);
+  [b,a] = butter(1, 0.2);
+  airspeed.filtered = filtfilt(b,a,airspeed.airspeed);
+  
+%   figure(1)
+%   clf
+%   plot(airspeed.logtime, airspeed.airspeed);
+%   hold on
+%   plot(airspeed.logtime, airspeed.filtered, 'r-');
+  
+  airspeed_s = spline(airspeed.logtime, airspeed.filtered);
   
   
-  u.smooth.elevonL = foh(u.logtime-delay_sec', u.rad.elevonL');
-  u.smooth.elevonR = foh(u.logtime-delay_sec', u.rad.elevonR');
-  u.smooth.throttle= foh(u.logtime-delay_sec', u.rad.throttle');
+  u.smooth.elevonL = foh(u.logtime+delay_sec', u.rad.elevonL');
+  u.smooth.elevonR = foh(u.logtime+delay_sec', u.rad.elevonR');
+  u.smooth.throttle= foh(u.logtime+delay_sec', u.rad.throttle');
   
-  t0 = max(min(est.logtime), min(min(u.logtime-delay_sec), min(airspeed.logtime)));
-  tf = min(max(est.logtime), max(max(u.logtime-delay_sec), max(airspeed.logtime)));
+  t0 = max(min(est.logtime), min(min(u.logtime+delay_sec), min(airspeed.logtime)));
+  tf = min(max(est.logtime), max(max(u.logtime+delay_sec), max(airspeed.logtime)));
 
   t = t0:dt:tf;
   

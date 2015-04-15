@@ -7,7 +7,8 @@ p = NonlinearProgram(5);
 
 %parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
 parameters_old_before_3_31_2015 = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
-parameters = { 0.254; 0.171; 4.048; 0.266; 0.0001; 0.036};
+%parameters = { 0.254; 0.171; 4.048; 0.266; 0.0001; 0.036};
+parameters = { 0.421; 3.766; 3.310; 0.593; 0.888; 0.030};
 
 func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
