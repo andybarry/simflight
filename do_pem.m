@@ -64,20 +64,21 @@ end
    
 %end
 %   
-% for i = 1 : length(airspeed_dat)
+% for i = 57 : length(airspeed_dat)
 %   plot(airspeed_dat{i})
 %   title(i)
 %   drawnow
 %   pause
 % end
-% 
+
 
 %merge_nums = [1, 2, 3, 4];
 %merge_nums = [1, 2, 3];
 %merge_nums = [100, 150, 200];
 
 % interesting data: 4, 8, 9, 16, 20
-merge_nums = [4, 8, 16, 26, 100];
+% aileron roll at about data = 63, 65
+merge_nums = [8, 9, 63, 100];
 
 
 
@@ -263,7 +264,7 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 2;
+pitch_weight = 3;
 yaw_weight = 0.75;
 airspeed_weight = 0.025;
 
@@ -316,7 +317,7 @@ disp('done.');
 
 %compare_to = [26, 27];
 
-compare_to = [27, 84, 103];
+compare_to = [66, 84, 103];
 
 dat_compare = merge(dat{compare_to});
 
