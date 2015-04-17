@@ -34,9 +34,9 @@ function data = BuildIdDataRPYAirspeed(est, airspeed, u, t_start, t_end, dt, del
   airspeed_s = spline(airspeed.logtime, airspeed.filtered);
   
   
-  u.smooth.elevonL = foh(u.logtime+delay_sec', u.rad.elevonL');
-  u.smooth.elevonR = foh(u.logtime+delay_sec', u.rad.elevonR');
-  u.smooth.throttle= foh(u.logtime+delay_sec', u.rad.throttle');
+  u.smooth.elevonL = foh(u.logtime+delay_sec', u.rad.elevonL' - u.rad.trim.flight.elevonL);
+  u.smooth.elevonR = foh(u.logtime+delay_sec', u.rad.elevonR' - u.rad.trim.flight.elevonR);
+  u.smooth.throttle = foh(u.logtime+delay_sec', u.rad.throttle');
   
   t0 = max(min(est.logtime), min(min(u.logtime+delay_sec), min(airspeed.logtime)));
   tf = min(max(est.logtime), max(max(u.logtime+delay_sec), max(airspeed.logtime)));

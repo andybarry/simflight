@@ -77,7 +77,7 @@ end
 %merge_nums = [100, 150, 200];
 
 % interesting data: 4, 8, 9, 16, 20
-merge_nums = [4, 8, 9]%, 16, 20];
+merge_nums = [4, 8, 16, 26];
 
 
 
@@ -108,44 +108,8 @@ order = [num_outputs, num_inputs, num_states];
 %initial_states = repmat([0 0 0 0 0 0 10 0 0 0 0 0]', 1, 2);
 
 % extract inital state guesses from the data
-if iscell(merged_airspeed_dat.OutputData)
-  
-  for i = 1 : length(merged_airspeed_dat.OutputData)
 
-    x0_dat{i} = merged_airspeed_dat.OutputData{i}(1,:);
-
-  end
-  num_data = length(merged_airspeed_dat.OutputData);
-else
-  x0_dat{1} = merged_airspeed_dat.OutputData(1,:);
-  num_data = 1;
-end
-
-x0_dat_full{1} = zeros( 1, num_data);
-x0_dat_full{2} = zeros( 1, num_data);
-x0_dat_full{3} = zeros( 1, num_data);
-
-x0_dat_full{4} = [];
-x0_dat_full{5} = [];
-x0_dat_full{6} = [];
-x0_dat_full{7} = [];
-
-for i = 1 : length(x0_dat)
-  x0_dat_full{4} = [ x0_dat_full{4} x0_dat{i}(1) ];
-  x0_dat_full{5} = [ x0_dat_full{5} x0_dat{i}(2) ];
-  x0_dat_full{6} = [ x0_dat_full{6} x0_dat{i}(3) ];
-  x0_dat_full{7} = [ x0_dat_full{7} x0_dat{i}(4) ];
-end
-
-%x0_dat_full{7} = [ 9.9607 11.3508 ];%zeros( 1, length(merged_dat.OutputData));
-
-x0_dat_full{8} = zeros( 1, num_data);
-x0_dat_full{9} = zeros( 1, num_data);
-
-x0_dat_full{10} = zeros( 1, num_data);
-x0_dat_full{11} = zeros( 1, num_data);
-x0_dat_full{12} = zeros( 1, num_data);
-
+x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
   
 
 
@@ -271,8 +235,11 @@ num_states_floating = 5;
 
 RR = diag([0.01 * ones(length(parameters),1); 0.01*ones(num_experiments * num_states_floating, 1)]);
 
-RR(2,2) = 1000;
-RR(4,4) = 10000;
+%RR(2,2) = 1000;
+%RR(4,4) = 10000;
+
+% add some regularization on yaw since there isn't much data there
+RR(3,3) = 10;
 
 
 nlgr.Algorithm.Regularization.R = RR;
@@ -296,7 +263,7 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 2.5;
+pitch_weight = 5;
 yaw_weight = 0.75;
 airspeed_weight = 0.025;
 
@@ -340,7 +307,50 @@ end
 compare_options = compareOptions('InitialCondition',x0_out);
 
 %[y_out, fit_out, x0_out] = compare(merged_dat, nlgr_fit);
-figure;
+figure(26);
 compare(merged_dat, nlgr_fit, compare_options);
 
 disp('done.');
+
+%% compare to other data
+
+%compare_to = [26, 27];
+
+compare_to = [27, 84, 100];
+
+dat_compare = merge(dat{compare_to});
+
+
+% estimate initial states for comparison data set
+
+disp(['Estimating initial states for ' num2str(compare_to) '...']);
+
+x0_fixed_compare = FixInitialConditionsForData(dat_compare);
+
+for i = 1:length(nlgr_fit.Parameters)
+  parameters_compare(i) = nlgr_fit.Parameters(i).Value;
+end
+
+nlgr_compare = idnlgrey(file_name, order, parameters_compare, x0_fixed_compare);
+
+nlgr_compare.Algorithm.Display = 'full';
+nlgr_compare = setinit(nlgr_compare, 'Fixed', {true true true true true true true false false false false false });
+for i = 1:length(nlgr_compare.Parameters)
+  nlgr_compare.Parameters(i).Fixed = 1;
+end
+
+
+%x0 = zeros(num_states, length(merge_nums));
+
+x0_compare = findstates(nlgr_compare, dat_compare)
+
+
+compare_options2 = compareOptions('InitialCondition',x0_compare);
+
+
+
+figure(27)
+plot(dat_compare)
+
+figure(28)
+compare(dat_compare, nlgr_fit, compare_options2);

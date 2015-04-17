@@ -1,10 +1,11 @@
-function [rad_to_servo, servo_to_rad, minmax] = ReadSimpleConfigServos(filename)
+function [rad_to_servo, servo_to_rad, minmaxtrim] = ReadSimpleConfigServos(filename)
   % Reads a .cfg file for bot-param-server and looks for particular fields
 
   
   rad_to_servo = struct();
   servo_to_rad = struct();
-  minmax = struct();
+  minmaxtrim = struct();
+  trim = struct();
 
   current_obj = 1;
   
@@ -75,47 +76,57 @@ function [rad_to_servo, servo_to_rad, minmax] = ReadSimpleConfigServos(filename)
     
     value = ReadKeyLine(tline, 'elevL_min');
     if ~isempty(value)
-      minmax.elevL_min = value;
+      minmaxtrim.elevL_min = value;
     end
     
     value = ReadKeyLine(tline, 'elevL_max');
     if ~isempty(value)
-      minmax.elevL_max = value;
+      minmaxtrim.elevL_max = value;
     end
     
     value = ReadKeyLine(tline, 'elevR_min');
     if ~isempty(value)
-      minmax.elevR_min = value;
+      minmaxtrim.elevR_min = value;
     end
     
     value = ReadKeyLine(tline, 'elevR_max');
     if ~isempty(value)
-      minmax.elevR_max = value;
+      minmaxtrim.elevR_max = value;
     end
     
     value = ReadKeyLine(tline, 'throttle_min');
     if ~isempty(value)
-      minmax.throttle_min = value;
+      minmaxtrim.throttle_min = value;
     end
     
     value = ReadKeyLine(tline, 'throttle_max');
     if ~isempty(value)
-      minmax.throttle_max = value;
+      minmaxtrim.throttle_max = value;
     end
     
     value = ReadKeyLine(tline, 'elevL_trim');
     if ~isempty(value)
-      minmax.elevL_trim = value;
+      minmaxtrim.elevL_trim = value;
     end
     
     value = ReadKeyLine(tline, 'elevR_trim');
     if ~isempty(value)
-      minmax.elevR_trim = value;
+      minmaxtrim.elevR_trim = value;
     end
     
     value = ReadKeyLine(tline, 'throttle_trim');
     if ~isempty(value)
-      minmax.throttle_trim = value;
+      minmaxtrim.throttle_trim = value;
+    end
+    
+    value = ReadKeyLine(tline, 'elevL_flight_trim');
+    if ~isempty(value)
+      minmaxtrim.elevL_flight_trim = value;
+    end
+    
+    value = ReadKeyLine(tline, 'elevR_flight_trim');
+    if ~isempty(value)
+      minmaxtrim.elevR_flight_trim = value;
     end
     
     
@@ -132,6 +143,12 @@ end
 
 function value = ReadKeyLine(line, key)
   
+  % handle comments
+  comment_loc = strfind(line, '#');
+  if ~isempty(comment_loc)
+    line = line(1:comment_loc - 1);
+  end
+
   str_loc = strfind(line, key);
   if ~isempty(str_loc)
     eq_loc = strfind(line, '=');
@@ -139,6 +156,10 @@ function value = ReadKeyLine(line, key)
       str_value = line(eq_loc+1:end);
       str_value = strrep(str_value, ';', '');
       value = str2double( str_value );
+      
+      if isnan(value)
+        error(['Read NaN value on line: "' line '" when looking for key: "' key '"']);
+      end
     end
   else
     value = [];
