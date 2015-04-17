@@ -78,7 +78,7 @@ end
 
 % interesting data: 4, 8, 9, 16, 20
 % aileron roll at about data = 63, 65
-merge_nums = [8, 9, 63, 100];
+merge_nums = [8, 63, 100];
 
 
 
