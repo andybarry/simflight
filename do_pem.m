@@ -77,7 +77,7 @@ end
 %merge_nums = [100, 150, 200];
 
 % interesting data: 4, 8, 9, 16, 20
-merge_nums = [4, 8, 16, 26];
+merge_nums = [4, 8, 16, 26, 100];
 
 
 
@@ -117,7 +117,7 @@ x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
 
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
-parameters = [1; 0.15; 1; 1; 1];
+parameters = [1; 1; 1; 1; 1];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
@@ -239,7 +239,7 @@ RR = diag([0.01 * ones(length(parameters),1); 0.01*ones(num_experiments * num_st
 %RR(4,4) = 10000;
 
 % add some regularization on yaw since there isn't much data there
-RR(3,3) = 10;
+RR(3,3) = 5;
 
 
 nlgr.Algorithm.Regularization.R = RR;
@@ -263,7 +263,7 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 5;
+pitch_weight = 2;
 yaw_weight = 0.75;
 airspeed_weight = 0.025;
 
@@ -316,7 +316,7 @@ disp('done.');
 
 %compare_to = [26, 27];
 
-compare_to = [27, 84, 100];
+compare_to = [27, 84, 103];
 
 dat_compare = merge(dat{compare_to});
 
