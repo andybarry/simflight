@@ -14,19 +14,25 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddTrajectory(obj, p, xtraj, utraj, lqrsys)
+    function obj = AddTrajectory(obj, p, xtraj, utraj, lqrsys, comments)
       % Adds a trajectory to the library
       %
       % @param p plant (some kind of DrakeSystem)
       % @param xtraj state trajectory
       % @param utraj input trajectory
       % @param lqrsys LTV system that implements TVLQR controller
+      % @param comments (optional) comments to be put in a txt file when
+      % the trajectory is written.  Useful for writing down, Q, R, model
+      % parameters, etc.
       %
       % @retval obj updated object
       
+      if nargin < 6
+        comments =  '';
+      end
       
       
-      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame());
+      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), comments);
       
     end
     

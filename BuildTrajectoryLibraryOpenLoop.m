@@ -5,7 +5,8 @@ HudBotVisualizer.InitJava();
 
 lib = TrajectoryLibrary();
 
-parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
+%parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
+parameters = { 1.427, 0.321, 2.618, 0.611, 0.000 };
 
 p = DeltawingPlant(parameters);
 
@@ -14,9 +15,17 @@ throttle_max = 5.33976;
 tf = 0.5;
 
 %Q = diag([10 10 10 1 1 1 .1 .1 .1 .1 .1 .1]);
-Q = diag([0 0 0 1 1 1 0 .1 .1 .1 .1 .1]);
-R = diag([100 100 10]);
+Q = diag([0 0 0 10 50 .25 0.1 .0001 0.0001 .1 .01 .1]);
+Q(1,1) = 1e-10; % ignore x-position
+Q(2,2) = 1e-10; % ignore y-position
+Q(3,3) = 1e-10; % ignore z-position
+
+
+R = diag([35 35 35]);
+
 Qf = eye(12);
+
+
 
 %% straight ahead
 
@@ -34,8 +43,9 @@ disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
-
-lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
+comments = sprintf('%s\n\n%s', 'Straight ahead trajectory', [prettymat('Parameters', cell2mat(parameters), 3) ...
+  prettymat('Q', Q, 5) prettymat('R', R)]);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
 
 
 
@@ -57,7 +67,7 @@ lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
 
-lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
 
 %% turn right
 
@@ -77,7 +87,7 @@ lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
 
-lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
 
 %% go up
 
@@ -98,7 +108,7 @@ disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
-lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
 
 
 %% go down
@@ -117,7 +127,7 @@ disp('Computing TVLQR controller...');
 lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf)
 disp('done.');
 
-lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller);
+lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
 
 %% draw
 
