@@ -7,14 +7,19 @@ classdef TrajectoryInLibrary
     lqrsys; % LQR controller
     state_frame; % state frame of the plant
     body_coordinate_frame;
+    name; % name to prepend in the filename
     comments; % comments to be written to a file
   end
   
   methods
     
-    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys, state_frame, comments)
-      % @param comments string to put in the comments file.  Usually
+    function obj = TrajectoryInLibrary(xtraj, utraj, lqrsys, state_frame, name, comments)
+      % @param name (optional) name for the filename
+      %   @default traj
+      % @param comments (optional) string to put in the comments file.  Usually
       % something like prettymat('Q', Q)
+      %   @default ''
+      
       typecheck(xtraj, 'Trajectory');
       
       if isa(utraj, 'ConstantTrajectory')
@@ -30,6 +35,18 @@ classdef TrajectoryInLibrary
       obj.state_frame = state_frame;
       
       if nargin < 4
+        name = 'traj';
+      end
+      
+      str = regexprep(name,'[^a-zA-Z0-9_-]','');
+      
+      if ~strcmp(str, name)
+        error('Special characters not allowed in string names.');
+      end
+      
+      obj.name = name;
+      
+      if nargin < 5
         comments = '';
       end
       

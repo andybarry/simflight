@@ -14,13 +14,14 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddTrajectory(obj, p, xtraj, utraj, lqrsys, comments)
+    function obj = AddTrajectory(obj, p, xtraj, utraj, lqrsys, name, comments)
       % Adds a trajectory to the library
       %
       % @param p plant (some kind of DrakeSystem)
       % @param xtraj state trajectory
       % @param utraj input trajectory
       % @param lqrsys LTV system that implements TVLQR controller
+      % @param name (optional) prepending name for filename
       % @param comments (optional) comments to be put in a txt file when
       % the trajectory is written.  Useful for writing down, Q, R, model
       % parameters, etc.
@@ -28,11 +29,15 @@ classdef TrajectoryLibrary
       % @retval obj updated object
       
       if nargin < 6
+        name =  'traj';
+      end
+      
+      if nargin < 7
         comments =  '';
       end
       
       
-      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), comments);
+      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), name, comments);
       
     end
     
@@ -73,7 +78,7 @@ classdef TrajectoryLibrary
       
       for i = 1 : length(obj.trajectories)
         numstr = sprintf('%05d', i-1);
-        obj.trajectories{i}.WriteToFile([filename_prefix '-' numstr], dt, overwrite_files);
+        obj.trajectories{i}.WriteToFile([filename_prefix '-' obj.trajectories{i}.name '-' numstr], dt, overwrite_files);
       end
       
       disp('done.');

@@ -141,8 +141,18 @@ K_pd
 % add in yaw
 %K_pd(1,6) = 1;
 %K_pd(2,6) = -1;
-
+% 
 %K = K_pd;
+
+
+% add in roll
+%K(1,10) = -0.08;
+%K(2,10) = 0.08;
+
+% increased pitch
+%K(1,11) = -0.03;
+%K(2,11) = 0.03;
+
 
 
 % kill everything that isn't pitch or roll
@@ -151,7 +161,7 @@ K_pd
 %K(:, 7) = 0; % airspeed
 %K(:, 8:9) = 0; % ydot zdot
 %K(:, 12) = 0; % yawdot
-%K
+K
 
 
 %% build a Trajectory so that we can use all of the TrajectoryLibrary tools
@@ -166,11 +176,13 @@ lqrsys = struct();
 lqrsys.D = ktraj;
 lqrsys.y0 = affine_traj;
 
-comments = sprintf('%s', [prettymat('Parameters', cell2mat(parameters), 3) ...
+
+
+comments = sprintf('%s\n\n%s', ['TILQR from model, full gains', prettymat('Parameters', cell2mat(parameters), 3) ...
   prettymat('Q', Q, 5) prettymat('R', R)]);
 %comments = sprintf('%s', [prettymat('Parameters', cell2mat(parameters), 3) ...
 %  'K_pd from APM WITH aggressive YAW']);
 
-traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), comments);
+traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), 'tilqr-pd', comments);
 
-traj.WriteToFile('trajlib/lqr-trim-10005', .01, true);
+traj.WriteToFile('trajlib/tilqr-full-10005', .01, true);
