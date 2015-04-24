@@ -76,9 +76,14 @@ M_R_fac = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
-Jx = Jx_fac*0.014894; % The numbers are from the solidworks model
-Jy = Jy_fac*0.005580;
-Jz = Jz_fac*0.019316; % TODO: include cross terms from solidworks?
+%Jx = Jx_fac*0.014894; % The numbers are from the solidworks model
+%Jy = Jy_fac*0.005580;
+%Jz = Jz_fac*0.019316; % TODO: include cross terms from solidworks?
+
+% Experimentally measured:
+Jx = 0.0156252;
+Jy = 0.0049116;
+Jz = 0.01739;
 
 J = diag([Jx,Jy,Jz]);
 invJ = diag([1/Jx,1/Jy,1/Jz]);
