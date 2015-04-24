@@ -100,15 +100,15 @@ lib = AddLqrControllersToLib('straight', lib, p, xtraj, utraj, parameters, gains
 
 %% turn right
 
-t_mark = [0, tf];
+t_mark = [0, .3];
 elevL = [-0.1, -0.1];
-elevR = [0.35, 0.35];
+elevR = [0.2, 0.2];
 throttle = [0.9 * throttle_max, 0.9 * throttle_max];
 
 utraj = PPTrajectory(foh(t_mark, [elevL; elevR; throttle]));
 utraj = utraj.setOutputFrame(p.getInputFrame());
 
-xtraj = runInputTape(p, utraj, tf);
+xtraj = runInputTape(p, utraj, 0.3);
 
 
 
@@ -119,8 +119,8 @@ lib = AddLqrControllersToLib('turn-right', lib, p, xtraj, utraj, parameters, gai
 
 % first pull up, then fly straight
 
-t_mark = [0, .2, .3, .5];
-elevs = [0.3, 0.3, 0, 0];
+t_mark = [0, .2, .3, 1.5];
+elevs = [0.2, 0.2, 0, 0];
 throttle = [throttle_max, throttle_max, throttle_max, throttle_max];
 
 utraj = PPTrajectory(foh(t_mark, [elevs; elevs; throttle]));
