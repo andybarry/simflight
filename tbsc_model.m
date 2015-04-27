@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, Jx_fac, Jy_fac, Jz_fac, elev_lift_fac, elev_drag_fac, varargin)
+function [xdot, y] = tbsc_model(t,x,u, elev_lift_fac, elev_drag_fac, body_x_drag_fac,  body_z_drag_fac, varargin)
 % Model derived from Ani's SBach model
 
 % Set output (first seven states)
@@ -57,9 +57,9 @@ thr_fac = 1;
 
 % Body drag
 % body_x_drag_fac = 0;
-body_x_drag_fac = 0.03;
+%body_x_drag_fac = 0.03;
 body_y_drag_fac = 0;
-body_z_drag_fac = 0;
+%body_z_drag_fac = 0;
 
 % Rate dependent force
 F_Q_fac_x = 0;
@@ -76,14 +76,18 @@ M_R_fac = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rotational inertias
-%Jx = Jx_fac*0.014894; % The numbers are from the solidworks model
-%Jy = Jy_fac*0.005580;
-%Jz = Jz_fac*0.019316; % TODO: include cross terms from solidworks?
+Jx_sw = 0.014894; % The numbers are from the solidworks model
+Jy_sw = 0.005580;
+Jz_sw = 0.019316; % TODO: include cross terms from solidworks?
 
 % Experimentally measured:
-Jx = 0.0156252;
-Jy = 0.0049116;
-Jz = 0.01739;
+Jx_measured = 0.0156252;
+Jy_measured = 0.0049116;
+Jz_measured = 0.01739;
+
+Jx = (Jx_measured + Jx_sw ) / 2;
+Jy = (Jy_measured + Jy_sw ) / 2;
+Jz = (Jz_measured + Jz_sw ) / 2;
 
 J = diag([Jx,Jy,Jz]);
 invJ = diag([1/Jx,1/Jy,1/Jz]);
@@ -306,10 +310,10 @@ F_thrust = [thr_fac*thr_to_thrust*thr; 0; 0]; % thr_to_thrust was estimated from
 body_drag_x =  body_x_drag_fac*pressure(U);
 
 % Drag due to body in y-direction
-body_drag_y = body_y_drag_fac * pressure(V) * wing_area; % Just a rough initial estimate
+body_drag_y = body_y_drag_fac * pressure(V);
 
 % Drag due to wing in z-direction
-body_drag_z = body_z_drag_fac * pressure(W) * wing_area;
+body_drag_z = body_z_drag_fac * pressure(W);
 
 F_body_drag = [-sign(U)*body_drag_x;-sign(V)*body_drag_y;-sign(W)*body_drag_z];
 

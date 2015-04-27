@@ -78,7 +78,8 @@ end
 
 % interesting data: 4, 8, 9, 16, 20
 % aileron roll at about data = 63, 65
-merge_nums = [8, 63, 100];
+%merge_nums = [8, 63, 100];
+merge_nums = [8, 9, 63, 100, 103];
 
 
 
@@ -118,33 +119,32 @@ x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
 
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
-parameters = [1; 1; 1; 1; 1];
+parameters = [1; 1; 0.03; 0.05];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
-nlgr.Parameters(1).Name = 'Jx';
-nlgr.Parameters(2).Name = 'Jy';
-nlgr.Parameters(3).Name = 'Jz';
-nlgr.Parameters(4).Name = 'Elift';
-nlgr.Parameters(5).Name = 'Edrag';
+nlgr.Parameters(1).Name = 'Elift';
+nlgr.Parameters(2).Name = 'Edrag';
+nlgr.Parameters(3).Name = 'Bx_dr';
+nlgr.Parameters(4).Name = 'Bz_dr';
 %nlgr.Parameters(6).Name = 'M_Q_fac';
 % nlgr.Parameters(7).Name = 'By_dr';
-% nlgr.Parameters(8).Name = 'Bz_dr';
+
 
 nlgr.Parameters(1).Minimum = 0;
 nlgr.Parameters(2).Minimum = 0;
 nlgr.Parameters(3).Minimum = 0;
 nlgr.Parameters(4).Minimum = 0;
-nlgr.Parameters(5).Minimum = 0;
+%nlgr.Parameters(5).Minimum = 0;
 %nlgr.Parameters(6).Minimum = -5;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
 nlgr.Parameters(1).Maximum = 5;
 nlgr.Parameters(2).Maximum = 5;
-nlgr.Parameters(3).Maximum = 5;
-nlgr.Parameters(4).Maximum = 5;
-nlgr.Parameters(5).Maximum = 5;
+ nlgr.Parameters(3).Maximum = 100;
+nlgr.Parameters(4).Maximum = 100;
+%nlgr.Parameters(5).Maximum = 100;
 %nlgr.Parameters(6).Maximum = 5;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -240,7 +240,7 @@ RR = diag([0.01 * ones(length(parameters),1); 0.01*ones(num_experiments * num_st
 %RR(4,4) = 10000;
 
 % add some regularization on yaw since there isn't much data there
-RR(3,3) = 5;
+%RR(4,4) = 5;
 
 
 nlgr.Algorithm.Regularization.R = RR;
@@ -264,9 +264,9 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 3;
+pitch_weight = 50;
 yaw_weight = 0.75;
-airspeed_weight = 0.025;
+airspeed_weight = 0.01;
 
 output_weights = diag([roll_weight, pitch_weight, yaw_weight, airspeed_weight]);
 
@@ -317,41 +317,46 @@ disp('done.');
 
 %compare_to = [26, 27];
 
-compare_to = [66, 84, 103];
+compare_to = [27, 66, 84];
+%compare_to = [];
 
-dat_compare = merge(dat{compare_to});
+if (~isempty(compare_to))
+
+  dat_compare = merge(dat{compare_to});
 
 
-% estimate initial states for comparison data set
+  % estimate initial states for comparison data set
 
-disp(['Estimating initial states for ' num2str(compare_to) '...']);
+  disp(['Estimating initial states for ' num2str(compare_to) '...']);
 
-x0_fixed_compare = FixInitialConditionsForData(dat_compare);
+  x0_fixed_compare = FixInitialConditionsForData(dat_compare);
 
-for i = 1:length(nlgr_fit.Parameters)
-  parameters_compare(i) = nlgr_fit.Parameters(i).Value;
+  for i = 1:length(nlgr_fit.Parameters)
+    parameters_compare(i) = nlgr_fit.Parameters(i).Value;
+  end
+
+  nlgr_compare = idnlgrey(file_name, order, parameters_compare, x0_fixed_compare);
+
+  nlgr_compare.Algorithm.Display = 'full';
+  nlgr_compare = setinit(nlgr_compare, 'Fixed', {true true true true true true true false false false false false });
+  for i = 1:length(nlgr_compare.Parameters)
+    nlgr_compare.Parameters(i).Fixed = 1;
+  end
+
+
+  %x0 = zeros(num_states, length(merge_nums));
+
+  x0_compare = findstates(nlgr_compare, dat_compare)
+
+
+  compare_options2 = compareOptions('InitialCondition',x0_compare);
+
+
+
+  figure(27)
+  plot(dat_compare)
+
+  figure(28)
+  compare(dat_compare, nlgr_compare, compare_options2);
+  
 end
-
-nlgr_compare = idnlgrey(file_name, order, parameters_compare, x0_fixed_compare);
-
-nlgr_compare.Algorithm.Display = 'full';
-nlgr_compare = setinit(nlgr_compare, 'Fixed', {true true true true true true true false false false false false });
-for i = 1:length(nlgr_compare.Parameters)
-  nlgr_compare.Parameters(i).Fixed = 1;
-end
-
-
-%x0 = zeros(num_states, length(merge_nums));
-
-x0_compare = findstates(nlgr_compare, dat_compare)
-
-
-compare_options2 = compareOptions('InitialCondition',x0_compare);
-
-
-
-figure(27)
-plot(dat_compare)
-
-figure(28)
-compare(dat_compare, nlgr_fit, compare_options2);
