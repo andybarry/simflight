@@ -45,7 +45,7 @@ function cost = get_lqr_K(Q, A, B)
   K
   
 
-  cost = norm(K(1,4:5)-K_pd(1,4:5), 1) + 10*norm(K(1,10:11) - K_pd(1,10:11), 1);
+  cost = norm(K(1,4:5)-K_pd(1,4:5), 1) + 15*norm(K(1,10:11) - K_pd(1,10:11), 1);
   
   cost
 
