@@ -84,7 +84,7 @@ classdef HudBotVisualizer < BotVisualizer
       % you must call this when clear java will run successfully
       
       javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-      javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
+      javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
     end
   end
   

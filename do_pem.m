@@ -80,6 +80,7 @@ end
 % aileron roll at about data = 63, 65
 %merge_nums = [8, 63, 100];
 merge_nums = [8, 9, 63, 100, 103];
+%merge_nums = [8];
 
 
 
@@ -119,32 +120,32 @@ x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
 
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
-parameters = [1; 1; 0.03; 0.05];
+parameters = [1; 1; 0; 0; 0];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
 nlgr.Parameters(1).Name = 'Elift';
 nlgr.Parameters(2).Name = 'Edrag';
-nlgr.Parameters(3).Name = 'Bx_dr';
-nlgr.Parameters(4).Name = 'Bz_dr';
-%nlgr.Parameters(6).Name = 'M_Q_fac';
+nlgr.Parameters(3).Name = 'M_P_fac';
+nlgr.Parameters(4).Name = 'M_Q_fac';
+nlgr.Parameters(5).Name = 'M_R_fac';
 % nlgr.Parameters(7).Name = 'By_dr';
 
 
 nlgr.Parameters(1).Minimum = 0;
 nlgr.Parameters(2).Minimum = 0;
-nlgr.Parameters(3).Minimum = 0;
-nlgr.Parameters(4).Minimum = 0;
-%nlgr.Parameters(5).Minimum = 0;
+nlgr.Parameters(3).Minimum = -10;
+nlgr.Parameters(4).Minimum = -10;
+nlgr.Parameters(5).Minimum = -10;
 %nlgr.Parameters(6).Minimum = -5;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
 nlgr.Parameters(1).Maximum = 5;
 nlgr.Parameters(2).Maximum = 5;
- nlgr.Parameters(3).Maximum = 100;
-nlgr.Parameters(4).Maximum = 100;
-%nlgr.Parameters(5).Maximum = 100;
+nlgr.Parameters(3).Maximum = 10;
+nlgr.Parameters(4).Maximum = 10;
+nlgr.Parameters(5).Maximum = 10;
 %nlgr.Parameters(6).Maximum = 5;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -264,7 +265,7 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 50;
+pitch_weight = 30;
 yaw_weight = 0.75;
 airspeed_weight = 0.01;
 

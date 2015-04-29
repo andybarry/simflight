@@ -20,7 +20,9 @@ parameters_old_before_3_31_2015 = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
 
 %parameters = { 1.427, 0.321, 2.618, 0.611, 0.000 };
 
-parameters = {1.045, 0.000, 0.037, 2.676 };
+%parameters = {0.904, 0.000, -0.134, -0.049, -0.128 };
+
+parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
 func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
@@ -97,7 +99,7 @@ u0(3) = x(5);
 
 
 
-Q = diag([0 0 0 5 20 .25 0.1 .0001 0.0001 .001 .001 .1]);
+Q = diag([0 0 0 10 30 .25 0.1 .0001 0.0001 .001 .001 .1]);
 Q(1,1) = 1e-10; % ignore x-position
 Q(2,2) = 1e-10; % ignore y-position
 Q(3,3) = 1e-10; % ignore z-position

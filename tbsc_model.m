@@ -1,4 +1,4 @@
-function [xdot, y] = tbsc_model(t,x,u, elev_lift_fac, elev_drag_fac, body_x_drag_fac,  body_z_drag_fac, varargin)
+function [xdot, y] = tbsc_model(t,x,u, elev_lift_fac, elev_drag_fac, M_P_fac, M_Q_fac, M_R_fac, varargin)
 % Model derived from Ani's SBach model
 
 % Set output (first seven states)
@@ -57,9 +57,9 @@ thr_fac = 1;
 
 % Body drag
 % body_x_drag_fac = 0;
-%body_x_drag_fac = 0.03;
+body_x_drag_fac = 0.03;
 body_y_drag_fac = 0;
-%body_z_drag_fac = 0;
+body_z_drag_fac = 0;
 
 % Rate dependent force
 F_Q_fac_x = 0;
@@ -69,9 +69,9 @@ F_Q_fac_z = 0;
 thr_drag_fac = 0; % TODO: roll from throttle
 
 % Rate dependent moments
-M_P_fac = 0;
-M_Q_fac = 0;
-M_R_fac = 0;
+%M_P_fac = 0;
+%M_Q_fac = 0;
+%M_R_fac = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
