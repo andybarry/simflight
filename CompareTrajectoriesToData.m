@@ -28,9 +28,17 @@ load(trajectory_library);
 [t_starts, t_ends] = FindActiveTimes(u.logtime, u.is_autonomous, 0.5);
 
 %%
-t_start = t_starts(1);
-t_end = t_ends(1);
-traj = lib.trajectories{10};
+num = 3;
+
+t_start = t_starts(num);
+t_end = t_ends(num);
+
+[~, idx] = min(abs(tvlqr_out.logtime - t_start));
+this_traj_num = tvlqr_out.trajectory_number(idx);
+
+
+
+traj = lib.trajectories{this_traj_num};
 
 %%
 u = TrimU(t_start, t_end, u);
@@ -46,6 +54,7 @@ xtrajsim = TbscSimulateGivenU(est.drake_frame(1,:)', u, parameters);
 dt = 1/140;
 t = 0:dt:traj.xtraj.tspan(2);
 trajx = traj.xtraj.eval(t);
+traju = traj.utraj.eval(t);
 trajsim = xtrajsim.eval(t+est.logtime(1));
 
 %% plot roll
@@ -109,9 +118,18 @@ ylabel('Altitude (m)');
 %% plot u
 
 figure(4)
-plot(u.logtime, u.elevonL);
+clf
+plot(u.logtime, u.rad.elevonL);
 hold on
-plot(u.logtime, u.elevonR, 'r-');
-plot(u.logtime, u.throttle, 'k-');
-legend('elevonL', 'elevonR', throttle');
+plot(t+u.logtime(1), traju(1,:),'b--')
+
+
+
+plot(u.logtime, u.rad.elevonR, 'm-');
+plot(t+u.logtime(1), traju(2,:),'m--')
+%plot(u.logtime, u.throttle, 'k-');
+legend('elevonL', 'elevonL-plan', 'elevonR', 'elevonR-plan');
+
+
+xlim([t(1)+est.logtime(1) t(end)+est.logtime(1)]);
 
