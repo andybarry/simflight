@@ -81,6 +81,18 @@ classdef TrajectoryLibrary
         obj.trajectories{i}.WriteToFile([filename_prefix '-' obj.trajectories{i}.name '-' numstr], dt, overwrite_files);
       end
       
+      % write a .mat file containing this object
+      mat_filename = [filename_prefix '.mat'];
+      
+      % check for existing mat file
+      if ~overwrite_files && exist(mat_filename, 'file') ~= 0
+        error(['Not writing trajectory .mat since "' mat_filename '" exists.']);
+      end
+      
+      disp(['Writing: ' mat_filename]);
+      lib = obj;
+      save(mat_filename, 'lib');
+      
       disp('done.');
       
     end
