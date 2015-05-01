@@ -69,9 +69,9 @@ F_Q_fac_z = 0;
 thr_drag_fac = 0; % TODO: roll from throttle
 
 % Rate dependent moments
-%M_P_fac = 0;
-%M_Q_fac = 0;
-%M_R_fac = 0;
+% M_P_fac = 0;
+% M_Q_fac = 0;
+% M_R_fac = 0;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
