@@ -60,6 +60,10 @@ classdef TrajectoryLibrary
       
     end
     
+    function traj = GetTrajectoryByNumber(obj, traj_num_from_filename)
+      traj= obj.trajectories{traj_num_from_filename + 1};
+    end
+    
     function WriteToFile(obj, filename_prefix, overwrite_files)
       % generate the data files for the C++, onboard code
       % files will be called: filename_prefix-00001.csv

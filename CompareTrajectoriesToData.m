@@ -2,11 +2,11 @@ clear
 
 parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-04-21';
+date = '2015-05-01';
 name = 'field-test';
-log_number = '03';
+log_number = '04';
 
-trajectory_library = 'trajlib/april-29.mat';
+trajectory_library = 'trajlib/may-1.mat';
 
 
 
@@ -28,7 +28,7 @@ load(trajectory_library);
 [t_starts, t_ends] = FindActiveTimes(u.logtime, u.is_autonomous, 0.5);
 
 %%
-num = 3;
+num = 9;
 
 t_start = t_starts(num);
 t_end = t_ends(num);
@@ -36,9 +36,11 @@ t_end = t_ends(num);
 [~, idx] = min(abs(tvlqr_out.logtime - t_start));
 this_traj_num = tvlqr_out.trajectory_number(idx);
 
+disp(['Trajectory #: ' num2str(this_traj_num)]);
 
 
-traj = lib.trajectories{this_traj_num};
+
+traj = lib.GetTrajectoryByNumber(this_traj_num);
 
 %%
 u = TrimU(t_start, t_end, u);
@@ -46,8 +48,9 @@ est = TrimEst(t_start, t_end, est);
 
 %% simulate
 
+disp('Simulating...');
 xtrajsim = TbscSimulateGivenU(est.drake_frame(1,:)', u, parameters);
-
+disp('Simulation complete.');
 
 
 %%
@@ -93,7 +96,7 @@ set(gca,'YDir','reverse');
 grid on
 xlabel('Time (s)');
 ylabel('Pitch (deg)');
-%legend('Actual', 'Planned','Location','NorthWest')
+legend('Actual', 'Planned','Simulated with new model','Location','NorthWest')
 
 %% plot z
 
@@ -112,7 +115,7 @@ xlim([t(1)+est.logtime(1) t(end)+est.logtime(1)]);
 grid on
 xlabel('Time (s)');
 ylabel('Altitude (m)');
-%legend('Actual', 'Planned','Location','NorthWest')
+legend('Actual', 'Planned','Simulated with new model','Location','NorthWest')
 
 
 %% plot u
