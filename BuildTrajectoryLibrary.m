@@ -16,7 +16,7 @@ bounds = [ 2
 
 u0 = [0, 0, 5.33/2];
 
-
+%{
 
 
 xf_straight = [7.1738
@@ -36,9 +36,9 @@ tf_straight = 0.5;
 
 
 [straight_utraj, straight_xtraj] = runDircol(xf_straight, tf_straight, bounds, u0);
+%}
 
 
-%{
 
 bounds = [ 10
   .5
@@ -52,7 +52,7 @@ bounds = [ 10
   deg2rad(70)
   deg2rad(70)
   deg2rad(70)];
-
+%{
 
 
 xf_left = [10
@@ -73,7 +73,7 @@ tf_left = 0.5;
 [left_utrag, left_xtraj] = runDircol(xf_left, tf_left, bounds, u0);
 
 %}
-%{
+
 xf_right = [5
          -2.5
    2
@@ -89,5 +89,4 @@ xf_right = [5
        
 tf_right = 0.5;
 
-[right_utrag, right_xtraj] = runDircol(xf_right, tf_right, bounds, u0);
-%}
+[right_utraj, right_xtraj] = runDircol(xf_right, tf_right, bounds, u0);

@@ -22,7 +22,8 @@ parameters_old_before_3_31_2015 = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
 
 %parameters = {0.904, 0.000, -0.134, -0.049, -0.128 };
 
-parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+
+%%%% parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
 func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), parameters);
 
