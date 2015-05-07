@@ -1,6 +1,6 @@
 %% find fixed point
 
-clear
+%clear
 
 p = NonlinearProgram(5);
 %p = p.setSolver('fmincon');
@@ -161,7 +161,7 @@ gains.K_pd_yaw = K_pd_yaw;
 gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-WriteTiqrControllers('tilqr', p, A, B, xtraj, utraj, parameters, gains);
+lib = WriteTiqrControllers(lib, 'tilqr', p, A, B, x0, u0, parameters, gains);
 
 return;
 

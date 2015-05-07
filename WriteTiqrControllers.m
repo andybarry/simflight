@@ -1,4 +1,4 @@
-function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
+function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gains)
  
   Q = gains.Q;
   R = gains.R;
@@ -10,7 +10,7 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   
   % first just use the K_pd's and build trajectories
   
-  
+  %{
   ktraj = ConstantTrajectory(-K_pd);
   affine_traj = ConstantTrajectory(zeros(3,1));
 
@@ -28,9 +28,10 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   
   number = number + 1;
-
+  %}
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd, 'pd-no-yaw');
   
-  
+  %{
   
   
   ktraj = ConstantTrajectory(-K_pd_yaw);
@@ -46,10 +47,11 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   
   number = number + 1;
+  %}
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd_yaw, 'pd-yaw');
   
   
-  
-  
+  %{
   ktraj = ConstantTrajectory(-K_pd_aggressive_yaw);
   lqrsys = struct();
   lqrsys.D = ktraj;
@@ -64,12 +66,14 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   
   number = number + 1;
-  
+  %}
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd_aggressive_yaw, 'pd-aggressive-yaw');
   
   
   
 
   K = lqr(full(A), full(B), Q, R);
+  
   
   % kill everything that isn't pitch or roll
   %K(:, 1:3) = 0; % kill xyz
@@ -85,6 +89,7 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   K0(:, 8:9) = 0; % ydot zdot
   K0(:, 12) = 0; % yawdot
   
+  %{
   ktraj = ConstantTrajectory(-K0);
   lqrsys = struct();
   lqrsys.D = ktraj;
@@ -96,7 +101,12 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   number = number + 1;
-  
+  %}
+  trajname = [name '-just-roll-pitch'];
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+      prettymat('Q', Q, 5) prettymat('R', R)]);
+    
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K0, trajname, comments);
   
   
   
@@ -107,6 +117,7 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   K1(:, 8:9) = 0; % ydot zdot
   K1(:, 12) = 0; % yawdot
   
+  %{
   ktraj = ConstantTrajectory(-K1);
   lqrsys = struct();
   lqrsys.D = ktraj;
@@ -118,7 +129,13 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   number = number + 1;
+  %}
   
+  trajname = [name '-just-roll-pitch-yaw'];
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+      prettymat('Q', Q, 5) prettymat('R', R)]);
+    
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K1, trajname, comments);
   
   
   
@@ -126,6 +143,7 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   
   K2 = K;
   
+  %{
   ktraj = ConstantTrajectory(-K2);
   lqrsys = struct();
   lqrsys.D = ktraj;
@@ -137,6 +155,13 @@ function WriteTiqrControllers(name, p, A, B, xtraj, utraj, parameters, gains)
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   number = number + 1;
+  %}
+  
+  trajname = [name '-full'];
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+      prettymat('Q', Q, 5) prettymat('R', R)]);
+    
+  lib = lib.AddStabilizationTrajectory(p, x0, u0, K2, trajname, comments);
   
  
   

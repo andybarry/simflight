@@ -5,6 +5,8 @@ classdef TrajectoryLibrary
   
   properties
     trajectories = {};
+    stabilization_trajectories = {};
+    stabilization_traj_offset = 10000;
   end
   
   
@@ -60,8 +62,34 @@ classdef TrajectoryLibrary
       
     end
     
+    function obj = AddStabilizationTrajectory(obj, p, x0, u0, K_to_be_negated, trajname, comments)
+      
+      if (nargin < 7)
+        comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3)]);
+      end
+      
+      xtraj = ConstantTrajectory(x0);
+      utraj = ConstantTrajectory(u0);
+      
+      ktraj = ConstantTrajectory(-K_to_be_negated);
+      affine_traj = ConstantTrajectory(zeros(3,1));
+
+      lqrsys = struct();
+      lqrsys.D = ktraj;
+      lqrsys.y0 = affine_traj;
+      
+      traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
+      
+      obj.stabilization_trajectories{end+1} = traj;
+      
+    end
+    
     function traj = GetTrajectoryByNumber(obj, traj_num_from_filename)
-      traj= obj.trajectories{traj_num_from_filename + 1};
+      if (traj_num_from_filename >= obj.stabilization_traj_offset)
+        traj = obj.stabilization_trajectories{ traj_num_from_filename + 1 - obj.stabilization_traj_offset };
+      else
+        traj= obj.trajectories{traj_num_from_filename + 1};
+      end
     end
     
     function WriteToFile(obj, filename_prefix, overwrite_files)
@@ -84,6 +112,16 @@ classdef TrajectoryLibrary
         numstr = sprintf('%05d', i-1);
         obj.trajectories{i}.WriteToFile([filename_prefix '-' obj.trajectories{i}.name '-' numstr], dt, overwrite_files);
       end
+      
+      % write stabilization files
+      for i = 1 : length(obj.stabilization_trajectories)
+        numstr = sprintf('%05d', i-1+obj.stabilization_traj_offset);
+        
+        traj = obj.stabilization_trajectories{i};
+        traj.WriteToFile([filename_prefix '-' traj.name '-' numstr], dt, overwrite_files);
+        %traj.WriteToFile(['trajlib/' traj.name '-' numstr], dt, overwrite_files);
+      end
+        
       
       % write a .mat file containing this object
       mat_filename = [filename_prefix '.mat'];

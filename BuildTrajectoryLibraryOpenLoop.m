@@ -5,6 +5,10 @@ HudBotVisualizer.InitJava();
 
 lib = TrajectoryLibrary();
 
+% add stabilization trajectories
+
+FindTrimDrake
+
 %parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
 parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
