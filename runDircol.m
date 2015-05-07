@@ -2,7 +2,7 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
   % run trajectory optimization
   
   javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-  javaaddpath('/home/abarry/Fixie/build/share/java/lcmtypes_mav-lcmtypes.jar');
+  javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
   
   checkDependency('lcmgl');
   lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol');
@@ -11,7 +11,9 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
 
   %% setup
 
-  parameters = { 1.92, 1.84, 2.41, 0.48, 0.57 };
+  parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+  
+  
 
   x = 0;
   y = 0;
@@ -140,7 +142,7 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
     tic
     [xtraj, utraj, z, F, info] = prog.solveTraj(tf0, traj_init);
     toc
-    keyboard;
+    %keyboard;
   %end
   
 %   for i=1:100000
