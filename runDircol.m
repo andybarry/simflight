@@ -1,4 +1,10 @@
-function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
+function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints)
+  
+  if nargin < 5
+    additional_constraints = stuct();
+    additional_constraints.c = [];
+    additional_constraints.N_fac = [];
+  end
   % run trajectory optimization
   
   javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
@@ -8,6 +14,8 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
   lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol');
   
   lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+  
+  !echo "0" > abort.txt
 
   %% setup
 
@@ -55,7 +63,9 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
 
   %% run trajectory optimization
 
-  N = 11; % number of knot points
+  %N = 11; % number of knot points
+  N = tf0 * 10 + 1;
+  %N = 21; % number of knot points
   minimum_duration = 0.1;
   maximum_duration = 2.0;
 
@@ -114,6 +124,11 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
       100
       100
       100];
+  end
+  
+  
+  for i = 1 : length(additional_constraints.c)
+    prog = prog.addStateConstraint(additional_constraints.c(i), round(additional_constraints.N_fac(i) * N));
   end
 
   prog = prog.addStateConstraint(BoundingBoxConstraint(xf-bounds_delta, xf+bounds_delta), N);
@@ -200,25 +215,10 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0)
 
 
   function plotDircolTraj(t,x,u)
-    lcmgl.glColor3f(0,0,1);
-    lcmgl.glLineWidth(2);
+    options_draw.color = [0 0 1];
+    DrawTrajectoryLcmGl(x, 'dircol-running', options_draw);
 
-    last_knot = [];
-
-    for knot = x
-      lcmgl.sphere(knot, 0.05, 20, 20);
-
-      if ~isempty(last_knot)
-        lcmgl.line3(last_knot(1), last_knot(2), last_knot(3), knot(1), knot(2), knot(3));
-      end
-
-      last_knot = knot;
-    end
-
-    lcmgl.switchBuffers();
-    
-    
-%     keyboard
+    assert(fscanf(fopen('abort.txt', 'r'), '%d') == 0, 'Abort from file.')
     
   end
 
