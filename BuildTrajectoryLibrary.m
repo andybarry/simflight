@@ -69,7 +69,7 @@ cons.N_fac = 0.5;
 bounds = [ 100
   20
   20
-  .1
+  deg2rad(5)
   .01
   .5
     3
@@ -87,7 +87,7 @@ tf_straight = 4;
 xf_straight = [14 * tf_straight
          0
    1
-         0
+         deg2rad(360)
     -0.1857
          0
    15.0805
@@ -102,16 +102,16 @@ bounds_roll_lower = -Inf*ones(12,1);
 bounds_roll_upper = Inf*ones(12,1);
 
 
-bounds_roll_lower(4) = rad2deg(160);
-bounds_roll_upper(4) = rad2deg(170)
+bounds_roll_lower(4) = deg2rad(160);
+bounds_roll_upper(4) = deg2rad(170);
 c_knife = BoundingBoxConstraint(bounds_roll_lower, bounds_roll_upper);
 
 
 bounds_roll_lower = -Inf*ones(12,1);
 bounds_roll_upper = Inf*ones(12,1);
 
-bounds_roll_lower(4) = rad2deg(190);
-bounds_roll_upper(4) = rad2deg(200);
+bounds_roll_lower(4) = deg2rad(190);
+bounds_roll_upper(4) = deg2rad(200);
 c_knife2 = BoundingBoxConstraint(bounds_roll_lower, bounds_roll_upper);
 
 cons = struct();
@@ -123,7 +123,7 @@ cons.N_fac(2) = 0.55;
 
 
 
-[utraj_knife, xtraj_knife] = runDircol(xf_straight, tf_straight, bounds, u0, cons);
+[utraj_knife, xtraj_knife] = runDircol(xf_straight, tf_straight, bounds, u0, [], 10);%, cons);
 return;
 
 %%

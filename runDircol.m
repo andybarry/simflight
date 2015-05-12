@@ -1,10 +1,18 @@
-function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints)
+function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints, N)
   
-  if nargin < 5
-    additional_constraints = stuct();
+  if nargin < 5 || isempty(additional_constraints)
+    additional_constraints = struct();
     additional_constraints.c = [];
     additional_constraints.N_fac = [];
   end
+  
+  
+  if nargin < 6
+    %N = 11; % number of knot points
+    N = tf0 * 10 + 1;
+  end
+  
+  
   % run trajectory optimization
   
   javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
@@ -63,8 +71,7 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
 
   %% run trajectory optimization
 
-  %N = 11; % number of knot points
-  N = tf0 * 10 + 1;
+
   %N = 21; % number of knot points
   minimum_duration = 0.1;
   maximum_duration = 2.0;
