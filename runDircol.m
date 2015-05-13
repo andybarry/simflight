@@ -1,4 +1,4 @@
-function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints, N)
+function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints, N, xtraj_guess, utraj_guess)
   
   if nargin < 5 || isempty(additional_constraints)
     additional_constraints = struct();
@@ -12,25 +12,6 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
     N = tf0 * 10 + 1;
   end
   
-  
-  % run trajectory optimization
-  
-  javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-  javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
-  
-  checkDependency('lcmgl');
-  lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol');
-  
-  lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
-  
-  !echo "0" > abort.txt
-
-  %% setup
-
-  parameters = {0.904, 0.000, -0.134, -0.049, 0 };
-  
-  
-
   x = 0;
   y = 0;
   z = 0;
@@ -45,6 +26,45 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
   yawdot = 0;
 
   x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ]
+  
+  if nargin < 7
+     traj_init.x = PPTrajectory(foh([0, tf0], [x0_drake, xf]));
+  else
+    traj_init.x = xtraj_guess;
+  end
+  
+  if nargin < 8
+    traj_init.u = ConstantTrajectory(u0);
+  else
+    traj_init.u = utraj_guess;
+    assert(traj_init.x.tspan(2) == traj_init.u.tspan(2), 'Init trajectories have different tspan');
+  end
+  
+  if tf0 ~= traj_init.x.tspan(2)
+    tf0 = traj_init.x.tspan(2);
+    warning('tf0 ~= traj_init.x.tspan(2), ignoring tf0 parameter.');
+  end
+  
+  
+  % run trajectory optimization
+  
+  %javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
+  %javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
+  
+  checkDependency('lcmgl');
+  lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol');
+  
+  lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+  
+  !echo "0" > abort.txt
+
+  %% setup
+
+  parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+  
+  
+
+
   
   if nargin < 2
     tf0 = 0.5;
@@ -153,9 +173,6 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
   
   prog = prog.setSolverOptions('snopt','print','print.out');
 
-  
-  traj_init.x = PPTrajectory(foh([0, tf0], [x0_drake, xf]));
-  traj_init.u = ConstantTrajectory(u0);
 
   info = 0;
 

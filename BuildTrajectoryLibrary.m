@@ -66,37 +66,52 @@ cons.N_fac = 0.5;
 %}
 %% alieron roll
 
-bounds = [ 100
-  20
-  20
-  deg2rad(5)
-  .01
-  .5
-    3
-    5
-    5
-  deg2rad(70)
-  deg2rad(70)
-  deg2rad(70)];
+bounds = [ 
+  100         % x
+  20          % y
+  20          % z
+  deg2rad(5)  % roll
+  deg2rad(50) % pitch
+  0.5         % yaw
+  3           % x-dot
+  5           % y-dot
+  100         % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
 
 u0 = [0, 0, 5.33/2];
 
 
 tf_straight = 4;
+% 
+% xf_straight = [14 * tf_straight
+%          0
+%    -18
+%          deg2rad(360)
+%     -0.1857
+%          0
+%    15.0805
+%          0
+%    0
+%          0
+%     0
+%          0];
 
-xf_straight = [14 * tf_straight
-         0
-   1
-         deg2rad(360)
-    -0.1857
-         0
-   15.0805
-         0
-   0
-         0
-    0
-         0];
-       
+xf_straight = [31.7156
+    0.9086
+  -13.8541
+    6.1959
+   -0.1757
+    0.1982
+   15.6379
+    4.8343
+   -5.0000
+    1.2217
+    0.0458
+   -0.6927];
+
 % constrain the plane to be knife-edged
 bounds_roll_lower = -Inf*ones(12,1);
 bounds_roll_upper = Inf*ones(12,1);
@@ -123,7 +138,10 @@ cons.N_fac(2) = 0.55;
 
 
 
-[utraj_knife, xtraj_knife] = runDircol(xf_straight, tf_straight, bounds, u0, [], 10);%, cons);
+[utraj1, xtraj1] = runDircol(xf_straight, tf_straight, bounds, u0, [], 11);%, cons);
+
+
+[utraj2, xtraj2] = runDircol(xf_straight, tf_straight, bounds, u0, [], 31, xtraj1, utraj1);%, cons);
 return;
 
 %%
