@@ -75,10 +75,10 @@ bounds = [
   deg2rad(70) % yaw-dot
   ];
 
-
 tf_roll = 4;
 xf_roll = x0;
 xf_roll(1) = x0(7)*tf_roll;
+xf_roll(4) = deg2rad(360);
 
 
 [utraj_roll1, xtraj_roll1] = runDircol(parameters, x0, xf_roll, tf_roll, bounds, u0, [], 11);

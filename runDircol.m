@@ -95,7 +95,7 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
 
   info = 0;
 
-  disp(['Starting trajectory optimization... (N = ' num2str(N) ')...']);
+  disp(['Starting trajectory optimization (N = ' num2str(N) ')...']);
   %while (info~=1)
     tic
     [xtraj, utraj, z, F, info] = prog.solveTraj(tf0, traj_init);
