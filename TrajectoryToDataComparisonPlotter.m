@@ -78,8 +78,12 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   end
 
   %% plot roll
+  
+  figure_num = 1;
+  coordinate_num = 4;
+  label = 'Roll (deg)';
 
-  figure(1)
+  figure(figure_num)
   clf
 
   plot(est.logtime, rad2deg(est.orientation.roll), '-r')
@@ -89,8 +93,8 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
     
     this_traj_t = traj_t{i};
     
-    traj_roll = trajx{i}(4,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_roll),'b-')
+    traj_coord = trajx{i}(coordinate_num,:);
+    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
 
     %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
     
@@ -104,50 +108,83 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
 
   grid on
   xlabel('Time (s)');
-  ylabel('Roll (deg)');
-  legend('Actual', 'Planned','Simulated')
-  title([ title_str ', Roll']);
+  ylabel(label);
+  legend('Actual', 'Planned')
+  title([ title_str ', ' label]);
 
-  return;
+ 
   %% plot pitch
 
-  figure(2)
+  figure_num = 2;
+  coordinate_num = 5;
+  label = 'Pitch (deg)';
+  vals = rad2deg(est.orientation.pitch);
+  
+  figure(figure_num)
   clf
 
-  plot(est.logtime, rad2deg(est.orientation.pitch), '-r')
-  hold on
+  plot(est.logtime, vals, '-r')
+  hold all
 
-  plot(t+est.logtime(1), rad2deg(trajx(5,:)), 'b-')
-  plot(t+est.logtime(1), rad2deg(trajsim(5,:)), '--k');
+  for i = 1 : length(traj)
+    
+    this_traj_t = traj_t{i};
+    
+    traj_coord = trajx{i}(coordinate_num,:);
+    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
 
-  xlim([t(1)+est.logtime(1) t(end)+est.logtime(1)  + xlim_t_extra]);
-  set(gca,'YDir','reverse');
+    %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
+    
+  end
+  
+  plot(traj_end_t, zeros(length(traj_end_t), 1), 'b*');
+
+  first_traj_t = traj_t{1};
+  last_traj_t = traj_t{length(traj)};
+  %xlim([first_traj_t(1)+est.logtime(1) last_traj_t(end)+est.logtime(1) + xlim_t_extra]);
+
   grid on
   xlabel('Time (s)');
-  ylabel('Pitch (deg)');
-  legend('Actual', 'Planned','Simulated')
-  title([ title_str ', Pitch']);
-
+  ylabel(label);
+  legend('Actual', 'Planned')
+  title([ title_str ', ' label]);
+  
   %% plot z
 
-  figure(3)
+  figure_num = 3;
+  coordinate_num = 3;
+  label = 'Altitude (m)';
+  vals = est.pos.z;
+  
+  figure(figure_num)
   clf
 
-  plot(est.logtime, est.pos.z, 'r-');
-  hold on
+  plot(est.logtime, vals, '-r')
+  hold all
 
-  plot(t+est.logtime(1), trajx(3,:) + est.pos.z(1), 'b-');
-  plot(t+est.logtime(1), trajsim(3,:), '--k');
+  for i = 1 : length(traj)
+    
+    this_traj_t = traj_t{i};
+    
+    traj_coord = trajx{i}(coordinate_num,:);
+    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
 
-  xlim([t(1)+est.logtime(1) t(end)+est.logtime(1)  + xlim_t_extra]);
+    %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
+    
+  end
+  
+  plot(traj_end_t, zeros(length(traj_end_t), 1), 'b*');
 
+  first_traj_t = traj_t{1};
+  last_traj_t = traj_t{length(traj)};
+  %xlim([first_traj_t(1)+est.logtime(1) last_traj_t(end)+est.logtime(1) + xlim_t_extra]);
 
   grid on
   xlabel('Time (s)');
-  ylabel('Altitude (m)');
-  legend('Actual', 'Planned','Simulated')
-  title([ title_str ', Altitude']);
-
+  ylabel(label);
+  legend('Actual', 'Planned')
+  title([ title_str ', ' label]);
+return;
   %% plot u
 
   figure(4)

@@ -6,7 +6,7 @@ function gains = GetDefaultGains()
     Q(2,2) = 1e-10; % ignore y-position
     Q(3,3) = 1e-10; % ignore z-position
 
-    R_values = [75 50];
+    R_values = [150 100];
 
     Qf = eye(12);
 
