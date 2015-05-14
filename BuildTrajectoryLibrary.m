@@ -57,6 +57,45 @@ cons.N_fac = 0.5;
 
 lib = AddLqrControllersToLib('knife-edge', lib, p, xtraj_knife2, utraj_knife2, gains);
 
+%% right turn
+bounds = [ 
+  100          % x
+  100         % y
+  1.0         % z
+  deg2rad(10)  % roll
+  deg2rad(10) % pitch
+  deg2rad(10) % yaw
+  3           % x-dot
+  5           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
+
+
+tf_turn = 4;
+
+xf_turn = x0;
+xf_turn(1) = x0(7)*.5*tf_turn;
+xf_turn(2) = -x0(7)*.5*tf_turn;
+xf_turn(6) = deg2rad(-90);
+
+xf_turn(7) = x0(7)/2;
+xf_turn(8) = -x0(7)/2;
+
+cons = [];
+
+
+
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
+[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('right-turn', lib, p, xtraj_turn2, utraj_turn2, gains);
+
+return;
 
 %% alieron roll
 
@@ -65,7 +104,7 @@ bounds = [
   20          % y
   20          % z
   deg2rad(5)  % roll
-  deg2rad(50) % pitch
+  deg2rad(20) % pitch
   0.5         % yaw
   3           % x-dot
   5           % y-dot
@@ -75,7 +114,7 @@ bounds = [
   deg2rad(70) % yaw-dot
   ];
 
-tf_roll = 4;
+tf_roll = 2;
 xf_roll = x0;
 xf_roll(1) = x0(7)*tf_roll;
 xf_roll(4) = deg2rad(360);
