@@ -1,39 +1,25 @@
-function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, additional_constraints, N, xtraj_guess, utraj_guess)
-  
-  if nargin < 5 || isempty(additional_constraints)
+function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_delta, u0, additional_constraints, N, utraj_guess, xtraj_guess)
+
+  if nargin < 7 || isempty(additional_constraints)
     additional_constraints = struct();
     additional_constraints.c = [];
     additional_constraints.N_fac = [];
   end
   
   
-  if nargin < 6
+  if nargin < 8
     %N = 11; % number of knot points
-    N = tf0 * 10 + 1;
+    N = round(tf0 * 10) + 1;
   end
-  
-  x = 0;
-  y = 0;
-  z = 0;
-  roll = 0;
-  pitch = 0;
-  yaw = 0;
-  xdot = 15;
-  ydot = 0;
-  zdot = 0;
-  rolldot = 0;
-  pitchdot = 0;
-  yawdot = 0;
 
-  x0_drake = [ x; y; z; roll; pitch; yaw; xdot; ydot; zdot; rolldot; pitchdot; yawdot ]
   
-  if nargin < 7
-     traj_init.x = PPTrajectory(foh([0, tf0], [x0_drake, xf]));
+  if nargin < 9
+     traj_init.x = PPTrajectory(foh([0, tf0], [x0, xf]));
   else
     traj_init.x = xtraj_guess;
   end
   
-  if nargin < 8
+  if nargin < 10
     traj_init.u = ConstantTrajectory(u0);
   else
     traj_init.u = utraj_guess;
@@ -48,27 +34,12 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
   
   % run trajectory optimization
   
-  %javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-  %javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
-  
   checkDependency('lcmgl');
   lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol');
   
   lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
   
   !echo "0" > abort.txt
-
-  %% setup
-
-  parameters = {0.904, 0.000, -0.134, -0.049, 0 };
-  
-  
-
-
-  
-  if nargin < 2
-    tf0 = 0.5;
-  end
 
 
   %% build drake objects
@@ -93,65 +64,13 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
 
 
   %N = 21; % number of knot points
-  minimum_duration = 0.1;
-  maximum_duration = 2.0;
+  minimum_duration = max(0, tf0 - tf0/2);
+  maximum_duration = tf0 + tf0/2;
 
   prog = DircolTrajectoryOptimization(p, N, [minimum_duration, maximum_duration]);
   
-  if (nargin < 4)
-    u0 = [0, 0, 0];
-  end
-  
-  prog = prog.addStateConstraint(ConstantConstraint(x0_drake), 1);
+  prog = prog.addStateConstraint(ConstantConstraint(x0), 1);
   prog = prog.addInputConstraint(ConstantConstraint(u0), 1);
-
-%   xf = x0_drake;
-% 
-%   xf(1) = 15;
-%   xf(2) = 0;
-%   xf(3) = -3.68;
-%   
-%   xf(4) = 0;
-%   xf(5) = .51;
-%   xf(6) = 0;
-%   
-%   xf(7) = 14.95;
-%   xf(8) = 0;
-%   xf(9) = -8.42;
-%   
-%   xf(10) = 0;
-%   xf(11) = 0.48;
-%   xf(12) = 0;
-  
-  if nargin < 1
-     xf = [14.9949
-           1.5
-     1
-           deg2rad(60)
-      0.5169
-           0
-     14.9585
-           0
-     -8.4280
-           0
-      0.2872
-           0];
-  end
-  
-  if nargin < 3
-    bounds_delta = [.5
-      .5
-      .5
-        deg2rad(5)
-        deg2rad(5)
-        deg2rad(5)
-      2
-      2
-      2
-      100
-      100
-      100];
-  end
   
   
   for i = 1 : length(additional_constraints.c)
@@ -176,7 +95,7 @@ function [utraj, xtraj, prog, r] = runDircol(xf, tf0, bounds_delta, u0, addition
 
   info = 0;
 
-  disp('Starting trajectory optimization...');
+  disp(['Starting trajectory optimization... (N = ' num2str(N) ')...']);
   %while (info~=1)
     tic
     [xtraj, utraj, z, F, info] = prog.solveTraj(tf0, traj_init);

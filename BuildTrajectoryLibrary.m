@@ -1,51 +1,39 @@
 
-clear
-%%
+megaclear
+
+%% trim conditions
+
+parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+gains = GetDefaultGains();
+
+p = DeltawingPlant(parameters);
+
+[x0, u0, lib] = FindTrimDrake(p);
 
 
-% bounds = [ 2
-%   .01
-%   .01
-%   .5
-%   .5
-%   .5
-%     .5
-%     3
-%     3
-%   1
-%   1
-%   1];
-%{
-bounds = [ 10
-  .5
-  1
-  .1
-  .01
-  .5
-    3
-    5
-    5
-  deg2rad(70)
-  deg2rad(70)
-  deg2rad(70)];
-
-u0 = [0, 0, 5.33/2];
+%% knife-edge
 
 
-tf_straight = 1;
+bounds = [ 
+  10          % x
+  0.5         % y
+  1.0         % z
+  deg2rad(5)  % roll
+  deg2rad(10) % pitch
+  deg2rad(28) % yaw
+  3           % x-dot
+  5           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
 
-xf_straight = [15 * tf_straight
-         0
-   1
-         0
-    -0.1857
-         0
-   15.0805
-         0
-   0
-         0
-    0
-         0];
+
+tf_knife_edge = 1.75;
+
+xf_knife_edge = x0;
+xf_knife_edge(1) = x0(7)*tf_knife_edge;
        
 % constrain the plane to be knife-edged
 bounds_roll_lower= -Inf*ones(12,1);
@@ -62,8 +50,14 @@ cons.N_fac = 0.5;
 
 
 
-[utraj_knife, xtraj_knife] = runDircol(xf_straight, tf_straight, bounds, u0, cons);
-%}
+[utraj_knife1, xtraj_knife1] = runDircol(parameters, x0, xf_knife_edge, tf_knife_edge, bounds, u0, cons, 11);
+[utraj_knife2, xtraj_knife2] = runDircol(parameters, x0, xf_knife_edge, xtraj_knife1.tspan(2), bounds, u0, cons, 31, utraj_knife1, xtraj_knife1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('knife-edge', lib, p, xtraj_knife2, utraj_knife2, gains);
+
+
 %% alieron roll
 
 bounds = [ 
@@ -81,119 +75,13 @@ bounds = [
   deg2rad(70) % yaw-dot
   ];
 
-u0 = [0, 0, 5.33/2];
+
+tf_roll = 4;
+xf_roll = x0;
+xf_roll(1) = x0(7)*tf_roll;
 
 
-tf_straight = 4;
-% 
-% xf_straight = [14 * tf_straight
-%          0
-%    -18
-%          deg2rad(360)
-%     -0.1857
-%          0
-%    15.0805
-%          0
-%    0
-%          0
-%     0
-%          0];
+[utraj_roll1, xtraj_roll1] = runDircol(parameters, x0, xf_roll, tf_roll, bounds, u0, [], 11);
+[utraj_roll2, xtraj_roll2] = runDircol(parameters, x0, xf_roll, xtraj_roll1.tspan(2), bounds, u0, [], 31, utraj_roll1, xtraj_roll1);
 
-xf_straight = [31.7156
-    0.9086
-  -13.8541
-    6.1959
-   -0.1757
-    0.1982
-   15.6379
-    4.8343
-   -5.0000
-    1.2217
-    0.0458
-   -0.6927];
-
-% constrain the plane to be knife-edged
-bounds_roll_lower = -Inf*ones(12,1);
-bounds_roll_upper = Inf*ones(12,1);
-
-
-bounds_roll_lower(4) = deg2rad(160);
-bounds_roll_upper(4) = deg2rad(170);
-c_knife = BoundingBoxConstraint(bounds_roll_lower, bounds_roll_upper);
-
-
-bounds_roll_lower = -Inf*ones(12,1);
-bounds_roll_upper = Inf*ones(12,1);
-
-bounds_roll_lower(4) = deg2rad(190);
-bounds_roll_upper(4) = deg2rad(200);
-c_knife2 = BoundingBoxConstraint(bounds_roll_lower, bounds_roll_upper);
-
-cons = struct();
-cons.c = c_knife;
-cons.N_fac = 0.45;
-
-cons.c(2) = c_knife2;
-cons.N_fac(2) = 0.55;
-
-
-
-[utraj1, xtraj1] = runDircol(xf_straight, tf_straight, bounds, u0, [], 11);%, cons);
-
-
-[utraj2, xtraj2] = runDircol(xf_straight, tf_straight, bounds, u0, [], 31, xtraj1, utraj1);%, cons);
-return;
-
-%%
-
-
-bounds = [ 10
-  .5
-  1
-  .5
-  .5
-  .5
-    3
-    5
-    5
-  deg2rad(70)
-  deg2rad(70)
-  deg2rad(70)];
-%{
-
-
-xf_left = [10
-         3
-   2
-         0
-    0.1857
-         0
-   15.0805
-         2
-   0
-         deg2rad(30)
-    0
-         0];
-       
-tf_left = 0.5;
-
-[left_utrag, left_xtraj] = runDircol(xf_left, tf_left, bounds, u0);
-
-%}
-
-xf_right = [5
-         -2.5
-   2
-         0
-    0.1857
-         0
-   15.0805
-         -2
-   0
-         -deg2rad(30)
-    0
-         0];
-       
-tf_right = 0.5;
-
-[right_utraj, right_xtraj] = runDircol(xf_right, tf_right, bounds, u0);
+lib = AddLqrControllersToLib('knife-edge', lib, p, xtraj_roll2, utraj_roll2, gains);

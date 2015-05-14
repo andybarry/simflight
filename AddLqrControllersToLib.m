@@ -1,4 +1,7 @@
-function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, parameters, gains)
+function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, gains)
+
+  xtraj = xtraj.setOutputFrame(p.getStateFrame());
+  utraj = utraj.setOutputFrame(p.getInputFrame());
  
   Q = gains.Q;
   Qf = gains.Qf;
@@ -20,8 +23,11 @@ function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, parameters, ga
   
   trajname = [name '-open-loop'];
   
-  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
   
+  % add the open-loop trajectory twice since both of it's "gain" settings
+  % are the same
+  lib = lib.AddTrajectory(p, xtraj, utraj, lqrsys, trajname, comments);
   lib = lib.AddTrajectory(p, xtraj, utraj, lqrsys, trajname, comments);
   
   
@@ -37,7 +43,7 @@ function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, parameters, ga
   
   trajname = [name '-PD'];
   
-  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
   
   lib = lib.AddTrajectory(p, xtraj, utraj, lqrsys, trajname, comments);
   
@@ -48,7 +54,7 @@ function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, parameters, ga
   
   trajname = [name '-PD-yaw'];
   
-  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
   
   lib = lib.AddTrajectory(p, xtraj, utraj, lqrsys, trajname, comments);
   
@@ -64,7 +70,7 @@ function lib = AddLqrControllersToLib(name, lib, p, xtraj, utraj, parameters, ga
     disp(['Computing TVLQR controller (R = ' num2str(R_values(i)) ')...']);
     lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf);
 
-    comments = sprintf('%s\n\n%s', name, [prettymat('Parameters', cell2mat(parameters), 3) ...
+    comments = sprintf('%s\n\n%s', name, [prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, [name '-R-' num2str(R_values(i))], comments);
 

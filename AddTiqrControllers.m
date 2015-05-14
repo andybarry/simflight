@@ -1,4 +1,4 @@
-function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gains)
+function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
  
   Q = gains.Q;
   R = gains.R;
@@ -20,7 +20,7 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   
   trajname = ['pd-no-yaw'];
   
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3)]);
     
     
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
@@ -40,7 +40,7 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   lqrsys.y0 = affine_traj;
   trajname = ['pd-yaw'];
   
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3)]);
     
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   
@@ -59,7 +59,7 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   
   trajname = ['pd-aggressive-yaw'];
   
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3)]);
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3)]);
     
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   
@@ -96,14 +96,14 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   lqrsys.y0 = affine_traj;
   
   trajname = [name '-just-roll-pitch'];
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
   number = number + 1;
   %}
   trajname = [name '-just-roll-pitch'];
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
   lib = lib.AddStabilizationTrajectory(p, x0, u0, K0, trajname, comments);
@@ -132,7 +132,7 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   %}
   
   trajname = [name '-just-roll-pitch-yaw'];
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
   lib = lib.AddStabilizationTrajectory(p, x0, u0, K1, trajname, comments);
@@ -150,7 +150,7 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   lqrsys.y0 = affine_traj;
   
   trajname = [name '-full'];
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
   traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
   traj.WriteToFile(['trajlib/' trajname '-' num2str(number)], .01, true);
@@ -158,13 +158,10 @@ function lib = WriteTiqrControllers(lib, name, p, A, B, x0, u0, parameters, gain
   %}
   
   trajname = [name '-full'];
-  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(parameters), 3) ...
+  comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
   lib = lib.AddStabilizationTrajectory(p, x0, u0, K2, trajname, comments);
   
- 
-  
-  disp('done');
 
 end
