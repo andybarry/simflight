@@ -2,14 +2,16 @@
 
 clear
 
+% TODO: detect these?
 parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-05-01';
+date = '2015-05-14';
 name = 'field-test';
-log_number = '06';
+log_number = '01';
 
-trajectory_library = 'trajlib/may-1.mat';
+trajectory_library = 'trajlib/may-14.mat';
 
+use_simulation = false;
 
 
 dir = [date '-' name '/gps-logs/'];
@@ -55,19 +57,26 @@ end
 
 %% simulate
 
+if use_simulation
 
+    for i = 1:length(t_starts)
 
-for i = 1:length(t_starts)
-  
-  xtrajsim{i} = SimulateTrajectoryAgainstData(u, est, parameters, t_starts(i), t_ends(i));
-  
+      xtrajsim{i} = SimulateTrajectoryAgainstData(u, est, parameters, t_starts(i), t_ends(i));
+
+    end
+else
+    xtrajsim = {};
 end
+
 
 %% plot
 
 for i = 1:length(t_starts)
-  
-  TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim{i}, t_starts(i), t_ends(i));
+  if use_simulation
+    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim{i}, t_starts(i), t_ends(i));
+  else
+      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, {}, t_starts(i), t_ends(i));
+  end
   
   pause
   
