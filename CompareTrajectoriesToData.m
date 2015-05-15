@@ -7,16 +7,22 @@ parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
 date = '2015-05-14';
 name = 'field-test';
-log_number = '01';
+log_number = '02';
+stabilization_trajectory = 10005;
 
-trajectory_library = 'trajlib/may-14.mat';
+trajectory_library = 'trajlib/may-14-2.mat';
 
 use_simulation = false;
 
 
+
+disp(['Loading ' trajectory_library '...']);
+load(trajectory_library);
+
+
+
 dir = [date '-' name '/gps-logs/'];
 filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
-
 
 
 dir_prefix = '/home/abarry/rlg/logs/';
@@ -28,8 +34,6 @@ disp(['Loading ' filename '...']);
 
 loadDeltawing
 
-disp(['Loading ' trajectory_library '...']);
-load(trajectory_library);
 
 disp('done.');
 
@@ -73,9 +77,9 @@ end
 
 for i = 1:length(t_starts)
   if use_simulation
-    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim{i}, t_starts(i), t_ends(i));
+    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim{i}, t_starts(i), t_ends(i), stabilization_trajectory);
   else
-      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, {}, t_starts(i), t_ends(i));
+      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, {}, t_starts(i), t_ends(i), stabilization_trajectory);
   end
   
   pause

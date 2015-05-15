@@ -1,4 +1,4 @@
-function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_start, t_end)
+function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_start, t_end, stable_traj_number)
 
 
   % determine how many trajectories are in this run
@@ -49,7 +49,12 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   %%
   dt = 1/140;
   
+  stable_traj = lib.GetTrajectoryByNumber(stable_traj_number);
+  trajectory_timeout_times = [];
+  
   for i = 1 : length(traj)
+    
+    
     
     if (traj{i}.xtraj.tspan(2) ~= Inf)
 %       if i < length(traj)
@@ -66,9 +71,44 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
 %       end
     end
 
-    traj_t{i} = 0:dt:traj_end_t(i)-traj_start_t(i);
-    trajx{i} = traj{i}.xtraj.eval(traj_t{i});
-    traju{i} = traj{i}.utraj.eval(traj_t{i});
+    % this is the length of the TVLQR trajectory
+    traj_delta_claimed = traj{i}.xtraj.tspan(2) - traj{i}.xtraj.tspan(1);
+    
+    % this is how long it ran for
+    traj_delta_actual = traj_end_t(i) - traj_start_t(i);
+    
+    traj_t{i} = 0:dt:traj_delta_actual;
+    
+    
+    if ~isnan(traj_delta_claimed) && ~isinf(traj_delta_claimed)
+      % will be NaN for TILQR trajectories
+      
+      trajectory_timeout_times = [trajectory_timeout_times traj_delta_claimed + traj_start_t(i)];
+      
+      traj_eval_t = 0:dt:traj_delta_claimed;
+      
+      num_left = length(traj_t{i}) - length(traj_eval_t);
+      
+      if num_left > 0
+
+        trajx{i} = [ traj{i}.xtraj.eval(traj_eval_t) repmat(stable_traj.xtraj.eval(0), 1, num_left) ];
+        traju{i} = [ traj{i}.utraj.eval(traj_eval_t) repmat(stable_traj.utraj.eval(0), 1, num_left) ];
+        
+      else
+        % case where the trajectory was aborted before it finished
+        trajx{i} = traj{i}.xtraj.eval(traj_t{i});
+        traju{i} = traj{i}.utraj.eval(traj_t{i});
+      end
+      
+      
+    else
+      % TILQR case
+      trajx{i} = traj{i}.xtraj.eval(traj_t{i});
+      traju{i} = traj{i}.utraj.eval(traj_t{i});
+    end
+    
+
+    
 
     if ~isempty(xtrajsim)
       trajsim{i} = xtrajsim.eval(traj_t{i}+est.logtime(1));
@@ -82,11 +122,12 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   figure_num = 1;
   coordinate_num = 4;
   label = 'Roll (deg)';
-
+  vals = rad2deg(est.orientation.roll);
+  
   figure(figure_num)
   clf
 
-  plot(est.logtime, rad2deg(est.orientation.roll), '-r')
+  plot(est.logtime, vals, '-b')
   hold all
 
   for i = 1 : length(traj)
@@ -94,13 +135,14 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
     this_traj_t = traj_t{i};
     
     traj_coord = trajx{i}(coordinate_num,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
+    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'r-')
 
     %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
     
   end
   
-  plot(traj_end_t, zeros(length(traj_end_t), 1), 'b*');
+  DrawLinesAtTimes(traj_end_t, 'k--');
+  DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
 
   first_traj_t = traj_t{1};
   last_traj_t = traj_t{length(traj)};
@@ -123,7 +165,7 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   figure(figure_num)
   clf
 
-  plot(est.logtime, vals, '-r')
+  plot(est.logtime, vals, '-b')
   hold all
 
   for i = 1 : length(traj)
@@ -131,13 +173,14 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
     this_traj_t = traj_t{i};
     
     traj_coord = trajx{i}(coordinate_num,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
+    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'r-')
 
     %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
     
   end
   
-  plot(traj_end_t, zeros(length(traj_end_t), 1), 'b*');
+  DrawLinesAtTimes(traj_end_t, 'k--');
+  DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
 
   first_traj_t = traj_t{1};
   last_traj_t = traj_t{length(traj)};
@@ -148,6 +191,8 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   ylabel(label);
   legend('Actual', 'Planned')
   title([ title_str ', ' label]);
+  
+  return;
   
   %% plot z
 
