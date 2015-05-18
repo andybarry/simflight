@@ -91,20 +91,20 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
       
       if num_left > 0
 
-        trajx{i} = [ traj{i}.xtraj.eval(traj_eval_t) repmat(stable_traj.xtraj.eval(0), 1, num_left) ];
-        traju{i} = [ traj{i}.utraj.eval(traj_eval_t) repmat(stable_traj.utraj.eval(0), 1, num_left) ];
+        traj_x{i} = [ traj{i}.xtraj.eval(traj_eval_t) repmat(stable_traj.xtraj.eval(0), 1, num_left) ];
+        traj_u{i} = [ traj{i}.utraj.eval(traj_eval_t) repmat(stable_traj.utraj.eval(0), 1, num_left) ];
         
       else
         % case where the trajectory was aborted before it finished
-        trajx{i} = traj{i}.xtraj.eval(traj_t{i});
-        traju{i} = traj{i}.utraj.eval(traj_t{i});
+        traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
+        traj_u{i} = traj{i}.utraj.eval(traj_t{i});
       end
       
       
     else
       % TILQR case
-      trajx{i} = traj{i}.xtraj.eval(traj_t{i});
-      traju{i} = traj{i}.utraj.eval(traj_t{i});
+      traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
+      traj_u{i} = traj{i}.utraj.eval(traj_t{i});
     end
     
 
@@ -116,44 +116,24 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
       trajsim{i} = zeros(12,1);
     end
   end
+  
+  % pack up data
+  traj_data.traj_t = traj_t;
+  traj_data.traj_x = traj_x;
+  traj_data.traj_u = traj_u;
+  traj_data.traj = traj;
+  traj_data.traj_start_t = traj_start_t;
+  traj_data.traj_end_t = traj_end_t;
+  traj_data.trajectory_timeout_times = trajectory_timeout_times;
+  traj_data.title_str = title_str;
 
   %% plot roll
-  
   figure_num = 1;
   coordinate_num = 4;
   label = 'Roll (deg)';
   vals = rad2deg(est.orientation.roll);
-  
-  figure(figure_num)
-  clf
 
-  plot(est.logtime, vals, '-b')
-  hold all
-
-  for i = 1 : length(traj)
-    
-    this_traj_t = traj_t{i};
-    
-    traj_coord = trajx{i}(coordinate_num,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'r-')
-
-    %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
-    
-  end
-  
-  DrawLinesAtTimes(traj_end_t, 'k--');
-  DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
-
-  first_traj_t = traj_t{1};
-  last_traj_t = traj_t{length(traj)};
-  %xlim([first_traj_t(1)+est.logtime(1) last_traj_t(end)+est.logtime(1) + xlim_t_extra]);
-
-  grid on
-  xlabel('Time (s)');
-  ylabel(label);
-  legend('Actual', 'Planned')
-  title([ title_str ', ' label]);
-
+  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, 0, rad2deg(1), false);
  
   %% plot pitch
 
@@ -162,74 +142,24 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   label = 'Pitch (deg)';
   vals = rad2deg(est.orientation.pitch);
   
-  figure(figure_num)
-  clf
+  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, 0, rad2deg(1), true);
 
-  plot(est.logtime, vals, '-b')
-  hold all
-
-  for i = 1 : length(traj)
-    
-    this_traj_t = traj_t{i};
-    
-    traj_coord = trajx{i}(coordinate_num,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'r-')
-
-    %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
-    
-  end
-  
-  DrawLinesAtTimes(traj_end_t, 'k--');
-  DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
-
-  first_traj_t = traj_t{1};
-  last_traj_t = traj_t{length(traj)};
-  %xlim([first_traj_t(1)+est.logtime(1) last_traj_t(end)+est.logtime(1) + xlim_t_extra]);
-
-  grid on
-  xlabel('Time (s)');
-  ylabel(label);
-  legend('Actual', 'Planned')
-  title([ title_str ', ' label]);
-  
-  return;
-  
   %% plot z
-
+  
   figure_num = 3;
   coordinate_num = 3;
-  label = 'Altitude (m)';
-  vals = est.pos.z;
+  label = 'z (ft)';
+  vals = est.pos.z * 3.28084;
+  traj_add = est.pos.z(1) * 3.28084;
   
-  figure(figure_num)
-  clf
-
-  plot(est.logtime, vals, '-r')
-  hold all
-
-  for i = 1 : length(traj)
-    
-    this_traj_t = traj_t{i};
-    
-    traj_coord = trajx{i}(coordinate_num,:);
-    plot(this_traj_t+traj_start_t(i), rad2deg(traj_coord),'b-')
-
-    %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
-    
-  end
+  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, traj_add, 3.28084, false);
   
-  plot(traj_end_t, zeros(length(traj_end_t), 1), 'b*');
+  
+  PlotComparison(est, traj_data, 4, 1, 'x (meters)', est.pos.x, est.pos.x(1), 0, false);
+  PlotComparison(est, traj_data, 5, 2, 'y (meters)', est.pos.y, est.pos.y(1), 0, false);
+  return;
+  
 
-  first_traj_t = traj_t{1};
-  last_traj_t = traj_t{length(traj)};
-  %xlim([first_traj_t(1)+est.logtime(1) last_traj_t(end)+est.logtime(1) + xlim_t_extra]);
-
-  grid on
-  xlabel('Time (s)');
-  ylabel(label);
-  legend('Actual', 'Planned')
-  title([ title_str ', ' label]);
-return;
   %% plot u
 
   figure(4)
