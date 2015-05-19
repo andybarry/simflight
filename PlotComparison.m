@@ -12,7 +12,7 @@ function PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals,
     this_traj_t = traj_data.traj_t{i};
     
     traj_coord = traj_data.traj_x{i}(coordinate_num,:);
-    plot(this_traj_t+traj_data.traj_start_t(i), traj_add + traj_multiply * traj_coord,'r-')
+    plot(this_traj_t+traj_data.traj_start_t(i), traj_add(i) + traj_multiply * traj_coord,'r-')
 
     %plot(t+traj_start{i}, rad2deg(trajsim(4,:)), '--k');
     
@@ -34,6 +34,6 @@ function PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals,
   xlabel('Time (s)');
   ylabel(label);
   legend('Actual', 'Planned')
-  title([ traj_data.title_str ', ' label]);
+  title([ label ': ' traj_data.title_str]);
 
 end

@@ -4,7 +4,7 @@ function DrawLinesAtTimes(times, colorstr)
   ylim_vals = get(gca, 'YLim');
   
   for i = 1 : length(times)
-    plot([times(i); times(i)], [-1e5 1e5], colorstr);
+    plot([times(i); times(i)], ylim_vals, colorstr);
   end
 
   

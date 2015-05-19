@@ -77,9 +77,9 @@ end
 
 for i = 1:length(t_starts)
   if use_simulation
-    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim{i}, t_starts(i), t_ends(i), stabilization_trajectory);
+    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_starts(i), t_ends(i), stabilization_trajectory);
   else
-      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, {}, t_starts(i), t_ends(i), stabilization_trajectory);
+      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_starts(i), t_ends(i), stabilization_trajectory);
   end
   
   pause

@@ -1,4 +1,4 @@
-function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_start, t_end, stable_traj_number)
+function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_end, stable_traj_number)
 
 
   % determine how many trajectories are in this run
@@ -9,12 +9,13 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
   end_idx_t = tvlqr_out.logtime(end_idx);
   while (end_idx_t > t_end)
     end_idx = end_idx - 1;
-    end_inx_t = tvlqr_out.logtime(end_idx);
+    end_idx_t = tvlqr_out.logtime(end_idx);
   end
   
   traj_start_t = tvlqr_out.logtime(start_idx:end_idx);
   traj_end_t = [ traj_start_t(2:end); t_end ];
   
+
   % list trajectories
   traj_nums = tvlqr_out.trajectory_number(start_idx:end_idx);
   
@@ -33,130 +34,104 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, xtrajsim, t_s
     title_str = [title_str traj{i}.name  ' (' num2str(this_traj_num) ')'];
     
   end
+
  
   
   disp(['t: ' num2str(t_start) ' -- ' num2str(t_end)]);
   disp(title_str);
-  
-  xlim_t_extra = 1.5;
-  
-
-  %%
-  u = TrimU(t_start, t_end, u);
-  est = TrimEst(t_start, t_end, est);
 
 
   %%
   dt = 1/140;
   
   stable_traj = lib.GetTrajectoryByNumber(stable_traj_number);
-  trajectory_timeout_times = [];
+  
+  % check for additional trajectories because of timeout
+  for i = 1 : length(traj)
+
+    % this is the length of the TVLQR trajectory
+    length_of_trajectory = traj{i}.xtraj.tspan(2) - traj{i}.xtraj.tspan(1);
+    
+    % this is how long it ran for
+    time_trajectory_ran = traj_end_t(i) - traj_start_t(i);
+    
+    
+    if ~isnan(length_of_trajectory) && ~isinf(length_of_trajectory)
+      % will be NaN for TILQR trajectories
+      
+      % TVLQR case
+      
+      % check to see if the trajectory:
+      %   1) timed out and revereted to stabilization
+      %         or
+      %   2) was cut off eary
+      
+      
+      if length_of_trajectory < time_trajectory_ran
+        % timed out and reverted to stabilization
+        
+        % in this case, there's actually another trajectory in here
+        % for when it jumped to TILQR
+        
+        traj = { traj{1:i}, stable_traj, traj{i+1:end} };
+        traj_start_t = [traj_start_t(1:i); traj_start_t(i) + length_of_trajectory; traj_start_t(i+1:end)];
+        traj_end_t = [ traj_start_t(2:end); t_end ];
+          
+        
+      else
+        
+        % was aborted early
+        
+        % no new trajectories need be added
+        
+        
+      end
+      
+    end
+    
+  end
+  
   
   for i = 1 : length(traj)
     
+    % evaluate each trajectory
+    traj_t{i} = 0:dt:traj_end_t(i) - traj_start_t(i);
     
-    
-    if (traj{i}.xtraj.tspan(2) ~= Inf)
-%       if i < length(traj)
-%         traj_end_t(i) = traj_start_t{i+1};
-%       else
-%         traj_end_t(i) = traj{i}.xtraj.tspan(2);
-%       end
-%       
-%     else
-%       if i < length(traj)
-%         traj_end_t(i) = traj_start_t{i+1};
-%       else
-%         traj_end_t(i) = u.logtime(end) - u.logtime(1);
-%       end
-    end
+    traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
+    traj_u{i} = traj{i}.utraj.eval(traj_t{i});
 
-    % this is the length of the TVLQR trajectory
-    traj_delta_claimed = traj{i}.xtraj.tspan(2) - traj{i}.xtraj.tspan(1);
-    
-    % this is how long it ran for
-    traj_delta_actual = traj_end_t(i) - traj_start_t(i);
-    
-    traj_t{i} = 0:dt:traj_delta_actual;
-    
-    
-    if ~isnan(traj_delta_claimed) && ~isinf(traj_delta_claimed)
-      % will be NaN for TILQR trajectories
-      
-      trajectory_timeout_times = [trajectory_timeout_times traj_delta_claimed + traj_start_t(i)];
-      
-      traj_eval_t = 0:dt:traj_delta_claimed;
-      
-      num_left = length(traj_t{i}) - length(traj_eval_t);
-      
-      if num_left > 0
+  end
+ 
 
-        traj_x{i} = [ traj{i}.xtraj.eval(traj_eval_t) repmat(stable_traj.xtraj.eval(0), 1, num_left) ];
-        traj_u{i} = [ traj{i}.utraj.eval(traj_eval_t) repmat(stable_traj.utraj.eval(0), 1, num_left) ];
-        
-      else
-        % case where the trajectory was aborted before it finished
-        traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
-        traj_u{i} = traj{i}.utraj.eval(traj_t{i});
-      end
-      
-      
-    else
-      % TILQR case
-      traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
-      traj_u{i} = traj{i}.utraj.eval(traj_t{i});
-    end
-    
-
-    
-
-    if ~isempty(xtrajsim)
-      trajsim{i} = xtrajsim.eval(traj_t{i}+est.logtime(1));
-    else
-      trajsim{i} = zeros(12,1);
-    end
+  
+  %% plot each part
+  num_plots = 6;
+  
+  for i = 1 : num_plots
+    figure(i);
+    clf;
   end
   
-  % pack up data
-  traj_data.traj_t = traj_t;
-  traj_data.traj_x = traj_x;
-  traj_data.traj_u = traj_u;
-  traj_data.traj = traj;
-  traj_data.traj_start_t = traj_start_t;
-  traj_data.traj_end_t = traj_end_t;
-  traj_data.trajectory_timeout_times = trajectory_timeout_times;
-  traj_data.title_str = title_str;
-
-  %% plot roll
-  figure_num = 1;
-  coordinate_num = 4;
-  label = 'Roll (deg)';
-  vals = rad2deg(est.orientation.roll);
-
-  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, 0, rad2deg(1), false);
- 
-  %% plot pitch
-
-  figure_num = 2;
-  coordinate_num = 5;
-  label = 'Pitch (deg)';
-  vals = rad2deg(est.orientation.pitch);
+  for i = 1 : length(traj)
+    
+    this_start = traj_start_t(i);
+    this_end = traj_end_t(i);
+    
+    u_trim = TrimU(this_start, this_end, u);
+    est_trim = TrimEst(this_start, this_end, est);
+    
+    PlotTrajectoryPart(est_trim, u_trim, traj_t{i} + traj_start_t(i), traj_x{i}, traj_u{i}, title_str);
+    
+  end
   
-  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, 0, rad2deg(1), true);
-
-  %% plot z
-  
-  figure_num = 3;
-  coordinate_num = 3;
-  label = 'z (ft)';
-  vals = est.pos.z * 3.28084;
-  traj_add = est.pos.z(1) * 3.28084;
-  
-  PlotComparison(est, traj_data, figure_num, coordinate_num, label, vals, traj_add, 3.28084, false);
+  for i = 1 : num_plots
+      figure(i);
+      DrawLinesAtTimes(traj_end_t, 'k--');
+      %DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
+  end
   
   
-  PlotComparison(est, traj_data, 4, 1, 'x (meters)', est.pos.x, est.pos.x(1), 0, false);
-  PlotComparison(est, traj_data, 5, 2, 'y (meters)', est.pos.y, est.pos.y(1), 0, false);
+  
   return;
   
 
