@@ -111,15 +111,18 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
 
   
   %% plot each part
-  num_plots = 7;
-  
-  fig_handles = [];
+  num_plots = 5;
+  fig_size_y = 750;
   
   for i = 1 : num_plots
     
     figure(i);
     clf;
     
+    fig_size = get(gcf, 'Position');
+    delta_y = fig_size_y - fig_size(4);
+    
+    set(gcf, 'Position', [fig_size(1) fig_size(2)-delta_y fig_size(3) fig_size_y]);
   end
   
   for i = 1 : length(traj)
@@ -130,7 +133,7 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
     u_trim = TrimU(this_start, this_end, u);
     est_trim = TrimEst(this_start, this_end, est);
     
-    PlotTrajectoryPart(est_trim, u_trim, traj_t{i} + traj_start_t(i), traj_x{i}, traj_u{i}, title_str);
+    PlotTrajectoryPart(est_trim, u_trim, traj_t{i} + traj_start_t(i), traj_x{i}, traj_u{i}, title_str, true);
     
   end
   
@@ -140,30 +143,6 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
       DrawLinesAtTimes(traj_end_t, 'k--');
       %DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
   end
-  
-  
-  
-  return;
-  
-
-  %% plot u
-
-  figure(4)
-  clf
-  plot(u.logtime, u.rad.elevonL);
-  hold on
-  plot(t+u.logtime(1), traju(1,:),'b--')
-
-
-
-  plot(u.logtime, u.rad.elevonR, 'm-');
-  plot(t+u.logtime(1), traju(2,:),'m--')
-  %plot(u.logtime, u.throttle, 'k-');
-  legend('elevonL', 'elevonL-plan', 'elevonR', 'elevonR-plan');
-  grid on
-
-  xlim([t(1)+est.logtime(1) t(end)+est.logtime(1)  + xlim_t_extra]);
-  title([ title_str ', u']);
 
 
 end
