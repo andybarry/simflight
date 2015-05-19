@@ -99,17 +99,27 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
     
     traj_x{i} = traj{i}.xtraj.eval(traj_t{i});
     traj_u{i} = traj{i}.utraj.eval(traj_t{i});
+    
+    % for some reason the utraj evaluates weirdly for the TILQR case
+    % and creates a three dimensional array -- fix that
+    if (length(size(traj_u{i})) > 2)
+      traj_u{i} = reshape(traj_u{i}, size(traj_u{i}, 1), size(traj_u{i}, 3));
+    end
 
   end
  
 
   
   %% plot each part
-  num_plots = 6;
+  num_plots = 7;
+  
+  fig_handles = [];
   
   for i = 1 : num_plots
+    
     figure(i);
     clf;
+    
   end
   
   for i = 1 : length(traj)
@@ -126,6 +136,7 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
   
   for i = 1 : num_plots
       figure(i);
+      
       DrawLinesAtTimes(traj_end_t, 'k--');
       %DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
   end

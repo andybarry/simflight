@@ -7,7 +7,7 @@ parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
 date = '2015-05-14';
 name = 'field-test';
-log_number = '02';
+log_number = '01';
 stabilization_trajectory = 10005;
 
 trajectory_library = 'trajlib/may-14-2.mat';
