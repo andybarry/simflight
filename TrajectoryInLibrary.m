@@ -67,6 +67,15 @@ classdef TrajectoryInLibrary
       
     end
     
+    function playback(obj, p)
+      % Plays the trajectory in a visualizer
+      %
+      % @param p DeltawingPlant
+      
+      p.playback(obj.xtraj, obj.utraj, struct('slider', true));
+      
+    end
+    
     function WriteToFile(obj, filename_prefix, dt, overwrite_files)
       %
       % Write files that contain the trajectory information in filename.csv and

@@ -4,6 +4,7 @@ classdef TrajectoryLibrary
   % collision free paths
   
   properties
+    p; % the plant
     trajectories = {};
     stabilization_trajectories = {};
     stabilization_traj_offset = 10000;
@@ -12,14 +13,18 @@ classdef TrajectoryLibrary
   
   methods
     
-    function obj = TrajectoryLibrary()
+    function obj = TrajectoryLibrary(plant)
+      % Creates a trajectory library
+      %
+      % @param plant plant that the library is built for (some kind of DrakeSystem)
       
+      obj.p = plant;
     end
     
-    function obj = AddTrajectory(obj, p, xtraj, utraj, lqrsys, name, comments)
+    function obj = AddTrajectory(obj, xtraj, utraj, lqrsys, name, comments)
       % Adds a trajectory to the library
       %
-      % @param p plant (some kind of DrakeSystem)
+      % 
       % @param xtraj state trajectory
       % @param utraj input trajectory
       % @param lqrsys LTV system that implements TVLQR controller
@@ -39,7 +44,7 @@ classdef TrajectoryLibrary
       end
       
       
-      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), name, comments);
+      obj.trajectories{end+1} = TrajectoryInLibrary(xtraj, utraj, lqrsys, obj.p.getStateFrame(), name, comments);
       
     end
     
@@ -60,6 +65,17 @@ classdef TrajectoryLibrary
         DrawTrajectoryLcmGl(obj.trajectories{i}.xtraj, 'trajectory_library', options);
       end
       
+    end
+    
+    function playback(obj, traj_num_from_filename)
+      % Plays the trajectory in a visualizer
+      %
+      % @param traj_num_from_filename the trajectory number (as given by
+      %   filename)
+      
+      traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
+      
+      traj.playback(obj.p);
     end
     
     function obj = AddStabilizationTrajectory(obj, p, x0, u0, K_to_be_negated, trajname, comments)

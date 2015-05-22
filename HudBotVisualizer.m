@@ -10,7 +10,7 @@ classdef HudBotVisualizer < BotVisualizer
        obj = obj@BotVisualizer(manip, use_contact_shapes);
       
        obj.pose_msg = mav.pose_t();
-       obj.baro_msg = lcmtypes.lcmt_baro_airspeed();
+       obj.airspeed_msg = mav.indexed_measurement_t();
        obj.u_msg = lcmtypes.lcmt_deltawing_u();
        
       
@@ -40,6 +40,13 @@ classdef HudBotVisualizer < BotVisualizer
       ydot = y(11);
       zdot = y(12);
       
+      x_drake_frame = [0; 0; 0; roll; pitch; yaw; xdot; ydot; zdot; 0; 0; 0;];
+      
+      % convert to body frame to get forward velocity
+      x_body = ConvertToModelFrameFromDrakeWorldFrame(x_drake_frame);
+      
+      xdot = x_body(7);
+      
       
       [elevL, elevR, throttle] = RadiansToServoCommands(elevL, elevR, throttle);
       
@@ -61,10 +68,15 @@ classdef HudBotVisualizer < BotVisualizer
       obj.u_msg.is_autonomous = 0;
       obj.u_msg.video_record = 0;
       
-      obj.baro_msg.utime = int64(t*1000000);
-      obj.baro_msg.airspeed = xdot;
-      obj.baro_msg.baro_altitude = y(3);
-      obj.baro_msg.temperature = 0;
+      obj.airspeed_msg.utime = int64(t*1000000);
+      obj.airspeed_msg.state_utime = int64(t*1000000);
+      obj.airspeed_msg.measured_dim = 1;
+      
+      obj.airspeed_msg.z_indices(1) = 3;
+      obj.airspeed_msg.z_effective(1) = xdot;
+      
+      obj.airspeed_msg.measured_cov_dim = 1;
+      obj.airspeed_msg.R_effective(1) = 15;
       
       
       lc = lcm.lcm.LCM.getSingleton();
@@ -73,7 +85,8 @@ classdef HudBotVisualizer < BotVisualizer
       
       lc.publish('servo_out', obj.u_msg);
       
-      lc.publish('baro-airspeed', obj.baro_msg);
+      lc.publish('airspeed', obj.airspeed_msg);
+      lc.publish('airspeed-unchecked', obj.airspeed_msg);
       
     end
     
@@ -83,14 +96,31 @@ classdef HudBotVisualizer < BotVisualizer
     function InitJava()
       % you must call this when clear java will run successfully
       
-      javaaddpath('/home/abarry/realtime/LCM/LCMtypes.jar');
-      javaaddpath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
+      HudBotVisualizer.AddToJavaClasspath('/home/abarry/realtime/LCM/LCMtypes.jar');
+      HudBotVisualizer.AddToJavaClasspath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar');
+      HudBotVisualizer.AddToJavaClasspath('/home/abarry/pronto-distro/build/share/java/lcmtypes_mav_estimator.jar');
+      
     end
+    
+    function found = AddToJavaClasspath(str)
+      jcp = javaclasspath;
+      found = false;
+      
+      for i = 1 : length(jcp)
+        if ~isempty(strfind(jcp(i), str))
+          found = true;
+          return;
+        end
+      end
+      
+      javaaddpath(str);
+    end
+    
   end
   
   properties
     pose_msg;
-    baro_msg;
+    airspeed_msg;
     u_msg;
   end
   

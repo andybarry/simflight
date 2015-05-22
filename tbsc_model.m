@@ -57,7 +57,12 @@ thr_fac = 1;
 
 % Body drag
 % body_x_drag_fac = 0;
-body_x_drag_fac = 0.03;
+%body_x_drag_fac = 0.03;
+%body_x_drag_fac = 0.0699;
+%body_x_drag_fac = (0.0656 + 0.0699)/2;
+body_x_drag_fac = 0.0443;
+%body_x_drag_fac = 0.045;
+%body_x_drag_fac = 0.03;
 body_y_drag_fac = 0;
 body_z_drag_fac = 0;
 

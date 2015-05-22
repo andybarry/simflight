@@ -2,8 +2,10 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
     %% find fixed point
 
     if nargin < 2
-        lib = TrajectoryLibrary();
+        lib = TrajectoryLibrary(p);
     end
+    
+    initial_guess = [0; 12; 0; 0; p.umax(3)];
     
     
     disp('Searching for fixed point...');
@@ -36,7 +38,7 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
     %p = p.addConstraint(c2);
 
 
-    [x, objval, exitflag] = prog.solve( [0; 18; 0; 0; 3.5] );
+    [x, objval, exitflag] = prog.solve( initial_guess );
 
 
 

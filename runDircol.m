@@ -1,25 +1,27 @@
-function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_delta, u0, additional_constraints, N, utraj_guess, xtraj_guess)
+function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, final_speed, tf0, bounds_delta, u0, additional_constraints, N, utraj_guess, xtraj_guess)
 
-  if nargin < 7 || isempty(additional_constraints)
+  num_args_req = 7;
+
+  if nargin < num_args_req + 1 || isempty(additional_constraints)
     additional_constraints = struct();
     additional_constraints.c = [];
     additional_constraints.N_fac = [];
   end
   
   
-  if nargin < 8
+  if nargin < num_args_req + 2
     %N = 11; % number of knot points
     N = round(tf0 * 10) + 1;
   end
 
   
-  if nargin < 9
+  if nargin < num_args_req + 3
      traj_init.x = PPTrajectory(foh([0, tf0], [x0, xf]));
   else
     traj_init.x = xtraj_guess;
   end
   
-  if nargin < 10
+  if nargin < num_args_req + 4
     traj_init.u = ConstantTrajectory(u0);
   else
     traj_init.u = utraj_guess;
@@ -82,9 +84,15 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
 
   prog = prog.addRunningCost(@cost);
   
-  final_cost = FunctionHandleConstraint(-inf, inf, 12, @finalCost, 0);
+  FinalCostWrapper = @(x) FinalCostOnState(x, xf, final_speed);
+  
+  final_cost = FunctionHandleConstraint(-inf, inf, 12, FinalCostWrapper, 0);
   final_cost.grad_method = 'numerical';
   prog = prog.addCost(final_cost, prog.x_inds(:,N));
+  
+  % also have a cost on final time
+  
+  prog = prog.addFinalCost(@FinalCostOnTime);
   
   %prog = prog.addFinalCost(@finalCost);
   
@@ -142,9 +150,16 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
 
   end
 
-  function [h] = finalCost(x)
+  function [h] = FinalCostOnState(x, xf0, final_speed)
 
-    h = 0;
+    x2 = [x(4:6); x(9:12)];
+    xf0_2 = [xf0(4:6); xf0(9:12)];
+    
+    x_body = ConvertToModelFrameFromDrakeWorldFrame(x);
+    
+    h = norm(x2 - xf0_2) + abs(x_body(7) - final_speed);
+    
+    %h = 0;
     
     %h = 20 * sum((xf(1:3) - x(1:3)).^2);
     
@@ -154,9 +169,11 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
 
   end
 
-%     function h = finalCost(T, xf)
-%        h = T; 
-%     end
+  function [h, dh] = FinalCostOnTime(T, xf)
+    h = T;
+    dh = zeros(1,13);
+    dh(1) = 1;
+  end
   
 
 

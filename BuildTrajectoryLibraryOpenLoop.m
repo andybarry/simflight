@@ -8,7 +8,7 @@ lib = TrajectoryLibrary();
 % add stabilization trajectories
 
 %parameters = {0.820; 2.499; 2.171; 0.697; 0.374; 0.028};
-parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+[parameters, gains] = GetDefaultGains();
 
 FindTrimDrake
 
@@ -21,8 +21,6 @@ throttle_max = 5.33976;
 tf = 0.5;
 
 %Q = diag([10 10 10 1 1 1 .1 .1 .1 .1 .1 .1]);
-
-gains = GetDefaultGains();
 
 
 %% straight ahead
@@ -38,7 +36,7 @@ utraj = utraj.setOutputFrame(p.getInputFrame());
 xtraj = runInputTape(p, utraj, tf);
 
 
-lib = AddLqrControllersToLib('straight', lib, p, xtraj, utraj, parameters, gains);
+lib = AddLqrControllersToLib('straight', lib, xtraj, utraj, parameters, gains);
 
 
 
@@ -61,7 +59,7 @@ lib = AddLqrControllersToLib('straight', lib, p, xtraj, utraj, parameters, gains
 % 
 % comments = sprintf('%s\n\n%s', 'Turn left', [prettymat('Parameters', cell2mat(parameters), 3) ...
 %   prettymat('Q', Q, 5) prettymat('R', R)]);
-% lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
+% lib = lib.AddTrajectory(xtraj, utraj, lqr_controller, comments);
 
 %% turn right
 
@@ -77,7 +75,7 @@ xtraj = runInputTape(p, utraj, 0.3);
 
 
 
-lib = AddLqrControllersToLib('turn-right', lib, p, xtraj, utraj, parameters, gains);
+lib = AddLqrControllersToLib('turn-right', lib, xtraj, utraj, parameters, gains);
 
 
 %% go up
@@ -96,7 +94,7 @@ utraj = utraj.setOutputFrame(p.getInputFrame());
 
 
 
-lib = AddLqrControllersToLib('climb', lib, p, xtraj, utraj, parameters, gains);
+lib = AddLqrControllersToLib('climb', lib, xtraj, utraj, parameters, gains);
 
 
 
@@ -118,7 +116,7 @@ lib = AddLqrControllersToLib('climb', lib, p, xtraj, utraj, parameters, gains);
 % 
 % comments = sprintf('%s\n\n%s', 'Dive', [prettymat('Parameters', cell2mat(parameters), 3) ...
 %   prettymat('Q', Q, 5) prettymat('R', R)]);
-% lib = lib.AddTrajectory(p, xtraj, utraj, lqr_controller, comments);
+% lib = lib.AddTrajectory(xtraj, utraj, lqr_controller, comments);
 
 %% draw
 

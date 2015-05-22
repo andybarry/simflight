@@ -120,7 +120,8 @@ x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
 
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
-parameters = [1; 1; 0; 0; 0];
+%parameters = [1; 1; 0; 0; 0];
+parameters = [0.904, 0.000, -0.134, -0.049, 0];
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
@@ -265,7 +266,7 @@ nlgr.Algorithm.Regularization.R = RR;
 % weight the airspeed output less
 
 roll_weight = 1;
-pitch_weight = 30;
+pitch_weight = 85;
 yaw_weight = 0.75;
 airspeed_weight = 0.01;
 

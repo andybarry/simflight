@@ -6,7 +6,7 @@ clear
 parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
 date = '2015-05-14';
-name = 'field-test';
+name = 'field-test-gps2';
 log_number = '01';
 stabilization_trajectory = 10005;
 
@@ -79,7 +79,7 @@ for i = 1:length(t_starts)
   if use_simulation
     TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_starts(i), t_ends(i), stabilization_trajectory);
   else
-      TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_starts(i), t_ends(i), stabilization_trajectory);
+    TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_starts(i), t_ends(i), stabilization_trajectory);
   end
   
   pause
