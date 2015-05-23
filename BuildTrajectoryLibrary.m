@@ -81,9 +81,6 @@ xf_turn(1) = x0(7)*.5*tf_turn;
 xf_turn(2) = -x0(7)*.5*tf_turn;
 xf_turn(6) = deg2rad(-45);
 
-xf_turn(7) = x0(7)/2;
-xf_turn(8) = -x0(7)/2;
-
 % compute final velocities
 
 % input: velocity, body-x, final rpy
