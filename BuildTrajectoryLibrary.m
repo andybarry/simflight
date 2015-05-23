@@ -114,7 +114,8 @@ xtraj_draw = [x0 xf_turn];
 
 lib = AddLqrControllersToLib('right-turn', lib, xtraj_turn2, utraj_turn2, gains);
 
-lib = FindClimbTrimDrake(p, lib);
+max_climb = 1.0; % m/s
+lib = FindClimbTrimDrake(p, max_climb, lib);
 
 return;
 
