@@ -1,6 +1,6 @@
-function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, final_speed, tf0, bounds_delta, u0, additional_constraints, N, utraj_guess, xtraj_guess)
+function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_delta, u0, additional_constraints, N, utraj_guess, xtraj_guess)
 
-  num_args_req = 7;
+  num_args_req = 6;
 
   if nargin < num_args_req + 1 || isempty(additional_constraints)
     additional_constraints = struct();
@@ -84,7 +84,7 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, final_speed, tf
 
   prog = prog.addRunningCost(@cost);
   
-  FinalCostWrapper = @(x) FinalCostOnState(x, xf, final_speed);
+  FinalCostWrapper = @(x) FinalCostOnState(x, xf);
   
   final_cost = FunctionHandleConstraint(-inf, inf, 12, FinalCostWrapper, 0);
   final_cost.grad_method = 'numerical';
@@ -150,14 +150,9 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, final_speed, tf
 
   end
 
-  function [h] = FinalCostOnState(x, xf0, final_speed)
+  function [h] = FinalCostOnState(x, xf0)
 
-    x2 = [x(4:6); x(9:12)];
-    xf0_2 = [xf0(4:6); xf0(9:12)];
-    
-    x_body = ConvertToModelFrameFromDrakeWorldFrame(x);
-    
-    h = norm(x2 - xf0_2) + abs(x_body(7) - final_speed);
+    h = norm(x(4:12) - xf0(4:12));
     
     %h = 0;
     

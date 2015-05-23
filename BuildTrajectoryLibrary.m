@@ -59,14 +59,14 @@ lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife2, utraj_knife2, gain
 return;
 %% right turn
 bounds = [ 
-  100          % x
+  100         % x
   100         % y
-  1.0         % z
+  50          % z
   deg2rad(10)  % roll
   deg2rad(10) % pitch
   deg2rad(10) % yaw
-  5           % x-dot
-  5           % y-dot
+  30           % x-dot
+  30           % y-dot
   5           % z-dot
   deg2rad(70) % roll-dot
   deg2rad(70) % pitch-dot
@@ -84,7 +84,16 @@ xf_turn(6) = deg2rad(-45);
 xf_turn(7) = x0(7)/2;
 xf_turn(8) = -x0(7)/2;
 
-final_speed = x0(7);
+% compute final velocities
+
+% input: velocity, body-x, final rpy
+% output: velcoity global x, y, and z
+rpy_model = ConvertToModelFrameFromDrakeWorldFrame([zeros(3,1); xf_turn(4:6); zeros(6,1)]);
+
+model_xf = [zeros(3,1); rpy_model(4:6); x0(7); 0; 0; zeros(3,1)];
+xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
+
+xf_turn(7:9) = xf_drake(7:9);
 
 cons = [];
 
@@ -99,7 +108,7 @@ xtraj_draw = [x0 xf_turn];
   
 %%
 
-[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, final_speed, tf_turn, bounds, u0, cons, 15);
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
 
 %%
 [utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
