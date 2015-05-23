@@ -1,18 +1,18 @@
-function [x0, u0, lib] = FindClimbTrimDrake(p, lib)
+function [x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib)
     %% find fixed point
 
-    if nargin < 2
+    if nargin < 3
         lib = TrajectoryLibrary(p);
     end
     
-    initial_guess = [0; 12; 0; 0; p.umax(3)];
+    initial_guess = [0; 12; 0; 0; 0; p.umax(3)];
     
     
     disp('Searching for fixed point...');
     
-    prog = NonlinearProgram(5);
+    prog = NonlinearProgram(6);
 
-    func = @(in) tbsc_model_less_vars(in(1:2), in(3:5), p.parameters);
+    func = @(in) tbsc_model_for_climb(in(1:3), in(4:6), p.parameters);
 
 
     % min_xdot = 5;
@@ -32,19 +32,23 @@ function [x0, u0, lib] = FindClimbTrimDrake(p, lib)
     lb = zeros(6,1);
     ub = zeros(6,1);
     
-    % find a state that climbs
-    lb(3) = 1.5;
-    ub(3) = 10;
-    
-    c = FunctionHandleConstraint( lb, ub, 5, func);
+    c = FunctionHandleConstraint( lb, ub, 6, func);
     c.grad_method = 'numerical';
     prog = prog.addConstraint(c);
     
+    CostFunc = @(in) -in(3);
+    cost = FunctionHandleConstraint( -Inf, Inf, 6, CostFunc);
+    cost.grad_method = 'numerical';
+    prog = prog.addCost(cost);
     
     
-    c_input_limits = BoundingBoxConstraint([-Inf; -Inf; p.umin], [Inf; Inf; p.umax]);
+    
+    c_input_limits = BoundingBoxConstraint([-Inf; -Inf; -Inf; p.umin], [Inf; Inf; max_climb; p.umax]);
     
     prog = prog.addConstraint(c_input_limits);
+    
+    
+    
 
     %c2 = BoundingBoxConstraint( [ 0.1; 10; -.5; -.5; 0 ], [1; 30; .5; .5; 4] );
 
@@ -70,12 +74,13 @@ function [x0, u0, lib] = FindClimbTrimDrake(p, lib)
     x0 = zeros(12, 1);
     x0(5) = x(1);
     x0(7) = x(2);
+    x0(9) = x(3);
 
     u0 = zeros(3,1);
 
-    u0(1) = x(3);
-    u0(2) = x(4);
-    u0(3) = x(5);
+    u0(1) = x(4);
+    u0(2) = x(5);
+    u0(3) = x(6);
     
     disp('Fixed point found:');
 
