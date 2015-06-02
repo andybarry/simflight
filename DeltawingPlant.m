@@ -85,6 +85,8 @@ classdef DeltawingPlant < DrakeSystem
       
       utraj = ConstantTrajectory([0; 0; 0]);
       
+      DrawTrajectoryLcmGl(xtraj);
+      
       DeltawingPlant.playback(xtraj, utraj, options);
       
     end

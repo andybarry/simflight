@@ -5,9 +5,9 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
         lib = TrajectoryLibrary(p);
     end
     
-    desired_roll = deg2rad(-20);
+    desired_roll = deg2rad(-30);
     
-    initial_guess = [desired_roll; 0; 12; 0; 0; p.umax(3)];
+    initial_guess = [desired_roll; 0; 12; .24; .18; p.umax(3)-.5];
     num_decision_vars = length(initial_guess);
     
     
@@ -37,14 +37,14 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     c.grad_method = 'numerical';
     prog = prog.addConstraint(c);
     
-    CostFunc = @(in) abs(in(1)-desired_roll);
-    cost = FunctionHandleConstraint( -Inf, Inf, num_decision_vars, CostFunc);
-    cost.grad_method = 'numerical';
+    %CostFunc = @(in) abs(in(1)-desired_roll);
+    %cost = FunctionHandleConstraint( -Inf, Inf, num_decision_vars, CostFunc);
+    %cost.grad_method = 'numerical';
     %prog = prog.addCost(cost);
     
     
     
-    c_input_limits = BoundingBoxConstraint([deg2rad(-30); -Inf; -Inf; p.umin], [deg2rad(30); Inf; Inf; p.umax]);
+    c_input_limits = BoundingBoxConstraint([deg2rad(-50); -Inf; -Inf; p.umin], [deg2rad(-5); Inf; Inf; p.umax]);
     
     prog = prog.addConstraint(c_input_limits);
     
@@ -90,6 +90,10 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
 
     disp('u0:')
     disp(u0');
+    
+    disp('xdot');
+    xdot_temp = p.dynamics(0, x0, u0);
+    disp(xdot_temp');
 
 
     %% build lqr controller based on that trim
@@ -175,5 +179,5 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr', p, A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, 'tilqr-left-turn', p, A, B, x0, u0, gains);
 end
