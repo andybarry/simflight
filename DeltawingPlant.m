@@ -9,7 +9,6 @@ classdef DeltawingPlant < DrakeSystem
     function obj = DeltawingPlant(parameters)
       % @param parmaeters cell array of extra arguments to pass to
       % tbsc_model
-      %   @default {}
       
       obj = obj@DrakeSystem(12,0,3,12,false,true);
       obj = setDirectFeedthrough(obj,0);
@@ -17,9 +16,7 @@ classdef DeltawingPlant < DrakeSystem
       
       obj = obj.setInputLimits([-0.90; -0.90; 0], [0.855; 0.855; 5.33976]); % input limits in [radians radians newtons]
       
-      if nargin > 0
-        obj.parameters = parameters;
-      end
+      obj.parameters = parameters;
       
     end
     

@@ -78,6 +78,23 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
+    function [ytraj, xtraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf)
+      
+      traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
+      
+      x0 = traj.xtraj.eval(0);
+      
+      lqrsys = traj.lqrsys;
+      
+      
+      
+      fb_sys = feedback(obj.p, lqrsys);
+      
+      
+      [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
+      
+    end
+    
     function obj = AddStabilizationTrajectory(obj, p, x0, u0, K_to_be_negated, trajname, comments)
       
       if (nargin < 7)
@@ -90,10 +107,20 @@ classdef TrajectoryLibrary
       ktraj = ConstantTrajectory(-K_to_be_negated);
       affine_traj = ConstantTrajectory(zeros(3,1));
 
-      lqrsys = struct();
-      lqrsys.D = ktraj;
-      lqrsys.y0 = affine_traj;
+      lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
       
+      lqrsys = setInputFrame(lqrsys,CoordinateFrame([p.getStateFrame.name,' - ', mat2str(x0,3)],length(x0),p.getStateFrame.prefix));
+      
+      p.getStateFrame.addTransform(AffineTransform(p.getStateFrame,lqrsys.getInputFrame,eye(length(x0)),-x0));
+      lqrsys.getInputFrame.addTransform(AffineTransform(lqrsys.getInputFrame,p.getStateFrame,eye(length(x0)),+x0));
+
+      
+      lqrsys = setOutputFrame(lqrsys,CoordinateFrame([p.getInputFrame.name,' + ',mat2str(u0,3)],length(u0),p.getInputFrame.prefix));
+      lqrsys.getOutputFrame.addTransform(AffineTransform(lqrsys.getOutputFrame,p.getInputFrame,eye(length(u0)),u0));
+      p.getInputFrame.addTransform(AffineTransform(p.getInputFrame,lqrsys.getOutputFrame,eye(length(u0)),-u0));
+  
+%       lqrsys = lqrsys.setInputFrame(obj.p.getOutputFrame());
+
       traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
       
       obj.stabilization_trajectories{end+1} = traj;

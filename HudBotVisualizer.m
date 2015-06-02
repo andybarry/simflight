@@ -12,10 +12,9 @@ classdef HudBotVisualizer < BotVisualizer
        obj.pose_msg = mav.pose_t();
        obj.airspeed_msg = mav.indexed_measurement_t();
        obj.u_msg = lcmtypes.lcmt_deltawing_u();
-       
       
     end
-    
+
     function draw(obj, t, y)
       
       % call superclass's draw

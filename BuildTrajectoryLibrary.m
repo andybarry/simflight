@@ -94,6 +94,7 @@ xf_turn(7:9) = xf_drake(7:9);
 
 cons = [];
 
+checkDependency('lcmgl');
 lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
 lcmgl_f.glColor4f(1,0,0,.5);
 lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
@@ -102,12 +103,8 @@ lcmgl_f.switchBuffers();
 
 % draw the attempted trajectory
 xtraj_draw = [x0 xf_turn];
-  
-%%
 
 [utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
-
-%%
 [utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
 
 % stabilize the trajectory with TVLQR

@@ -1,11 +1,10 @@
-function xdot = tbsc_model_for_climb(small_state, u, parameters)
+function xdot = tbsc_model_less_vars(small_state, u, parameters)
 
 
   full_state = zeros(12,1);
   
   full_state(5) = small_state(1);
   full_state(7) = small_state(2);
-  full_state(9) = small_state(3);
   
   
   full_state = ConvertToModelFrameFromDrakeWorldFrame(full_state);
