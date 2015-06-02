@@ -13,6 +13,8 @@ function xdot_model_frame_small = tbsc_model_for_turn(small_state, u, parameters
   %   2: roll ddot
   %   3: pitch ddot
   
+  full_state(6) = 1;
+  
   full_state(4) = small_state(1);
   full_state(5) = small_state(2);
   full_state(7) = small_state(3);

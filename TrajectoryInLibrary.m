@@ -212,11 +212,20 @@ classdef TrajectoryInLibrary
       %
       % @retval converted object
 
-      xtraj_convert = obj.xtraj.inFrame(obj.body_coordinate_frame);
-      lqrsys_convert = obj.lqrsys.inInputFrame(obj.body_coordinate_frame);
+%       xtraj_convert = obj.xtraj.inFrame(obj.body_coordinate_frame);
+%       lqrsys_convert = obj.lqrsys.inInputFrame(obj.body_coordinate_frame);
+%       
+%       converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
+%       
+
+      old_K = obj.lqrsys.D.eval(0);
+      x_drake = obj.xtraj.eval(0);
       
-      converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
+      x_body = ConvertDrakeFrameToEstimatorFrame(x_drake);
       
+      new_K = old_K * x_drake * x_body';
+
+
     end
     
     function converted_traj = ConvertToDrakeFrame(obj)

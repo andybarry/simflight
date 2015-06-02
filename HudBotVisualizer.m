@@ -52,7 +52,7 @@ classdef HudBotVisualizer < BotVisualizer
       obj.pose_msg.utime = int64(t*1000000);
       
       obj.pose_msg.pos = y(1:3);
-      obj.pose_msg.vel = y(10:12);
+      obj.pose_msg.vel = [xdot; 0; y(12)];
       
       obj.pose_msg.orientation = rpy2quat([roll pitch yaw]);
       
