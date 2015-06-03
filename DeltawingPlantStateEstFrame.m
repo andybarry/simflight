@@ -33,10 +33,11 @@ classdef DeltawingPlantStateEstFrame < DrakeSystem
     function xdot = dynamics_no_grad(obj,t,x,u)
       
       x_drake_frame = ConvertStateEstimatorToDrakeFrame(x);
+      x_model_frame = ConvertToModelFrameFromDrakeWorldFrame(x_drake_frame);
       
-      xdot_drake_frame = obj.p.dynamics(t, x_drake_frame, u);
+      xdot_model_frame = tbsc_model(t, x_model_frame, u, obj.p.parameters{:});
       
-      xdot = ConvertXdotDrakeToStateEstimatorFrame(x_drake_frame, xdot_drake_frame);
+      xdot = ConvertXdotModelToStateEstimatorFrame(xdot_model_frame);
       
       
     end

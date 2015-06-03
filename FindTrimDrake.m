@@ -58,6 +58,8 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
     x0(5) = x(1);
     x0(7) = x(2);
 
+    x0 = ConvertDrakeFrameToEstimatorFrame(x0);
+    
     u0 = zeros(3,1);
 
     u0(1) = x(3);
@@ -105,8 +107,10 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
 
     %R = diag([35 35 35]);
     %R_values = [35 50 25];
+    
+    p_body_frame = DeltawingPlantStateEstFrame(p);
 
-    [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
+    [A, B, C, D, xdot0, y0] = p_body_frame.linearize(0, x0, u0);
     %% check linearization
 
     %(A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)

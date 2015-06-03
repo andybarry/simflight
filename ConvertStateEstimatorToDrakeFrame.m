@@ -15,6 +15,10 @@ function x_drake_frame = ConvertStateEstimatorToDrakeFrame(x_est_frame, Mz)
     Mz = eye(3);
   end
   
+  if size(x_est_frame, 1) ~= 1
+    x_est_frame = x_est_frame';
+  end
+  
   x_drake_frame(1:3, :) = Mz * x_est_frame(1:3)';
   
   rot_mat = rpy2rotmat(x_est_frame(4:6));

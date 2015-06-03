@@ -1,4 +1,4 @@
-function xdot_state_est = ConvertXdotModelToStateEstimatorFrame(xdot_model_frame)
+function xdot_model_frame = ConvertXdotStateEstimatorToModelFrame(xdot_state_est_frame)
 
   % in this case, the only difference between the two frames is the 180
   % degree rotation about the x axis
@@ -8,7 +8,6 @@ function xdot_state_est = ConvertXdotModelToStateEstimatorFrame(xdot_model_frame
                     0,  0, -1];
 
   rotm_full = blkdiag(rotm, rotm, rotm, rotm);
-
-  xdot_state_est = rotm_full * xdot_model_frame;
+  xdot_model_frame = rotm_full * xdot_state_est_frame;
 
 end

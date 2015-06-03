@@ -1,9 +1,12 @@
 function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
 
   p = lib.p;
+  p_body_frame = DeltawingPlantStateEstFrame(p);
+  
+  xtraj = ConvertXtrajFromDrakeFrameToStateEstFrame(xtraj);
 
-  xtraj = xtraj.setOutputFrame(p.getStateFrame());
-  utraj = utraj.setOutputFrame(p.getInputFrame());
+  xtraj = xtraj.setOutputFrame(p_body_frame.getStateFrame());
+  utraj = utraj.setOutputFrame(p_body_frame.getInputFrame());
  
   Q = gains.Q;
   Qf = gains.Qf;
@@ -70,7 +73,8 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
     R = diag([R_values(i)*ones(1,3)]);
 
     disp(['Computing TVLQR controller (R = ' num2str(R_values(i)) ')...']);
-    lqr_controller = tvlqr(p, xtraj, utraj, Q, R, Qf);
+    
+    lqr_controller = tvlqr(p_body_frame, xtraj, utraj, Q, R, Qf);
 
     comments = sprintf('%s\n\n%s', name, [prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);

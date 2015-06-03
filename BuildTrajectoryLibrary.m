@@ -51,11 +51,12 @@ cons.N_fac = 0.5;
 
 
 [utraj_knife1, xtraj_knife1] = runDircol(parameters, x0, xf_knife_edge, tf_knife_edge, bounds, u0, cons, 11);
-[utraj_knife2, xtraj_knife2] = runDircol(parameters, x0, xf_knife_edge, xtraj_knife1.tspan(2), bounds, u0, cons, 31, utraj_knife1, xtraj_knife1);
+%[utraj_knife2, xtraj_knife2] = runDircol(parameters, x0, xf_knife_edge, xtraj_knife1.tspan(2), bounds, u0, cons, 31, utraj_knife1, xtraj_knife1);
 
 % stabilize the trajectory with TVLQR
 
-lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife2, utraj_knife2, gains);
+lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife1, utraj_knife1, gains);
+%lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife2, utraj_knife2, gains);
 return;
 %% right turn
 bounds = [ 
