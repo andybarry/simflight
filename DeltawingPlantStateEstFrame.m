@@ -4,6 +4,7 @@ classdef DeltawingPlantStateEstFrame < DrakeSystem
 
   properties
     p = {}; % DeltawingPlant
+    parameters;
   end
   
   methods
@@ -18,6 +19,22 @@ classdef DeltawingPlantStateEstFrame < DrakeSystem
       obj = obj.setInputLimits(p.umin, p.umax); % input limits in [radians radians newtons]
       
       obj.p = p;
+      obj.parameters = obj.p.parameters;
+      
+      % tell the DeltawingPlant how to convert from its frame to this frame
+      drake_to_est_func = @(t, x, u) ConvertDrakeFrameToEstimatorFrame(u);
+      est_to_drake_func = @(t, x, u) ConvertStateEstimatorToDrakeFrame(u);
+      trans_drake_to_state_est = FunctionHandleCoordinateTransform(12, 0, obj.p.getStateFrame(), obj.getStateFrame(), false, true, drake_to_est_func, drake_to_est_func, drake_to_est_func);
+      trans_state_est_to_drake = FunctionHandleCoordinateTransform(12, 0, obj.getStateFrame(), obj.p.getStateFrame(), false, true, est_to_drake_func, est_to_drake_func, est_to_drake_func);
+      obj.p.getStateFrame.addTransform(trans_drake_to_state_est);
+      obj.getStateFrame.addTransform(trans_state_est_to_drake);
+      
+      % also for the input frames
+      trans_u_drake_to_est = AffineTransform(obj.p.getInputFrame(), obj.getInputFrame(), eye(3), zeros(3,1));
+      trans_u_est_to_drake = AffineTransform(obj.getInputFrame(), obj.p.getInputFrame(), eye(3), zeros(3,1));
+      
+      obj.p.getInputFrame.addTransform(trans_u_drake_to_est);
+      obj.getInputFrame.addTransform(trans_u_est_to_drake);
       
     end
     
@@ -53,25 +70,32 @@ classdef DeltawingPlantStateEstFrame < DrakeSystem
       x = zeros(12,1);
     end
     
+    function playback(obj, xtraj, utraj, options)
+      if nargin < 4
+        options = struct();
+      end
+      obj.p.playback(xtraj, utraj, options);
+      %error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
+      
+    end
+    
+    function playback_xtraj(obj, xtraj, options)
+      if nargin < 3
+        options = struct();
+      end
+      
+      obj.p.playback_xtraj(xtraj, options);
+      %error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
+      
+    end
+      
+    
+    function v = constructVisualizer(obj)
+      v = obj.p.constructVisualizer();
+      %error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
+    end
+    
   end
   
-  methods (Static)
-    
-    function playback(xtraj, utraj, options)
-      error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
-      
-    end
-    
-    function playback_xtraj(xtraj, options)
-      error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
-      
-    end
-      
-    
-    function v = constructVisualizer()
-        error('be super careful, you are attempting playback with a state-estimator-frame plant.  Probably you have plants mixed up.');
-    end
-    
-  end  
   
 end

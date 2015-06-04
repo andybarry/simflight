@@ -18,6 +18,8 @@ classdef TrajectoryLibrary
       %
       % @param plant plant that the library is built for (some kind of DrakeSystem)
       
+      assert(isa(plant, 'DeltawingPlantStateEstFrame'), 'plant is not a DeltawingPlantStateEstFrame.');
+      
       obj.p = plant;
     end
     
@@ -78,27 +80,31 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
-    function [ytraj, xtraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf)
+    function [ytraj, xtraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf, x0)
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
-      x0 = traj.xtraj.eval(0);
+      if nargin < 4
+        x0_est = traj.xtraj.eval(0);
+        x0 = ConvertStateEstimatorToDrakeFrame(x0_est);
+      end
       
       lqrsys = traj.lqrsys;
       
+      fb_sys = feedback(obj.p.p, lqrsys);
       
-      
-      fb_sys = feedback(obj.p, lqrsys);
-      
-      
+      disp(['Simulating: ' traj.name '...']);
       [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
+      disp('done.');
+      
+      obj.p.playback_xtraj(xtraj, struct('slider', true));
       
     end
     
-    function obj = AddStabilizationTrajectory(obj, p, x0, u0, K_to_be_negated, trajname, comments)
+    function obj = AddStabilizationTrajectory(obj, x0, u0, K_to_be_negated, trajname, comments)
       
       if (nargin < 7)
-        comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3)]);
+        comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(obj.p.parameters), 3)]);
       end
       
       xtraj = ConstantTrajectory(x0);
@@ -109,19 +115,19 @@ classdef TrajectoryLibrary
 
       lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
       
-      lqrsys = setInputFrame(lqrsys,CoordinateFrame([p.getStateFrame.name,' - ', mat2str(x0,3)],length(x0),p.getStateFrame.prefix));
+      lqrsys = setInputFrame(lqrsys,CoordinateFrame([obj.p.getStateFrame.name,' - ', mat2str(x0,3)],length(x0), obj.p.getStateFrame.prefix));
       
-      p.getStateFrame.addTransform(AffineTransform(p.getStateFrame,lqrsys.getInputFrame,eye(length(x0)),-x0));
-      lqrsys.getInputFrame.addTransform(AffineTransform(lqrsys.getInputFrame,p.getStateFrame,eye(length(x0)),+x0));
+      obj.p.getStateFrame.addTransform(AffineTransform(obj.p.getStateFrame,lqrsys.getInputFrame,eye(length(x0)),-x0));
+      lqrsys.getInputFrame.addTransform(AffineTransform(lqrsys.getInputFrame,obj.p.getStateFrame,eye(length(x0)),+x0));
 
       
-      lqrsys = setOutputFrame(lqrsys,CoordinateFrame([p.getInputFrame.name,' + ',mat2str(u0,3)],length(u0),p.getInputFrame.prefix));
-      lqrsys.getOutputFrame.addTransform(AffineTransform(lqrsys.getOutputFrame,p.getInputFrame,eye(length(u0)),u0));
-      p.getInputFrame.addTransform(AffineTransform(p.getInputFrame,lqrsys.getOutputFrame,eye(length(u0)),-u0));
+      lqrsys = setOutputFrame(lqrsys,CoordinateFrame([obj.p.getInputFrame.name,' + ',mat2str(u0,3)],length(u0),obj.p.getInputFrame.prefix));
+      lqrsys.getOutputFrame.addTransform(AffineTransform(lqrsys.getOutputFrame,obj.p.getInputFrame,eye(length(u0)),u0));
+      obj.p.getInputFrame.addTransform(AffineTransform(obj.p.getInputFrame,lqrsys.getOutputFrame,eye(length(u0)),-u0));
   
 %       lqrsys = lqrsys.setInputFrame(obj.p.getOutputFrame());
 
-      traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, p.getStateFrame(), trajname, comments);
+      traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, obj.p.getStateFrame(), trajname, comments);
       
       obj.stabilization_trajectories{end+1} = traj;
       

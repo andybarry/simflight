@@ -1,4 +1,4 @@
-function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
+function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
  
   Q = gains.Q;
   R = gains.R;
@@ -7,6 +7,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   K_pd_aggressive_yaw = gains.K_pd_aggressive_yaw;
   
   number = 10000;
+  p = lib.p;
   
   % first just use the K_pd's and build trajectories
   
@@ -29,7 +30,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd, 'pd-no-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd, 'pd-no-yaw');
   
   %{
   
@@ -48,7 +49,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd_yaw, 'pd-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, 'pd-yaw');
   
   
   %{
@@ -67,7 +68,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K_pd_aggressive_yaw, 'pd-aggressive-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, 'pd-aggressive-yaw');
   
   
   
@@ -106,7 +107,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K0, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K0, trajname, comments);
   
   
   
@@ -135,7 +136,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K1, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K1, trajname, comments);
   
   
   
@@ -161,7 +162,7 @@ function lib = AddTiqrControllers(lib, name, p, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(p, x0, u0, K2, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K2, trajname, comments);
   
 
 end

@@ -75,6 +75,8 @@ function [x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib)
     x0(5) = x(1);
     x0(7) = x(2);
     x0(9) = x(3);
+    
+    x0 = ConvertDrakeFrameToEstimatorFrame(x0);
 
     u0 = zeros(3,1);
 
@@ -174,5 +176,5 @@ function [x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib)
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr-climb', p, A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, 'tilqr-climb', A, B, x0, u0, gains);
 end

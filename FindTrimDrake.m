@@ -107,10 +107,8 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
 
     %R = diag([35 35 35]);
     %R_values = [35 50 25];
-    
-    p_body_frame = DeltawingPlantStateEstFrame(p);
 
-    [A, B, C, D, xdot0, y0] = p_body_frame.linearize(0, x0, u0);
+    [A, B, C, D, xdot0, y0] = p.linearize(0, x0, u0);
     %% check linearization
 
     %(A*(x0-x0) + B*(u0-u0) + xdot0) - p.dynamics(0, x0, u0)
@@ -160,5 +158,5 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr', p, A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, 'tilqr', A, B, x0, u0, gains);
 end

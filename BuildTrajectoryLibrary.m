@@ -6,7 +6,9 @@ megaclear
 
 [parameters, gains] = GetDefaultGains();
 
-p = DeltawingPlant(parameters);
+deltawing_plant = DeltawingPlant(parameters);
+p = DeltawingPlantStateEstFrame(deltawing_plant);
+
 
 [x0, u0, lib] = FindTrimDrake(p);
 
