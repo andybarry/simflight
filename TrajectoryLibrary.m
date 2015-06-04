@@ -80,7 +80,7 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
-    function [ytraj, xtraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf, x0)
+    function [ytraj, xtraj, utraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf, x0)
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
@@ -97,7 +97,26 @@ classdef TrajectoryLibrary
       [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
       disp('done.');
       
-      obj.p.playback_xtraj(xtraj, struct('slider', true));
+      % compute an estimate of utraj
+      
+      xtraj_in_est_frame = xtraj.inOutputFrame(lqrsys.getInputFrame());
+      lqrsys_in_drake_frame = lqrsys.inOutputFrame(obj.p.getInputFrame());
+      dt = 0.01;
+      t = xtraj.tspan(1) : dt : xtraj.tspan(2);
+      for i = 1 : length(t)
+        
+        x = ConvertDrakeFrameToEstimatorFrame(xtraj_in_est_frame.output(t(i), [], []));
+        
+        u(:,i) = lqrsys_in_drake_frame.output(0, [], x);
+        
+      end
+      
+      u_spline = spline(t, u);
+      
+      utraj = PPTrajectory(u_spline);
+      
+      DrawTrajectoryLcmGl(xtraj);
+      obj.p.playback(xtraj, utraj, struct('slider', true));
       
     end
     
