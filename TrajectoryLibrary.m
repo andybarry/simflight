@@ -80,20 +80,31 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
-    function [ytraj, xtraj, utraj] = SimulateStabilizationTrajectory(obj, traj_num_from_filename, tf, x0)
+    function [ytraj, xtraj, utraj] = SimulateTrajectory(obj, traj_num_from_filename, tf, x0)
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
+      
+      if nargin < 3
+        if traj_num_from_filename >= obj.stabilization_traj_offset
+          tf = 1;
+        else
+          tf = traj.xtraj.tspan(2);
+        end
+      end
+      
+      x0_str = 'default';
       
       if nargin < 4
         x0_est = traj.xtraj.eval(0);
         x0 = ConvertStateEstimatorToDrakeFrame(x0_est);
+        x0_str = 'custom';
       end
       
       lqrsys = traj.lqrsys;
       
       fb_sys = feedback(obj.p.p, lqrsys);
       
-      disp(['Simulating: ' traj.name '...']);
+      disp(['Simulating: ' traj.name ' for ' num2str(tf) ' seconds with ' x0_str ' initial conditions...']);
       [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
       disp('done.');
       
