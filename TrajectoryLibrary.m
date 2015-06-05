@@ -92,12 +92,12 @@ classdef TrajectoryLibrary
         end
       end
       
-      x0_str = 'default';
+      x0_str = 'custom';
       
       if nargin < 4
         x0_est = traj.xtraj.eval(0);
         x0 = ConvertStateEstimatorToDrakeFrame(x0_est);
-        x0_str = 'custom';
+        x0_str = 'default';
       end
       
       lqrsys = traj.lqrsys;
