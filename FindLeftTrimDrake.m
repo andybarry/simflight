@@ -7,7 +7,7 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     desired_roll = deg2rad(-30);
     
-    initial_guess = [desired_roll; 0; 12; .24; .18; p.umax(3)-.5];
+    initial_guess = [desired_roll; 0; 12; 0; 0; 0; p.umax(3)-.5];
     num_decision_vars = length(initial_guess);
     
     
@@ -15,21 +15,21 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     prog = NonlinearProgram(num_decision_vars);
 
-    func = @(in) tbsc_model_for_turn(in(1:3), in(4:6), p.parameters);
+    func = @(in) tbsc_model_for_turn(in(1:4), in(5:7), p.parameters);
 
 
     % min_xdot = 5;
     % max_xdot = 30;
     % 
-    % min_pitch = -1;
-    % max_pitch = 1;
+    min_pitch = -1.4;
+    max_pitch = 1.4;
 
     % constraint on:
     % 3 z-ddot_body
     % 4 roll-ddot
     % 5 pitch-ddot
     
-    num_constraints = 3;
+    num_constraints = 4;
     lb = zeros(num_constraints, 1);
     ub = zeros(num_constraints, 1);
     
@@ -44,7 +44,7 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     
     
-    c_input_limits = BoundingBoxConstraint([deg2rad(-50); -Inf; -Inf; p.umin], [deg2rad(-5); Inf; Inf; p.umax]);
+    c_input_limits = BoundingBoxConstraint([deg2rad(-50); min_pitch; -Inf; -Inf; p.umin], [deg2rad(-5); max_pitch; Inf; Inf; p.umax]);
     
     prog = prog.addConstraint(c_input_limits);
     
@@ -76,6 +76,9 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     x0(4) = x(1);
     x0(5) = x(2);
     x0(7) = x(3);
+    x0_drake = x0;
+    
+    x0 = ConvertDrakeFrameToEstimatorFrame(x0);
 
     u0 = zeros(3,1);
 
@@ -85,14 +88,14 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     disp('Fixed point found:');
 
-    disp('x0:')
-    disp(x0');
+    disp('x0 (drake frame):')
+    disp(x0_drake');
 
     disp('u0:')
     disp(u0');
     
-    disp('xdot');
-    xdot_temp = p.dynamics(0, x0, u0);
+    disp('xdot (drake frame):');
+    xdot_temp = p.p.dynamics(0, x0_drake, u0);
     disp(xdot_temp');
 
 
@@ -179,5 +182,5 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr-left-turn', p, A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, 'tilqr-left-turn', A, B, x0, u0, gains);
 end

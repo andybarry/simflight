@@ -104,7 +104,7 @@ classdef TrajectoryLibrary
       
       fb_sys = feedback(obj.p.p, lqrsys);
       
-      disp(['Simulating: ' traj.name ' for ' num2str(tf) ' seconds with ' x0_str ' initial conditions...']);
+      disp(['Simulating: ' traj.name ' for ' num2str(tf) ' second(s) with ' x0_str ' initial conditions...']);
       [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
       disp('done.');
       
