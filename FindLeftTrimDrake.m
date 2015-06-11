@@ -1,11 +1,11 @@
-function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
+function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, lib)
     %% find fixed point
 
-    if nargin < 2
+    if nargin < 4
         lib = TrajectoryLibrary(p);
     end
     
-    desired_roll = deg2rad(-30);
+    %desired_roll = deg2rad(50);
     
     initial_guess = zeros(12,1);
     initial_guess(4) = desired_roll;
@@ -55,14 +55,23 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     input_limits_lower(2) = 0;
     input_limits_upper(2) = 0;
     
-    input_limits_lower(4) = deg2rad(-90);
-    input_limits_upper(4) = deg2rad(-10);
+    input_limits_lower(4) = desired_roll - deg2rad(20);
+    input_limits_upper(4) = desired_roll + deg2rad(20);
     
     input_limits_lower(8) = 0;
     input_limits_upper(8) = 0;
     
-    input_limits_lower(9) = 0;
-    input_limits_upper(9) = 0;
+    if desired_climb_rate ~= 0
+      input_limits_lower(9) = desired_climb_rate - .5;
+      input_limits_upper(9) = desired_climb_rate + .5;
+    else
+      input_limits_lower(9) = 0;
+      input_limits_upper(9) = 0;
+    end
+    
+    % turning climb
+    %input_limits_lower(9) = 1.5;
+    %input_limits_upper(9) = 10;
     
     input_limits_lower(10) = 0;
     input_limits_upper(10) = 0;
