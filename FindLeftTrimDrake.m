@@ -7,7 +7,13 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     desired_roll = deg2rad(-30);
     
-    initial_guess = [desired_roll; 0; 12; 0; 0; 0; p.umax(3)-.5];
+    initial_guess = zeros(12,1);
+    initial_guess(4) = desired_roll;
+    initial_guess(7) = 12;
+    initial_guess(13:14) = [0; 0];
+    initial_guess(15) = p.umax(3)-.5;
+    
+    %initial_guess = [desired_roll; 0; 12; 0; 0; 0; p.umax(3)-.5];
     num_decision_vars = length(initial_guess);
     
     
@@ -15,7 +21,7 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     prog = NonlinearProgram(num_decision_vars);
 
-    func = @(in) tbsc_model_for_turn(in(1:4), in(5:7), p.parameters);
+    func = @(in) tbsc_model_for_turn(in(1:12), in(13:15), p.parameters);
 
 
     % min_xdot = 5;
@@ -29,7 +35,7 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     % 4 roll-ddot
     % 5 pitch-ddot
     
-    num_constraints = 4;
+    num_constraints = 6;
     lb = zeros(num_constraints, 1);
     ub = zeros(num_constraints, 1);
     
@@ -43,8 +49,34 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     %prog = prog.addCost(cost);
     
     
+    input_limits_lower = -Inf*ones(15,1);
+    input_limits_upper = Inf*ones(15,1);
     
-    c_input_limits = BoundingBoxConstraint([deg2rad(-50); min_pitch; -Inf; -Inf; p.umin], [deg2rad(-5); max_pitch; Inf; Inf; p.umax]);
+    input_limits_lower(2) = 0;
+    input_limits_upper(2) = 0;
+    
+    input_limits_lower(4) = deg2rad(-90);
+    input_limits_upper(4) = deg2rad(-10);
+    
+    input_limits_lower(8) = 0;
+    input_limits_upper(8) = 0;
+    
+    input_limits_lower(9) = 0;
+    input_limits_upper(9) = 0;
+    
+    input_limits_lower(10) = 0;
+    input_limits_upper(10) = 0;
+    
+    input_limits_lower(11) = 0;
+    input_limits_upper(11) = 0;
+    
+
+    
+    input_limits_lower(13:15) = p.umin;
+    input_limits_upper(13:15) = p.umax;
+    
+    %c_input_limits = BoundingBoxConstraint([deg2rad(-50); min_pitch; -Inf; -Inf; p.umin], [deg2rad(-5); max_pitch; Inf; Inf; p.umax]);
+    c_input_limits = BoundingBoxConstraint(input_limits_lower, input_limits_upper);
     
     prog = prog.addConstraint(c_input_limits);
     
@@ -63,7 +95,8 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     assert(exitflag == 1, ['Solver error: ' num2str(exitflag)]);
 
-    
+    x0_drake = x(1:12);
+    u0 = x(13:15);
 
     %full_state = zeros(12,1);
 
@@ -72,19 +105,19 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
 
     %p.dynamics(0, full_state, x(3:5));
 
-    x0 = zeros(12, 1);
-    x0(4) = x(1);
-    x0(5) = x(2);
-    x0(7) = x(3);
-    x0_drake = x0;
-    
-    x0 = ConvertDrakeFrameToEstimatorFrame(x0);
-
-    u0 = zeros(3,1);
-
-    u0(1) = x(4);
-    u0(2) = x(5);
-    u0(3) = x(6);
+%     x0 = zeros(12, 1);
+%     x0(4) = x(1);
+%     x0(5) = x(2);
+%     x0(7) = x(3);
+%     x0_drake = x0;
+%     
+     x0 = ConvertDrakeFrameToEstimatorFrame(x0_drake);
+% 
+%     u0 = zeros(3,1);
+% 
+%     u0(1) = x(4);
+%     u0(2) = x(5);
+%     u0(3) = x(6);
     
     disp('Fixed point found:');
 
@@ -96,6 +129,10 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, lib)
     
     disp('xdot (drake frame):');
     xdot_temp = p.p.dynamics(0, x0_drake, u0);
+    disp(xdot_temp');
+    
+    disp('xdot (est frame):');
+    xdot_temp = p.dynamics(0, x0, u0);
     disp(xdot_temp');
 
 

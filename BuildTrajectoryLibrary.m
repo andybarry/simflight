@@ -119,6 +119,63 @@ max_climb = 1.0; % m/s
 
 return;
 
+%% right circle turn
+bounds = [ 
+  0.1         % x
+  0.1          % y
+  0.1          % z
+  deg2rad(10)  % roll
+  deg2rad(10) % pitch
+  deg2rad(10) % yaw
+  30           % x-dot
+  30           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
+
+
+tf_turn = 4;
+
+xf_turn = x0;
+
+% constrain the plane to be turning
+bounds_turn_lower= -Inf*ones(12,1);
+bounds_turn_upper = Inf*ones(12,1);
+
+
+bounds_turn_lower(2) = 3.9;
+bounds_turn_upper(2) = 4.1;
+
+c_turn = BoundingBoxConstraint(bounds_turn_lower, bounds_turn_upper);
+
+cons = struct();
+cons.c = c_turn;
+cons.N_fac = 0.5;
+
+checkDependency('lcmgl');
+lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+lcmgl_f.glColor4f(1,0,0,.5);
+lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
+
+lcmgl_f.switchBuffers();
+
+% draw the attempted trajectory
+xtraj_draw = [x0 xf_turn];
+
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
+%[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('right-turn', lib, xtraj_turn2, utraj_turn2, gains);
+
+max_climb = 1.0; % m/s
+[x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib);
+
+return;
+
 %% alieron roll
 
 bounds = [ 
