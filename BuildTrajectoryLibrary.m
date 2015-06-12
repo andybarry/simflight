@@ -12,6 +12,187 @@ p = DeltawingPlantStateEstFrame(deltawing_plant);
 
 [x0, u0, lib] = FindTrimDrake(p);
 
+%% more trim conditions
+
+% climb
+
+max_climb = 1.0; % m/s
+[~, ~, lib] = FindClimbTrimDrake(p, max_climb, lib);
+
+% left turn
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-20), 0, 12, lib, 'TI-left-turn');
+
+% right turn
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(20), 0, 12, lib, 'TI-right-turn');
+
+% aggressive left turn
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-50), 0, 12, lib, 'TI-aggressive-left-turn');
+
+% agressive right turn
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(50), 0, 12, lib, 'TI-aggressive-right-turn');
+
+%% super aggressive right turn
+bounds = [ 
+  100         % x
+  100         % y
+  50          % z
+  deg2rad(10)  % roll
+  deg2rad(10) % pitch
+  deg2rad(10) % yaw
+  30           % x-dot
+  30           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
+
+
+tf_turn = 3;
+
+xf_turn = x0;
+xf_turn(1) = x0(7)*.5*tf_turn;
+xf_turn(2) = -x0(7)*.5*tf_turn;
+xf_turn(6) = deg2rad(-90);
+
+% compute final velocities
+
+% input: velocity, body-x, final rpy
+% output: velocity global x, y, and z
+rpy_model = ConvertToModelFrameFromDrakeWorldFrame([zeros(3,1); xf_turn(4:6); zeros(6,1)]);
+
+model_xf = [zeros(3,1); rpy_model(4:6); x0(7); 0; 0; zeros(3,1)];
+xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
+
+xf_turn(7:9) = xf_drake(7:9);
+
+cons = [];
+
+checkDependency('lcmgl');
+lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+lcmgl_f.glColor4f(1,0,0,.5);
+lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
+
+lcmgl_f.switchBuffers();
+
+% draw the attempted trajectory
+xtraj_draw = [x0 xf_turn];
+
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
+[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('super-aggressive-right-turn', lib, xtraj_turn2, utraj_turn2, gains);
+
+
+
+return;
+
+%% super aggressive left turn
+bounds = [ 
+  100         % x
+  100         % y
+  50          % z
+  deg2rad(10)  % roll
+  deg2rad(10) % pitch
+  deg2rad(10) % yaw
+  30           % x-dot
+  30           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
+
+
+tf_turn = 3;
+
+xf_turn = x0;
+xf_turn(1) = -x0(7)*.5*tf_turn;
+xf_turn(2) = x0(7)*.5*tf_turn;
+xf_turn(6) = deg2rad(90);
+
+% compute final velocities
+
+% input: velocity, body-x, final rpy
+% output: velocity global x, y, and z
+rpy_model = ConvertToModelFrameFromDrakeWorldFrame([zeros(3,1); xf_turn(4:6); zeros(6,1)]);
+
+model_xf = [zeros(3,1); rpy_model(4:6); x0(7); 0; 0; zeros(3,1)];
+xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
+
+xf_turn(7:9) = xf_drake(7:9);
+
+cons = [];
+
+checkDependency('lcmgl');
+lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+lcmgl_f.glColor4f(1,0,0,.5);
+lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
+
+lcmgl_f.switchBuffers();
+
+% draw the attempted trajectory
+xtraj_draw = [x0 xf_turn];
+
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
+[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('super-aggressive-left-turn', lib, xtraj_turn2, utraj_turn2, gains);
+
+
+
+return;
+
+%% super aggressive climb
+
+bounds = [ 
+  100         % x
+  100         % y
+  1          % z
+  deg2rad(10)  % roll
+  deg2rad(10) % pitch
+  deg2rad(10) % yaw
+  30           % x-dot
+  30           % y-dot
+  5           % z-dot
+  deg2rad(70) % roll-dot
+  deg2rad(70) % pitch-dot
+  deg2rad(70) % yaw-dot
+  ];
+
+
+tf_turn = 3;
+
+xf_turn = x0;
+xf_turn(1) =  x0(7)*tf_turn;
+xf_turn(3) = 10;
+
+cons = [];
+
+checkDependency('lcmgl');
+lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
+lcmgl_f.glColor4f(1,0,0,.5);
+lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
+
+lcmgl_f.switchBuffers();
+
+% draw the attempted trajectory
+xtraj_draw = [x0 xf_turn];
+
+[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
+[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+
+% stabilize the trajectory with TVLQR
+
+lib = AddLqrControllersToLib('super-aggressive-left-turn', lib, xtraj_turn2, utraj_turn2, gains);
+
+
+
+return;
 
 %% knife-edge
 
@@ -59,121 +240,6 @@ cons.N_fac = 0.5;
 
 lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife1, utraj_knife1, gains);
 %lib = AddLqrControllersToLib('knife-edge', lib, xtraj_knife2, utraj_knife2, gains);
-return;
-%% right turn
-bounds = [ 
-  100         % x
-  100         % y
-  50          % z
-  deg2rad(10)  % roll
-  deg2rad(10) % pitch
-  deg2rad(10) % yaw
-  30           % x-dot
-  30           % y-dot
-  5           % z-dot
-  deg2rad(70) % roll-dot
-  deg2rad(70) % pitch-dot
-  deg2rad(70) % yaw-dot
-  ];
-
-
-tf_turn = 4;
-
-xf_turn = x0;
-xf_turn(1) = x0(7)*.5*tf_turn;
-xf_turn(2) = -x0(7)*.5*tf_turn;
-xf_turn(6) = deg2rad(-45);
-
-% compute final velocities
-
-% input: velocity, body-x, final rpy
-% output: velcoity global x, y, and z
-rpy_model = ConvertToModelFrameFromDrakeWorldFrame([zeros(3,1); xf_turn(4:6); zeros(6,1)]);
-
-model_xf = [zeros(3,1); rpy_model(4:6); x0(7); 0; 0; zeros(3,1)];
-xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
-
-xf_turn(7:9) = xf_drake(7:9);
-
-cons = [];
-
-checkDependency('lcmgl');
-lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
-lcmgl_f.glColor4f(1,0,0,.5);
-lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
-
-lcmgl_f.switchBuffers();
-
-% draw the attempted trajectory
-xtraj_draw = [x0 xf_turn];
-
-[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
-[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
-
-% stabilize the trajectory with TVLQR
-
-lib = AddLqrControllersToLib('right-turn', lib, xtraj_turn2, utraj_turn2, gains);
-
-max_climb = 1.0; % m/s
-[x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib);
-
-return;
-
-%% right circle turn
-bounds = [ 
-  0.1         % x
-  0.1          % y
-  0.1          % z
-  deg2rad(10)  % roll
-  deg2rad(10) % pitch
-  deg2rad(10) % yaw
-  30           % x-dot
-  30           % y-dot
-  5           % z-dot
-  deg2rad(70) % roll-dot
-  deg2rad(70) % pitch-dot
-  deg2rad(70) % yaw-dot
-  ];
-
-
-tf_turn = 4;
-
-xf_turn = x0;
-
-% constrain the plane to be turning
-bounds_turn_lower= -Inf*ones(12,1);
-bounds_turn_upper = Inf*ones(12,1);
-
-
-bounds_turn_lower(2) = 3.9;
-bounds_turn_upper(2) = 4.1;
-
-c_turn = BoundingBoxConstraint(bounds_turn_lower, bounds_turn_upper);
-
-cons = struct();
-cons.c = c_turn;
-cons.N_fac = 0.5;
-
-checkDependency('lcmgl');
-lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
-lcmgl_f.glColor4f(1,0,0,.5);
-lcmgl_f.box(xf_turn(1:3), 2*bounds(1:3));
-
-lcmgl_f.switchBuffers();
-
-% draw the attempted trajectory
-xtraj_draw = [x0 xf_turn];
-
-[utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
-%[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
-
-% stabilize the trajectory with TVLQR
-
-lib = AddLqrControllersToLib('right-turn', lib, xtraj_turn2, utraj_turn2, gains);
-
-max_climb = 1.0; % m/s
-[x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib);
-
 return;
 
 %% alieron roll

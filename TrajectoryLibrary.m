@@ -69,6 +69,21 @@ classdef TrajectoryLibrary
       
     end
     
+    function ListTrajectories(obj)
+      % Lists all trajectories
+      
+      for i = 1 : length(obj.trajectories)
+        val = i - 1;
+        disp([num2str(val) ': ' obj.GetTrajectoryByNumber(val).name]);
+      end
+      
+      for i = 1 : length(obj.stabilization_trajectories)
+        val = obj.stabilization_traj_offset + i - 1;
+        disp([num2str(val) ': ' obj.GetTrajectoryByNumber(val).name]);
+      end
+      
+    end
+    
     function playback(obj, traj_num_from_filename)
       % Plays the trajectory in a visualizer
       %

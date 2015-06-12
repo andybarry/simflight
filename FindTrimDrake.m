@@ -158,5 +158,5 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr', A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, 'TI-straight', A, B, x0, u0, gains);
 end

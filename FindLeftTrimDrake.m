@@ -1,15 +1,23 @@
-function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, lib)
+function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, nominal_xdot, lib, trajname)
     %% find fixed point
 
     if nargin < 4
+      nominal_xdot = 12;
+    end
+    
+    if nargin < 5
         lib = TrajectoryLibrary(p);
+    end
+    
+    if nargin < 6
+      trajname = 'TI-trim';
     end
     
     %desired_roll = deg2rad(50);
     
     initial_guess = zeros(12,1);
     initial_guess(4) = desired_roll;
-    initial_guess(7) = 12;
+    initial_guess(7) = nominal_xdot;
     initial_guess(13:14) = [0; 0];
     initial_guess(15) = p.umax(3)-.5;
     
@@ -143,6 +151,10 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, 
     disp('xdot (est frame):');
     xdot_temp = p.dynamics(0, x0, u0);
     disp(xdot_temp');
+    
+    disp(['xdot: ' num2str(x0(7)), ' m/s']);
+    disp(['roll angle: ' num2str(rad2deg(x0(4))) ' deg']);
+    disp(['climb rate: ' num2str(x0_drake(9)) ' m/s']);
 
 
     %% build lqr controller based on that trim
@@ -168,11 +180,17 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, 
 
 
 
-
+    
     Q = diag([0 0 0 10 30 .25 0.1 .0001 0.0001 .001 .001 .1]);
     Q(1,1) = 1e-10; % ignore x-position
     Q(2,2) = 1e-10; % ignore y-position
     Q(3,3) = 1e-10; % ignore z-position
+    
+    if abs(x0(12)) > 0.1
+      % we are expecting some yaw-dot, so no gain on yaw
+      Q(6,6) = 1e-10; % ignore yaw
+      disp(['ignoring yaw on ' trajname]);
+    end
 
 
     %R = diag([35 35 35]);
@@ -228,5 +246,5 @@ function [x0, u0, lib] = FindLeftTrimDrake(p, desired_roll, desired_climb_rate, 
     gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
 
 
-    lib = AddTiqrControllers(lib, 'tilqr-left-turn', A, B, x0, u0, gains);
+    lib = AddTiqrControllers(lib, trajname, A, B, x0, u0, gains);
 end

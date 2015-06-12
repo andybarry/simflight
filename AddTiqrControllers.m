@@ -6,7 +6,6 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   K_pd_yaw = gains.K_pd_yaw;
   K_pd_aggressive_yaw = gains.K_pd_aggressive_yaw;
   
-  number = 10000;
   p = lib.p;
   
   % first just use the K_pd's and build trajectories
@@ -30,7 +29,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd, 'pd-no-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
   
   %{
   
@@ -49,7 +48,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, 'pd-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, [name '-pd-yaw']);
   
   
   %{
@@ -68,7 +67,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, 'pd-aggressive-yaw');
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, [name '-pd-aggressive-yaw']);
   
   
   
