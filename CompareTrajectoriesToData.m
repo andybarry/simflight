@@ -3,14 +3,14 @@
 clear
 
 % TODO: detect these?
-parameters = {0.904, 0.000, -0.134, -0.049, 0 };
+%parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-05-14';
-name = 'field-test-gps2';
-log_number = '01';
+date = '2015-06-13';
+name = 'field-test';
+log_number = '03';
 stabilization_trajectory = 10005;
 
-trajectory_library = 'trajlib/may-14-2.mat';
+trajectory_library = 'trajlib/june12.mat';
 
 use_simulation = false;
 
@@ -21,7 +21,7 @@ load(trajectory_library);
 
 
 
-dir = [date '-' name '/gps-logs/'];
+dir = [date '-' name '/odroid-gps1/'];
 filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
 
 

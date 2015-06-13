@@ -6,6 +6,7 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
     additional_constraints = struct();
     additional_constraints.c = [];
     additional_constraints.N_fac = [];
+    additional_constraints.final_cost_on_time_gain = 1;
   end
   
   
@@ -13,20 +14,23 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
     %N = 11; % number of knot points
     N = round(tf0 * 10) + 1;
   end
-
   
   if nargin < num_args_req + 3
-     traj_init.x = PPTrajectory(foh([0, tf0], [x0, xf]));
-  else
-    traj_init.x = xtraj_guess;
-  end
-  
-  if nargin < num_args_req + 4
     traj_init.u = ConstantTrajectory(u0);
   else
     traj_init.u = utraj_guess;
+    
+  end
+
+  
+  if nargin < num_args_req + 4
+     traj_init.x = PPTrajectory(foh([0, tf0], [x0, xf]));
+  else
+    traj_init.x = xtraj_guess;
     assert(traj_init.x.tspan(2) == traj_init.u.tspan(2), 'Init trajectories have different tspan');
   end
+  
+  
   
   if tf0 ~= traj_init.x.tspan(2)
     tf0 = traj_init.x.tspan(2);
@@ -165,9 +169,9 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
   end
 
   function [h, dh] = FinalCostOnTime(T, xf)
-    h = T;
+    h = T * additional_constraints.final_cost_on_time_gain;
     dh = zeros(1,13);
-    dh(1) = 1;
+    dh(1) = additional_constraints.final_cost_on_time_gain;
   end
   
 
