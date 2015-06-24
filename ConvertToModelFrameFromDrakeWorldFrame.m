@@ -1,6 +1,8 @@
 function x_body = ConvertToModelFrameFromDrakeWorldFrame(x_drake)
   
-  x_body(4:6,:) = x_drake(4:6);
+  x_body = x_drake;
+  
+  x_body(4:6) = x_drake(4:6);
   
 
   rotm(1:3,1:3) = [ 1,  0,  0;
@@ -11,7 +13,7 @@ function x_body = ConvertToModelFrameFromDrakeWorldFrame(x_drake)
 
   x0_drake_rotated = rotm_full * x_drake;
 
-  x_body(1:6,:) = x0_drake_rotated(1:6);
+  x_body(1:6) = x0_drake_rotated(1:6);
   
   % body position is always at origin in body frame
   
@@ -25,7 +27,7 @@ function x_body = ConvertToModelFrameFromDrakeWorldFrame(x_drake)
   R_world_to_body = R_body_to_world';
   R = R_body_to_world;
 
-  x_body(7:9,:) = R_world_to_body*x0_drake_rotated(7:9);
+  x_body(7:9) = R_world_to_body*x0_drake_rotated(7:9);
 
   phi = rpy(1);
   theta = rpy(2);
@@ -38,7 +40,7 @@ function x_body = ConvertToModelFrameFromDrakeWorldFrame(x_drake)
   pqr = rpydot2angularvel([phi;theta;psi],[phidot;thetadot;psidot]);
   pqr = R'*pqr;
 
-  x_body(10:12,:) = pqr;
+  x_body(10:12) = pqr;
 
 end
 

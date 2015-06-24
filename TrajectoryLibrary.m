@@ -37,11 +37,11 @@ classdef TrajectoryLibrary
       %
       % @retval obj updated object
       
-      if nargin < 6
+      if nargin < 5
         name =  'traj';
       end
       
-      if nargin < 7
+      if nargin < 6
         comments =  '';
       end
       

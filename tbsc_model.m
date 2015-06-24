@@ -236,13 +236,15 @@ elevR_body_pos = [elevR_x_arm + (elevR_chord/2 - elevR_chord/2*cos(elevR)); elev
 %xdot_elevL_body = R_world_to_body*xdot_elevL;
 xdot_elevL_body = [U;V;W] + cross([P;Q;R], elevL_body_pos);
 xdot_elevL_body_no_sideslip = [xdot_elevL_body(1); 0; xdot_elevL_body(3)];
-vel_elevL = norm(xdot_elevL_body_no_sideslip);
+%vel_elevL = norm(xdot_elevL_body_no_sideslip);
+vel_elevL = sqrt(xdot_elevL_body_no_sideslip(1)^2 + xdot_elevL_body_no_sideslip(2)^2 + xdot_elevL_body_no_sideslip(3)^2);
 
 %xdot_elevR = xdots_world + cross(omega_world, R_body_to_world*elevR_body_pos);
 %xdot_elevR_body = R_world_to_body*xdot_elevR;
 xdot_elevR_body = [U;V;W] + cross([P;Q;R], elevR_body_pos);
 xdot_elevR_body_no_sideslip = [xdot_elevR_body(1); 0; xdot_elevR_body(3)];
-vel_elevR = norm(xdot_elevR_body_no_sideslip);
+%vel_elevR = norm(xdot_elevR_body_no_sideslip);
+vel_elevR = sqrt(xdot_elevR_body_no_sideslip(1)^2 + xdot_elevR_body_no_sideslip(2)^2 + xdot_elevR_body_no_sideslip(3)^2);
 
 alpha_elevL = atan2(xdot_elevL_body_no_sideslip(3), xdot_elevL_body_no_sideslip(1));
 alpha_elevR = atan2(xdot_elevR_body_no_sideslip(3), xdot_elevR_body_no_sideslip(1));
@@ -278,13 +280,15 @@ F_elevR = rotAlpha([elevR_drag; 0; elevR_lift], alpha_elevR); % elevon right
 %xdot_wingletL_body = R_world_to_body*xdot_wingletL;
 xdot_wingletL_body = [U;V;W] + cross([P;Q;R], wingletL_body_pos);
 xdot_wingletL_body_no_sideslip = [xdot_wingletL_body(1); xdot_wingletL_body(2); 0];
-vel_wingletL = norm(xdot_wingletL_body_no_sideslip);
+%vel_wingletL = norm(xdot_wingletL_body_no_sideslip);
+vel_wingletL = sqrt(xdot_wingletL_body_no_sideslip(1)^2 + xdot_wingletL_body_no_sideslip(2)^2 + xdot_wingletL_body_no_sideslip(3)^2);
 
 %xdot_wingletR = xdots_world + cross(omega_world, R_body_to_world * wingletR_body_pos);
 %xdot_wingletR_body = R_world_to_body*xdot_wingletR;
 xdot_wingletR_body = [U;V;W] + cross([P;Q;R], wingletR_body_pos);
 xdot_wingletR_body_no_sideslip = [xdot_wingletR_body(1); xdot_wingletR_body(2); 0];
-vel_wingletR = norm(xdot_wingletR_body_no_sideslip);
+%vel_wingletR = norm(xdot_wingletR_body_no_sideslip);
+vel_wingletR = sqrt(xdot_wingletR_body_no_sideslip(1)^2 +xdot_wingletR_body_no_sideslip(2)^2 +xdot_wingletR_body_no_sideslip(3)^2);
 
 beta_wingletL = atan2(xdot_wingletL_body_no_sideslip(2), xdot_wingletL_body_no_sideslip(1));
 beta_wingletR = atan2(xdot_wingletR_body_no_sideslip(2), xdot_wingletR_body_no_sideslip(1));

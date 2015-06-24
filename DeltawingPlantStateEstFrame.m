@@ -42,6 +42,13 @@ classdef DeltawingPlantStateEstFrame < DrakeSystem
       options = struct();
       options.grad_method = 'numerical';
       
+      if isa(x, 'TaylorVar')
+        % no gradients for taylorvar
+        xdot = obj.dynamics_no_grad(t, x, u);
+        dxdot = [];
+        return;
+      end
+      
       tempfunc = @(t, x, u) obj.dynamics_no_grad(t, x, u);
       
       [xdot, dxdot] = geval(tempfunc, t, x, u, options);

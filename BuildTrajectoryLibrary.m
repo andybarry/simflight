@@ -293,7 +293,7 @@ xtraj_draw = [x0 xf_turn];
 
 % stabilize the trajectory with TVLQR
 
-lib = AddLqrControllersToLib('super-aggressive-left-turn', lib, xtraj_turn2, utraj_turn2, gains);
+lib = AddLqrControllersToLib('super-aggressive-climb', lib, xtraj_turn2, utraj_turn2, gains);
 
 
 
@@ -341,7 +341,7 @@ xtraj_draw = [x0 xf_turn];
 
 % stabilize the trajectory with TVLQR
 
-lib = AddLqrControllersToLib('super-aggressive-left-turn', lib, xtraj_turn2, utraj_turn2, gains);
+lib = AddLqrControllersToLib('super-aggressive-dive', lib, xtraj_turn2, utraj_turn2, gains);
 
 
 %% knife-edge
