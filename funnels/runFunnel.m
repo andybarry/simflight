@@ -7,6 +7,8 @@ p = DeltawingPlantStateEstFrame(p_world_coords);
 
 disp('Loading trajectory library...');
 load ../trajlib/june13.mat
+
+%%
 % load funnelLibrary.mat
 % load funnelLibrary_Jan17.mat
 % load funnelLibrary_Feb06_2.mat

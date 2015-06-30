@@ -76,6 +76,23 @@ classdef TrajectoryInLibrary
       
     end
     
+    function draw(obj, options)
+      % Draw the trajectory using LCMGL
+      %
+      % @param options options structure to pass to DrawTrajectoryLcmGl
+      
+      if nargin < 2
+        options = struct();
+        options.color = [1, 0, 0];
+        options.switch_buffers = true;
+        options.lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(), 'trajectory_library');
+      end
+      
+        
+      DrawTrajectoryLcmGl(obj.xtraj, 'trajectory_library', options);
+    end
+    
+    
     function WriteToFile(obj, filename_prefix, dt, overwrite_files)
       %
       % Write files that contain the trajectory information in filename.csv and
