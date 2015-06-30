@@ -22,10 +22,25 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
   ktraj = ConstantTrajectory(-K_ol);
   affine_traj = ConstantTrajectory(zeros(3,1));
 
-  lqrsys = struct();
-  lqrsys.D = ktraj;
-  lqrsys.y0 = affine_traj;
+  lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
+
+  % create new coordinate frames so that we can simulate using
+  % Drake's tools
   
+  nX = lib.p.getNumStates();
+  nU = lib.p.getNumInputs();
+
+  iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+  lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+  iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+
+  oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+  oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+  lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+  
+  lqrsys = lqrsys.setInputFrame(iframe);
+  lqrsys = lqrsys.setOutputFrame(oframe);
+ 
   trajname = [name '-open-loop'];
   
   comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
@@ -42,9 +57,24 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
   ktraj = ConstantTrajectory(-K_pd);
   affine_traj = ConstantTrajectory(zeros(3,1));
 
-  lqrsys = struct();
-  lqrsys.D = ktraj;
-  lqrsys.y0 = affine_traj;
+  lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
+  
+  % create new coordinate frames so that we can simulate using
+  % Drake's tools
+  
+  nX = lib.p.getNumStates();
+  nU = lib.p.getNumInputs();
+
+  iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+  lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+  iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+
+  oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+  oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+  lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+  
+  lqrsys = lqrsys.setInputFrame(iframe);
+  lqrsys = lqrsys.setOutputFrame(oframe);
   
   trajname = [name '-PD'];
   
@@ -53,9 +83,24 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
   lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
   
   ktraj = ConstantTrajectory(-K_pd_yaw);
-  lqrsys = struct();
-  lqrsys.D = ktraj;
-  lqrsys.y0 = affine_traj;
+  lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
+  
+  % create new coordinate frames so that we can simulate using
+  % Drake's tools
+  
+  nX = lib.p.getNumStates();
+  nU = lib.p.getNumInputs();
+
+  iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+  lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+  iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+
+  oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+  oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+  lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+  
+  lqrsys = lqrsys.setInputFrame(iframe);
+  lqrsys = lqrsys.setOutputFrame(oframe);
   
   trajname = [name '-PD-yaw'];
   

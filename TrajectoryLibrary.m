@@ -119,7 +119,7 @@ classdef TrajectoryLibrary
       
       fb_sys = feedback(obj.p.p, lqrsys);
       
-      disp(['Simulating: ' traj.name ' for ' num2str(tf) ' second(s) with ' x0_str ' initial conditions...']);
+      disp(['Simulating: "' traj.name '" for ' num2str(tf) ' second(s) with ' x0_str ' initial conditions...']);
       [ytraj, xtraj] = fb_sys.simulate([0 tf], x0);
       disp('done.');
       
@@ -130,10 +130,8 @@ classdef TrajectoryLibrary
       dt = 0.01;
       t = xtraj.tspan(1) : dt : xtraj.tspan(2);
       for i = 1 : length(t)
-        
-        x = ConvertDrakeFrameToEstimatorFrame(xtraj_in_est_frame.output(t(i), [], []));
-        
-        u(:,i) = lqrsys_in_drake_frame.output(0, [], x);
+
+        u(:,i) = lqrsys_in_drake_frame.output(t(i), [], xtraj_in_est_frame.output(t(i), [], []));
         
       end
       
