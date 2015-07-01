@@ -120,6 +120,28 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
     disp(['Computing TVLQR controller (R = ' num2str(R_values(i)) ')...']);
     
     lqr_controller = tvlqr(p_body_frame, xtraj, utraj, Q, R, Qf);
+    
+    % tvlqr doesn't do a good job of picking frames correctly, so assign
+    % them (*sigh*)
+    
+    % create new coordinate frames so that we can simulate using
+    % Drake's tools
+
+    nX = lib.p.getNumStates();
+    nU = lib.p.getNumInputs();
+
+    iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+    lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+    iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+
+    oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+    oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+    lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+
+    lqr_controller = lqr_controller.setInputFrame(iframe);
+    lqr_controller = lqr_controller.setOutputFrame(oframe);
+    
+    
 
     comments = sprintf('%s\n\n%s', name, [prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
