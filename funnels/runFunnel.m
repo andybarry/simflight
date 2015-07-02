@@ -2,13 +2,15 @@
 megaclear
 addpath('../');
 [parameters, gains] = GetDefaultGains();
-p_world_coords = DeltawingPlant(parameters);
-p = DeltawingPlantStateEstFrame(p_world_coords);
+
 
 disp('Loading trajectory library...');
 %load ../trajlib/june13.mat
 load ../trajfunnel/funnel.mat
 disp('done.');
+
+%p_world_coords = DeltawingPlant(parameters);
+p = lib.p;
 
 %%
 % load funnelLibrary.mat
