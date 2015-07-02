@@ -1,9 +1,15 @@
-function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains)
+function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in_est_frame)
+
+  if nargin < 6
+    already_in_est_frame = false;
+  end
 
   p = lib.p;
   p_body_frame = DeltawingPlantStateEstFrame(p);
   
-  xtraj = ConvertXtrajFromDrakeFrameToStateEstFrame(xtraj);
+  if already_in_est_frame == false
+    xtraj = ConvertXtrajFromDrakeFrameToStateEstFrame(xtraj);
+  end
 
   xtraj = xtraj.setOutputFrame(p_body_frame.getStateFrame());
   utraj = utraj.setOutputFrame(p_body_frame.getInputFrame());
