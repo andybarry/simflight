@@ -6,7 +6,9 @@ p_world_coords = DeltawingPlant(parameters);
 p = DeltawingPlantStateEstFrame(p_world_coords);
 
 disp('Loading trajectory library...');
-load ../trajlib/june13.mat
+%load ../trajlib/june13.mat
+load ../trajfunnel/funnel.mat
+disp('done.');
 
 %%
 % load funnelLibrary.mat
@@ -49,9 +51,6 @@ utraj = utraj.setOutputFrame(p.getInputFrame); % return;
 % Qf = G0*1000;
 
 Q = gains.Q;
-Q(1,1) = 1;
-Q(2,2) = 1;
-Q(3,3) = 1;
 Qf = gains.Qf;
 R_values = gains.R_values;
 R = diag([R_values(1)*ones(1,3)]);
@@ -63,7 +62,43 @@ options = struct();
 disp('Doing tvlqr...');
 [tv,Vtv] = tvlqr(p,xtraj,utraj,Q,R,Qf,options);
 
-ts = Vtv.S.getBreaks(); return;
+
+% -------- for simulation testing -----------
+
+
+% tvlqr doesn't do a good job of picking frames correctly, so assign
+% them (*sigh*)
+
+% create new coordinate frames so that we can simulate using
+% Drake's tools
+
+nX = lib.p.getNumStates();
+nU = lib.p.getNumInputs();
+
+iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+
+oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+
+tv = tv.setInputFrame(iframe);
+tv = tv.setOutputFrame(oframe);
+
+
+
+comments = 'FUNNEL-test';
+lib = lib.AddTrajectory(xtraj, utraj, tv, ['FUNNEL-test'], comments);
+
+
+
+% -------- end for simulation testing -----------
+
+
+
+
+ts = Vtv.S.getBreaks();
 
 %     %useful for tuning Q,R,and Qf
 %     figure(25);
