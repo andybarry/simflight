@@ -12,6 +12,8 @@ disp('done.');
 %p_world_coords = DeltawingPlant(parameters);
 p = lib.p;
 
+p = p.setInputLimits(-Inf*ones(3,1), Inf*ones(3,1));
+
 %%
 % load funnelLibrary.mat
 % load funnelLibrary_Jan17.mat
@@ -63,7 +65,7 @@ options = struct();
 
 disp('Doing tvlqr...');
 [tv,Vtv] = tvlqr(p,xtraj,utraj,Q,R,Qf,options);
-
+disp('done');
 
 % -------- for simulation testing -----------
 
@@ -74,21 +76,19 @@ disp('Doing tvlqr...');
 % create new coordinate frames so that we can simulate using
 % Drake's tools
 
-nX = lib.p.getNumStates();
-nU = lib.p.getNumInputs();
-
-iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
-lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
-iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
-
-oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
-oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
-lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
-
-tv = tv.setInputFrame(iframe);
-tv = tv.setOutputFrame(oframe);
-
-
+% nX = lib.p.getNumStates();
+% nU = lib.p.getNumInputs();
+% 
+% iframe = CoordinateFrame([lib.p.getStateFrame.name,' - x0(t)'],nX,lib.p.getStateFrame.prefix);
+% lib.p.getStateFrame.addTransform(AffineTransform(lib.p.getStateFrame,iframe,eye(nX),-xtraj));
+% iframe.addTransform(AffineTransform(iframe,lib.p.getStateFrame,eye(nX),xtraj));
+% 
+% oframe = CoordinateFrame([lib.p.getInputFrame.name,' + u0(t)'],nU,lib.p.getInputFrame.prefix);
+% oframe.addTransform(AffineTransform(oframe,lib.p.getInputFrame,eye(nU),utraj));
+% lib.p.getInputFrame.addTransform(AffineTransform(lib.p.getInputFrame,oframe,eye(nU),-utraj));
+% 
+% tv = tv.setInputFrame(iframe);
+% tv = tv.setOutputFrame(oframe);
 
 comments = 'FUNNEL-test';
 lib = lib.AddTrajectory(xtraj, utraj, tv, ['FUNNEL-test'], comments);
@@ -96,26 +96,33 @@ lib = lib.AddTrajectory(xtraj, utraj, tv, ['FUNNEL-test'], comments);
 
 
 % -------- end for simulation testing -----------
-
+%%
 
 
 
 ts = Vtv.S.getBreaks();
 
-%     %useful for tuning Q,R,and Qf
-%     figure(25);
-%     optionsPlt.inclusion = 'projection';
-%     optionsPlt.plotdims = [1 2];
-%     optionsPlt.x0 = xtraj;
-%     optionsPlt.ts = linspace(ts(1),ts(end),20);
-%     Vtv_x = Vtv.inFrame(p.getStateFrame);
-%     plotFunnel(Vtv_x,optionsPlt);
-%     fnplt(xtraj,[1 2]);
-%     axis equal
-%     return;
+for k = 2:12
+  
+   figure(k)
+    clf
+    
+    %useful for tuning Q,R,and Qf
+   % figure(25);
+    optionsPlt.inclusion = 'slice';
+    optionsPlt.plotdims = [1 k];
+    optionsPlt.x0 = xtraj;
+    optionsPlt.ts = linspace(ts(1),ts(end),20);
+    Vtv_x = Vtv.inFrame(p.getStateFrame);
+    plotFunnel(Vtv_x,optionsPlt);
+    fnplt(xtraj,[1 k]);
+    axis equal
+    drawnow
+end
+    return;
 
 G0 = Vtv.S.eval(0);
-G0 = G0; % Scale it to make initial condition set reasonable.
+G0 = 1.01*G0; % Scale it to make initial condition set reasonable.
 
 
 sysCl = feedback(p,tv); 
@@ -132,17 +139,17 @@ polyOrig = taylorApprox(p,xtraj,utraj,3); % return;
 
 % Get time samples
 ts = Vtv.S.getBreaks(); tsend = ts(end);
-% ts = ts(1:ceil(ts(end)/12*(1/mean(diff(ts)))):length(ts));
-ts = linspace(ts(1),ts(end),12);
+ts = ts(1:ceil(ts(end)/12*(1/mean(diff(ts)))):length(ts));
+% ts = linspace(ts(1),ts(end),12);
 % ts = [ts tsend];
 
 % Do verification
 options = struct();
 options.saturations = false;
 options.rho0_tau = 10;
-options.rho0 = 0.01;
+options.rho0 = 1.00;
 options.degL1 = 2;
-options.max_iterations = 50;
+options.max_iterations = 10;
 % options.solveroptions.OutputFlag = 0; 
 disp('Starting verification...')
 

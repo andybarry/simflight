@@ -4,12 +4,12 @@ traj = lib.GetTrajectoryByNumber(4);
 
 [parameters, gains] = GetDefaultGains();
 
-xyzgain = 10;
-
-gains.Q(1,1) = xyzgain;
-gains.Q(2,2) = xyzgain;
-gains.Q(3,3) = xyzgain;
-gains.R_values = 150;
+% xyzgain = 10;
+% 
+% gains.Q(1,1) = xyzgain;
+% gains.Q(2,2) = xyzgain;
+% gains.Q(3,3) = xyzgain;
+% gains.R_values = 150;
 
 
 
@@ -24,9 +24,11 @@ lib.GetTrajectoryByNumber(trajnum).draw();
 
 x0 = ConvertStateEstimatorToDrakeFrame(traj.xtraj.eval(0));
 
-x0(2) = x0(2) - 2;
-x0(3) = x0(3) + 2;
+x0(1:3) = x0(1:3) + rand(3,1)*1;
+x0(4:6) = x0(4:6) + rand(3,1)*.1;
+x0(7:9) = x0(7:9) + rand(3,1)*1;
+x0(10:12) = x0(10:12) + rand(3,1)*.1;
 
-x0(4) = x0(4) + deg2rad(15);
+x0(11) = x0(11) - 10
 
-lib.SimulateTrajectory(trajnum, traj.xtraj.tspan(2), x0);
+[ytrajsim, xtrajsim, utrajsim] = lib.SimulateTrajectory(trajnum, traj.xtraj.tspan(2), x0);

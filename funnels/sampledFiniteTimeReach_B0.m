@@ -129,12 +129,9 @@ function [V,rho,Phi] = sampledFiniteTimeReach_B0(sys,polyOrig,Vtraj0,G,R0,tv,ts,
 
 load inside_verification0.mat x Vtraj0 Vy ts forig_u options u ui x utraj forig_u Vmin sys Phi
 
+options.rho0 = 0.05;
+
 dts = diff(ts);
-
-options.rho0 = 0.1; % 
-
-options.rho0_tau = 10; % 2.2;
-options.converged_tol = -Inf;
 
 % Initialize rho
 if nargin < 12
@@ -2168,7 +2165,7 @@ rho(1) = options.rho0;
 for k = 1:N
     rhonow = rho(k);
     rhomin = 0.7*rhonow;
-    rhomax = 5*rhonow; % 10
+    rhomax = 10*rhonow; % 10
     rho(k+1) = fzero(@(rhonext) checkRho(Vtraj0,Vy,rhonext,utraj,ts,forig_u,Phi,dts,options,u,ui,x,k,rhonow,psys),[rhomin rhomax],optimset('TolX',1e-5));
     rho(k+1) = 1.001*rho(k+1) % 1.001 To ensure feasibility
     

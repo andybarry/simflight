@@ -77,7 +77,7 @@ lcmgl_f.switchBuffers();
 xtraj_draw = [x0 xf_turn];
 
 [utraj_turn1, xtraj_turn1] = runDircol(parameters, x0, xf_turn, tf_turn, bounds, u0, cons, 15);
-[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 31, utraj_turn1, xtraj_turn1);
+[utraj_turn2, xtraj_turn2] = runDircol(parameters, x0, xf_turn, xtraj_turn1.tspan(2), bounds, u0, cons, 100, utraj_turn1, xtraj_turn1);
 
 % stabilize the trajectory with TVLQR
 
