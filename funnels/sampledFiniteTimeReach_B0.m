@@ -1,135 +1,135 @@
 function [V,rho,Phi] = sampledFiniteTimeReach_B0(sys,polyOrig,Vtraj0,G,R0,tv,ts,xtraj0,utraj,options,Phi,rho)
-% % % Implements time-varying reachability computation.
-% % The approach searches for a Lyapunov function
-% % and attempts to minimize the size of the funnel.
-% %
-% % @param sys Taylor expanded closed loop system (with tvlqr)
-% % @param polyOrig Taylor expanded original system (not closed loop)
-% % @param Vtraj0 Initial guess for Lyapunov function
-% % @param G Target set description
-% % @param tv Tvlqr controller
-% % @param ts Time samples
-% % @param xtraj0 Nominal trajectory
-% % @param utraj Nominal control input
-% % @param options Options structure
-% %
-% % @option controller_deg Degree of controller to search for
-% % @option max_iterations Maximum number of iterations (3 steps per
-% % iteration)
-% % @option converged_tol Tolerance for convergence
-% % @option saturations True if input saturations exist, False if not
-% % @option rho0 Initial guess for rho
-% % @option clean_tol Tolerance for cleaning small terms
-% % @option backoff_percent Percentage to back off on objective (helps with
-% % numerics)
-% % @option degL1 Multiplier degree
-% % @option Lu Multiplier degree
-% % @option Lu1 Multiplier degree
-% % @option Lu2 Multiplier degree
-% % @option Lup Multiplier degree
-% % @option Lum Multiplier degree
-% 
-% % Get the necessary variables
-% t=msspoly('t',1);
-% x=Vtraj0.getFrame.getPoly;
-% ts=ts(:);
-% 
-% num_x = sys.getNumStates();
-% num_xd = sys.getNumDiscStates();
-% num_xc = sys.getNumContStates();
-% if (num_xd), xd = x(1:num_xd); x = x(num_xd + (1:num_xc)); end
-% num_u = sys.getNumInputs();
-% 
-% if options.saturations && (num_u > 1)
-%     error('Sorry, I cannot handle actuator saturations for systems with more than one actuator.')
-% end
-% 
-% u = polyOrig.getInputFrame.getPoly;
-% 
-% % Default options
-% if (nargin<10) options = struct(); end
-% if (~isfield(options,'controller_deg')) options.controller_deg = 1; end % Degree of polynomial controller to search for
-% if (~isfield(options,'max_iterations')) options.max_iterations = 10; end % Maximum number of iterations (3 steps per iteration)
-% if (~isfield(options,'converged_tol')) options.converged_tol = 1e-3; end % Tolerance for checking convergence
-% if (~isfield(options,'saturations')) options.saturations = false; end % Set whether or not there are any input saturations
-% if (~isfield(options,'rho0')) options.rho0 = 0.1*ones(length(ts),1); options.rho0(end) = 1; end % Initial "guessed" rho
-% if (~isfield(options,'clean_tol')) options.clean_tol = 1e-6; end % tolerance for cleaning small terms
-% if (~isfield(options,'backoff_percent')) options.backoff_percent = 5; end % 5 percent backing off
-% if (~isfield(options,'degL1')) options.degL1 = options.controller_deg + 1; end % Chosen to do degree matching
-% if (~isfield(options,'degLu')) options.degLu = options.controller_deg - 1; end
-% if (~isfield(options,'degLu1')) options.degLu1 = 2; end
-% if (~isfield(options,'degLu2')) options.degLu2 = 2; end
-% if (~isfield(options,'degLup')) options.degLup = 2; end
-% if (~isfield(options,'degLum')) options.degLum = 2; end
-% 
-% 
-% % if (isnumeric(G) && ismatrix(G) && all(size(G)==[num_xc,num_xc]))
-% %   G = QuadraticLyapunovFunction(Vtraj0.getFrame,G);
-% % end
-% % typecheck(G,'PolynomialLyapunovFunction');
-% typecheck(Vtraj0,'PolynomialLyapunovFunction');
-% 
-% 
-% % %% for now, let's require that G matches V at the final conditions
-% % if (~equalpoly(clean(G.getPoly(ts(end))),clean(Vtraj0.getPoly(ts(end)))))
-% %   error('for now, I require that G matches V at the final conditions');
-% % end
-% 
-% N = length(ts);
-% Vmin = zeros(N-1,1);
-% 
-% xdottraj = fnder(xtraj0);
-% sys = sys.inStateFrame(Vtraj0.getFrame); % convert system to Lyapunov function coordinates
-% polyOrig = polyOrig.inStateFrame(Vtraj0.getFrame); % convert polyOrig to Lyapunov function coordinates
-% 
-% % evaluate dynamics and Vtraj at every ts once (for efficiency/clarity)
-% for i=1:N
-%   x0=xtraj0.eval(ts(i)); x0=x0(num_xd+(1:num_xc));
-% 
-%   fy{i} = sys.getPolyDynamics(ts(i));
-%   if (sys.getNumInputs>0)   % zero all inputs
-%     fy{i} = subs(fy{i},sys.getInputFrame.getPoly,zeros(sys.getNumInputs,1));
-%   end
-% 
-%   forig_u{i} = polyOrig.p_dynamics_traj.eval(ts(i));
-% 
-%   if options.saturations
-%       forig_umax{i} = subss(polyOrig.p_dynamics_traj.eval(ts(i)),u,options.umax);
-%       forig_umin{i} = subss(polyOrig.p_dynamics_traj.eval(ts(i)),u,options.umin);
-%   end
-% 
-%   K = tv.D.eval(ts(i));
-%   ui{i} = utraj.eval(ts(i)) + K*x;
-% 
-%   % Initialize Phi
-%   if nargin < 11
-%       if i > 1
-%           Phi{i} = 0.0*eye(length(x));
-%       else
-%           Phi{i} = zeros(length(x),length(x));
-%       end
-%   end
-% 
-% 
-% 
-%   Vy{i} = Vtraj0.getPoly(ts(i)) + x'*Phi{i}*x;
-% 
-%   Vmin(i) =  minimumV(x,Vy{i});
-% 
-%   i
-% 
-% 
-% end
-% 
-% 
-% % sys = sys.inStateFrame(Vtraj0.getFrame);
-% 
-% % Initialize rho with "tube" constraints
-% % rho = initializeRhoSPOT(V,Vdot,dts,options,x);
+% % Implements time-varying reachability computation.
+% The approach searches for a Lyapunov function
+% and attempts to minimize the size of the funnel.
+%
+% @param sys Taylor expanded closed loop system (with tvlqr)
+% @param polyOrig Taylor expanded original system (not closed loop)
+% @param Vtraj0 Initial guess for Lyapunov function
+% @param G Target set description
+% @param tv Tvlqr controller
+% @param ts Time samples
+% @param xtraj0 Nominal trajectory
+% @param utraj Nominal control input
+% @param options Options structure
+%
+% @option controller_deg Degree of controller to search for
+% @option max_iterations Maximum number of iterations (3 steps per
+% iteration)
+% @option converged_tol Tolerance for convergence
+% @option saturations True if input saturations exist, False if not
+% @option rho0 Initial guess for rho
+% @option clean_tol Tolerance for cleaning small terms
+% @option backoff_percent Percentage to back off on objective (helps with
+% numerics)
+% @option degL1 Multiplier degree
+% @option Lu Multiplier degree
+% @option Lu1 Multiplier degree
+% @option Lu2 Multiplier degree
+% @option Lup Multiplier degree
+% @option Lum Multiplier degree
 
-load inside_verification0.mat x Vtraj0 Vy ts forig_u options u ui x utraj forig_u Vmin sys Phi
+% Get the necessary variables
+t=msspoly('t',1);
+x=Vtraj0.getFrame.getPoly;
+ts=ts(:);
 
-options.rho0 = 0.05;
+num_x = sys.getNumStates();
+num_xd = sys.getNumDiscStates();
+num_xc = sys.getNumContStates();
+if (num_xd), xd = x(1:num_xd); x = x(num_xd + (1:num_xc)); end
+num_u = sys.getNumInputs();
+
+if options.saturations && (num_u > 1)
+    error('Sorry, I cannot handle actuator saturations for systems with more than one actuator.')
+end
+
+u = polyOrig.getInputFrame.getPoly;
+
+% Default options
+if (nargin<10) options = struct(); end
+if (~isfield(options,'controller_deg')) options.controller_deg = 1; end % Degree of polynomial controller to search for
+if (~isfield(options,'max_iterations')) options.max_iterations = 10; end % Maximum number of iterations (3 steps per iteration)
+if (~isfield(options,'converged_tol')) options.converged_tol = 1e-3; end % Tolerance for checking convergence
+if (~isfield(options,'saturations')) options.saturations = false; end % Set whether or not there are any input saturations
+if (~isfield(options,'rho0')) options.rho0 = 0.1*ones(length(ts),1); options.rho0(end) = 1; end % Initial "guessed" rho
+if (~isfield(options,'clean_tol')) options.clean_tol = 1e-6; end % tolerance for cleaning small terms
+if (~isfield(options,'backoff_percent')) options.backoff_percent = 5; end % 5 percent backing off
+if (~isfield(options,'degL1')) options.degL1 = options.controller_deg + 1; end % Chosen to do degree matching
+if (~isfield(options,'degLu')) options.degLu = options.controller_deg - 1; end
+if (~isfield(options,'degLu1')) options.degLu1 = 2; end
+if (~isfield(options,'degLu2')) options.degLu2 = 2; end
+if (~isfield(options,'degLup')) options.degLup = 2; end
+if (~isfield(options,'degLum')) options.degLum = 2; end
+
+
+% if (isnumeric(G) && ismatrix(G) && all(size(G)==[num_xc,num_xc]))
+%   G = QuadraticLyapunovFunction(Vtraj0.getFrame,G);
+% end
+% typecheck(G,'PolynomialLyapunovFunction');
+typecheck(Vtraj0,'PolynomialLyapunovFunction');
+
+
+% %% for now, let's require that G matches V at the final conditions
+% if (~equalpoly(clean(G.getPoly(ts(end))),clean(Vtraj0.getPoly(ts(end)))))
+%   error('for now, I require that G matches V at the final conditions');
+% end
+
+N = length(ts);
+Vmin = zeros(N-1,1);
+
+xdottraj = fnder(xtraj0);
+sys = sys.inStateFrame(Vtraj0.getFrame); % convert system to Lyapunov function coordinates
+polyOrig = polyOrig.inStateFrame(Vtraj0.getFrame); % convert polyOrig to Lyapunov function coordinates
+
+% evaluate dynamics and Vtraj at every ts once (for efficiency/clarity)
+for i=1:N
+  x0=xtraj0.eval(ts(i)); x0=x0(num_xd+(1:num_xc));
+
+  fy{i} = sys.getPolyDynamics(ts(i));
+  if (sys.getNumInputs>0)   % zero all inputs
+    fy{i} = subs(fy{i},sys.getInputFrame.getPoly,zeros(sys.getNumInputs,1));
+  end
+
+  forig_u{i} = polyOrig.p_dynamics_traj.eval(ts(i));
+
+  if options.saturations
+      forig_umax{i} = subss(polyOrig.p_dynamics_traj.eval(ts(i)),u,options.umax);
+      forig_umin{i} = subss(polyOrig.p_dynamics_traj.eval(ts(i)),u,options.umin);
+  end
+
+  K = tv.D.eval(ts(i));
+  ui{i} = utraj.eval(ts(i)) + K*x;
+
+  % Initialize Phi
+  if nargin < 11
+      if i > 1
+          Phi{i} = 0.0*eye(length(x));
+      else
+          Phi{i} = zeros(length(x),length(x));
+      end
+  end
+
+
+
+  Vy{i} = Vtraj0.getPoly(ts(i)) + x'*Phi{i}*x;
+
+  Vmin(i) =  minimumV(x,Vy{i});
+
+  i
+
+
+end
+
+
+% sys = sys.inStateFrame(Vtraj0.getFrame);
+
+% Initialize rho with "tube" constraints
+% rho = initializeRhoSPOT(V,Vdot,dts,options,x);
+
+save inside_verification0.mat x Vtraj0 Vy ts forig_u options u ui x utraj forig_u Vmin sys Phi
+
+options.rho0 = 1.0;
 
 dts = diff(ts);
 
@@ -2214,8 +2214,11 @@ prog = prog.withSOS(-gamma*(x'*x)^(deg(Vdoty,x)/2) - Vdoty + rhodot + L1*(V-rho)
 % Solve SOS program
 pars = spot_sdp_default_options();
 pars.verbose = 1;
+pars.scale_monomials = false;
 % keyboard;
 sol = prog.minimize(-gamma,@spot_mosek,pars);
+
+% gamma = double(sol.eval(gamma));
 
 if strcmp(sol.info.solverInfo.itr.prosta,'PRIMAL_INFEASIBLE')
     gamma = -1.0;

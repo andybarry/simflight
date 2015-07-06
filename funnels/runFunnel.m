@@ -94,7 +94,7 @@ comments = 'FUNNEL-test';
 lib = lib.AddTrajectory(xtraj, utraj, tv, ['FUNNEL-test'], comments);
 
 
-
+%return;
 % -------- end for simulation testing -----------
 %%
 
@@ -119,7 +119,7 @@ for k = 2:12
     axis equal
     drawnow
 end
-    return;
+%%
 
 G0 = Vtv.S.eval(0);
 G0 = 1.01*G0; % Scale it to make initial condition set reasonable.
@@ -128,7 +128,8 @@ G0 = 1.01*G0; % Scale it to make initial condition set reasonable.
 sysCl = feedback(p,tv); 
 
 disp('Doing taylor approx');
-psys = taylorApprox(sysCl,xtraj,[],3); 
+psys = taylorApprox(sysCl,xtraj,[],3);
+disp('done');
 
 utraj = utraj.setOutputFrame(p.getInputFrame);
 polyOrig = taylorApprox(p,xtraj,utraj,3); % return;
@@ -138,10 +139,11 @@ polyOrig = taylorApprox(p,xtraj,utraj,3); % return;
 % p.getStateFrame.addTransform(AffineTransform(p.getStateFrame,p.getStateFrame,eye(length(x)),double(0*x)));
 
 % Get time samples
-ts = Vtv.S.getBreaks(); tsend = ts(end);
-ts = ts(1:ceil(ts(end)/12*(1/mean(diff(ts)))):length(ts));
-% ts = linspace(ts(1),ts(end),12);
-% ts = [ts tsend];
+% ts = Vtv.S.getBreaks(); tsend = ts(end);
+% ts = ts(1:ceil(ts(end)/12*(1/mean(diff(ts)))):length(ts));
+
+ts = linspace(0,0.1,10);
+
 
 % Do verification
 options = struct();

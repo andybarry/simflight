@@ -6,15 +6,14 @@ function [parameters, gains] = GetDefaultGains()
 
   % Q = diag([10 10 10 10 50 .25 0.1 .0001 0.0001 .1 .01 .1]);
   % Q = diag([10 10 10 10 50 .25 0.1 0.1 0.1 .1 .01 .1]);
-  Q = diag([10*ones(6,1);1*ones(6,1)]);
-  Q(11) = 10;
+  Q = diag([100*ones(6,1);10*ones(6,1)]);
   Qf = Q;
 %   Q(1,1) = 1e-10; % ignore x-position
 %   Q(2,2) = 1e-10; % ignore y-position
 %   Q(3,3) = 1e-10; % ignore z-position
 
    % R_values = [150 100];
-  R_values = 1;
+  R_values = 0.5;
 
   % Qf = eye(12);
 
