@@ -380,11 +380,12 @@ c_knife = BoundingBoxConstraint(bounds_roll_lower, bounds_roll_upper);
 cons = struct();
 cons.c = c_knife;
 cons.N_fac = 0.5;
+cons.final_cost_on_time_gain = 1;
 
 
 
 [utraj_knife1, xtraj_knife1] = runDircol(parameters, x0, xf_knife_edge, tf_knife_edge, bounds, u0, cons, 11);
-%[utraj_knife2, xtraj_knife2] = runDircol(parameters, x0, xf_knife_edge, xtraj_knife1.tspan(2), bounds, u0, cons, 31, utraj_knife1, xtraj_knife1);
+[utraj_knife2, xtraj_knife2] = runDircol(parameters, x0, xf_knife_edge, xtraj_knife1.tspan(2), bounds, u0, cons, 31, utraj_knife1, xtraj_knife1);
 
 % stabilize the trajectory with TVLQR
 

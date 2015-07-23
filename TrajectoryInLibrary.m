@@ -5,6 +5,8 @@ classdef TrajectoryInLibrary
     xtraj;
     utraj;
     lqrsys; % LQR controller
+    xtraj_rollout = []; % for TI trajectories, we include a rollout to be
+                        % written to a file (for online collision checking)
     state_frame; % state frame of the plant
     body_coordinate_frame;
     name; % name to prepend in the filename
@@ -118,6 +120,8 @@ classdef TrajectoryInLibrary
       
       comment_filename = [filename_prefix '-comments.txt'];
       
+      rollout_filename = [filename_prefix '-rollout.csv'];
+      
       if ~overwrite_files && exist(state_filename, 'file') ~= 0
         error(['Not writing trajectory since "' state_filename '" exists.']);
       end
@@ -136,6 +140,10 @@ classdef TrajectoryInLibrary
       
       if ~overwrite_files && exist(comment_filename, 'file') ~= 0
         error(['Not writing trajectory since "' comment_filename '" exists.']);
+      end
+      
+      if ~overwrite_files && exist(rollout_filename, 'file') ~= 0
+        error(['Not writing trajectory since "' rollout_filename '" exists.']);
       end
       
       xpoints = [];
@@ -193,6 +201,17 @@ classdef TrajectoryInLibrary
           counter = counter + 1;
       end
       
+      if ~isempty(obj.xtraj_rollout)
+        rollout_points = [];
+        counter = 1;
+        rollout_breaks = obj.xtraj_rollout.getBreaks();
+        rollout_endT = rollout_breaks(end);
+        for t = 0:dt:rollout_endT
+            rollout_points(:,counter) = [t; obj.xtraj_rollout.eval(t)];
+            counter = counter + 1;
+        end
+      end
+      
 
       % write all the xpoints to a file
       
@@ -214,6 +233,11 @@ classdef TrajectoryInLibrary
       
       disp(['Writing: ' affine_filename]);
       TrajectoryInLibrary.csvwrite_wtih_headers(affine_filename, affine_headers, affine_points');
+      
+      if ~isempty(obj.xtraj_rollout)
+        disp(['Writing: ' rollout_filename]);
+        TrajectoryInLibrary.csvwrite_wtih_headers(rollout_filename, xpoint_headers, rollout_points');
+      end
       
       disp(['Writing: ' comment_filename]);
       fid = fopen(comment_filename, 'w');

@@ -29,7 +29,9 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
+  [lib, traj_num] = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
+  
+  xtraj_rollout = lib.GetTrajectoryByNumber(traj_num).xtraj_rollout;
   
   %{
   
@@ -48,7 +50,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, [name '-pd-yaw']);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, [name '-pd-yaw'], [], xtraj_rollout);
   
   
   %{
@@ -67,7 +69,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, [name '-pd-aggressive-yaw']);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, [name '-pd-aggressive-yaw'], [], xtraj_rollout);
   
   
   
@@ -106,7 +108,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(x0, u0, K0, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K0, trajname, comments, xtraj_rollout);
   
   
   
@@ -135,7 +137,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(x0, u0, K1, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K1, trajname, comments, xtraj_rollout);
   
   
   
@@ -161,7 +163,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(x0, u0, K2, trajname, comments);
+  lib = lib.AddStabilizationTrajectory(x0, u0, K2, trajname, comments, xtraj_rollout);
   
 
 end

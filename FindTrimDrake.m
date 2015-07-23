@@ -37,9 +37,9 @@ function [x0, u0, lib] = FindTrimDrake(p, lib)
 
     %p = p.addConstraint(c2);
 
-
+tic
     [x, objval, exitflag] = prog.solve( initial_guess );
-
+toc
 
 
     

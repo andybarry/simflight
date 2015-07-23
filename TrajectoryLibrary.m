@@ -8,6 +8,7 @@ classdef TrajectoryLibrary
     trajectories = {};
     stabilization_trajectories = {};
     stabilization_traj_offset = 10000;
+    ti_rollout_time = 3.0; % time in seconds for all TI rollouts that are used for collision checking online
   end
   
   
@@ -144,10 +145,14 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddStabilizationTrajectory(obj, x0, u0, K_to_be_negated, trajname, comments)
+    function [obj, new_traj_num] = AddStabilizationTrajectory(obj, x0, u0, K_to_be_negated, trajname, comments, xtraj_rollout)
+      
+      if (nargin < 6 || isempty(comments))
+        comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(obj.p.parameters), 3)]);
+      end
       
       if (nargin < 7)
-        comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(obj.p.parameters), 3)]);
+        xtraj_rollout = [];
       end
       
       xtraj = ConstantTrajectory(x0);
@@ -173,6 +178,25 @@ classdef TrajectoryLibrary
       traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, obj.p.getStateFrame(), trajname, comments);
       
       obj.stabilization_trajectories{end+1} = traj;
+      
+      traj_num = obj.stabilization_traj_offset + length(obj.stabilization_trajectories) - 1;
+      
+      if isempty(xtraj_rollout)
+        % simulate for a rollout
+        [~, simtraj] = obj.SimulateTrajectory(traj_num, obj.ti_rollout_time);
+      
+        % simulation is in Drake frame, covert to StateEstimatorFrame
+        simtraj = ConvertXtrajFromDrakeFrameToStateEstFrame(simtraj);
+      else
+        simtraj = xtraj_rollout;
+      end
+      
+      traj.xtraj_rollout = simtraj;
+      
+      % replace the object with the updated one
+      obj.stabilization_trajectories{end} = traj;
+      
+      new_traj_num = traj_num;
       
     end
     

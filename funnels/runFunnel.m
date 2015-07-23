@@ -149,7 +149,7 @@ ts = linspace(0,0.1,10);
 options = struct();
 options.saturations = false;
 options.rho0_tau = 10;
-options.rho0 = 1.00;
+options.rho0 - 1.00;
 options.degL1 = 2;
 options.max_iterations = 10;
 % options.solveroptions.OutputFlag = 0; 

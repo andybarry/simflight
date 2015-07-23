@@ -5,12 +5,12 @@ clear
 % TODO: detect these?
 %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-06-13';
+date = '2015-05-14';
 name = 'field-test';
-log_number = '03';
+log_number = '01';
 stabilization_trajectory = 10005;
 
-trajectory_library = 'trajlib/june12.mat';
+trajectory_library = 'traj-archive/may-14-2.mat';
 
 use_simulation = false;
 

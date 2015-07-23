@@ -54,9 +54,9 @@ function [x0, u0, lib] = FindClimbTrimDrake(p, max_climb, lib)
 
     %p = p.addConstraint(c2);
 
-
+tic
     [x, objval, exitflag] = prog.solve( initial_guess );
-
+toc
 
 
     
