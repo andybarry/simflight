@@ -51,6 +51,16 @@ classdef TrajectoryLibrary
       
     end
     
+    function obj = AddExistingTrajectory(obj, traj)
+      % Adds a trajectory to the library
+      %
+      % @param traj TrajectoryInLibrary object
+      %
+      % @retval obj updated object
+      
+      obj.trajectories{end+1} = traj;
+    end
+    
     function DrawTrajectories(obj)
       
       options = struct();

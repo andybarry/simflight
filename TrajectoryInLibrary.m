@@ -87,11 +87,11 @@ classdef TrajectoryInLibrary
         options = struct();
         options.color = [1, 0, 0];
         options.switch_buffers = true;
-        options.lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(), 'trajectory_library');
+        options.lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(), 'trajectory');
       end
       
         
-      DrawTrajectoryLcmGl(obj.xtraj, 'trajectory_library', options);
+      DrawTrajectoryLcmGl(obj.xtraj, 'trajectory', options);
     end
     
     
@@ -279,6 +279,58 @@ classdef TrajectoryInLibrary
       lqrsys_convert = obj.lqrsys.inInputFrame(obj.state_frame);
       
       converted_traj = TrajectoryInLibrary(xtraj_convert, obj.utraj, lqrsys_convert, obj.state_frame);
+      
+    end
+    
+    function dist = NearestNeighborLinear(obj, points)
+      % Search through a vector of points (3xN) and
+      % find the miniminum distance from those points
+      % to any point on the trajectory
+      %
+      % @param points 3xN vector of points
+      %
+      % @retval dist distance between closest point on the trajectory and a
+      %   point in "points"
+      
+      
+      xpoints = [];
+
+      breaks = obj.xtraj.getBreaks();
+      endT = breaks(end);
+      
+      dt = 0.01;
+      counter = 1;
+      for t = 0:dt:endT
+          xpoints(:,counter) = [t; obj.xtraj.eval(t)];
+          counter = counter + 1;
+      end
+      
+      min_dist = -1;
+      
+      for i = 1 : size(points,2)
+        % for each point to search over...
+        
+        for j = 1 : length(xpoints)
+          % for each point on the trajectory...
+          
+          % compute distance
+          
+          % NOTE: xpoints is offset from what you might think because of
+          % time index
+
+          this_dist = sqrt( (points(1, i) - xpoints(2, j))^2 + (points(2, i) - xpoints(3, j))^2 + (points(3, i) - xpoints(4, j))^2 );
+          
+          if (min_dist < 0 || this_dist < min_dist)
+            min_dist = this_dist;
+          end
+          
+        end
+        
+        
+      end
+      
+      dist = min_dist;
+      
       
     end
     
