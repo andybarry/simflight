@@ -310,6 +310,8 @@ classdef TrajectoryInLibrary
       for i = 1 : size(points,2)
         % for each point to search over...
         
+        %disp(['Searching against: (' num2str(points(1,i)) ', ' num2str(points(2,i)) ', ' num2str(points(3,i))]);
+        
         for j = 1 : length(xpoints)
           % for each point on the trajectory...
           
@@ -319,6 +321,9 @@ classdef TrajectoryInLibrary
           % time index
 
           this_dist = sqrt( (points(1, i) - xpoints(2, j))^2 + (points(2, i) - xpoints(3, j))^2 + (points(3, i) - xpoints(4, j))^2 );
+          
+          %disp(['Searching at: (' num2str(xpoints(2,j)) ', ' num2str(xpoints(3,j)) ', ' num2str(xpoints(4,j))]);
+          %disp(['Distance is: ' num2str(this_dist)]);
           
           if (min_dist < 0 || this_dist < min_dist)
             min_dist = this_dist;
