@@ -6,8 +6,6 @@ classdef TrajectoryLibrary
   properties
     p; % the plant
     trajectories = {};
-    stabilization_trajectories = {};
-    stabilization_traj_offset = 10000;
     ti_rollout_time = 3.0; % time in seconds for all TI rollouts that are used for collision checking online
   end
   
@@ -88,11 +86,6 @@ classdef TrajectoryLibrary
         disp([num2str(val) ': ' obj.GetTrajectoryByNumber(val).name]);
       end
       
-      for i = 1 : length(obj.stabilization_trajectories)
-        val = obj.stabilization_traj_offset + i - 1;
-        disp([num2str(val) ': ' obj.GetTrajectoryByNumber(val).name]);
-      end
-      
     end
     
     function playback(obj, traj_num_from_filename)
@@ -111,7 +104,7 @@ classdef TrajectoryLibrary
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
       if nargin < 3
-        if traj_num_from_filename >= obj.stabilization_traj_offset
+        if traj.IsTimeInvariant()
           tf = 1;
         else
           tf = traj.xtraj.tspan(2);
@@ -187,9 +180,9 @@ classdef TrajectoryLibrary
 
       traj = TrajectoryInLibrary(xtraj, utraj, lqrsys, obj.p.getStateFrame(), trajname, comments);
       
-      obj.stabilization_trajectories{end+1} = traj;
+      obj.trajectories{end+1} = traj;
       
-      traj_num = obj.stabilization_traj_offset + length(obj.stabilization_trajectories) - 1;
+      traj_num = length(obj.trajectories) - 1;
       
       if isempty(xtraj_rollout)
         % simulate for a rollout
@@ -211,11 +204,7 @@ classdef TrajectoryLibrary
     end
     
     function traj = GetTrajectoryByNumber(obj, traj_num_from_filename)
-      if (traj_num_from_filename >= obj.stabilization_traj_offset)
-        traj = obj.stabilization_trajectories{ traj_num_from_filename + 1 - obj.stabilization_traj_offset };
-      else
-        traj= obj.trajectories{traj_num_from_filename + 1};
-      end
+        traj = obj.trajectories{traj_num_from_filename + 1};
     end
     
     function WriteToFile(obj, filename_prefix, overwrite_files)
@@ -238,16 +227,6 @@ classdef TrajectoryLibrary
         numstr = sprintf('%05d', i-1);
         obj.trajectories{i}.WriteToFile([filename_prefix '-' obj.trajectories{i}.name '-' numstr], dt, overwrite_files);
       end
-      
-      % write stabilization files
-      for i = 1 : length(obj.stabilization_trajectories)
-        numstr = sprintf('%05d', i-1+obj.stabilization_traj_offset);
-        
-        traj = obj.stabilization_trajectories{i};
-        traj.WriteToFile([filename_prefix '-' traj.name '-' numstr], dt, overwrite_files);
-        %traj.WriteToFile(['trajlib/' traj.name '-' numstr], dt, overwrite_files);
-      end
-        
       
       % write a .mat file containing this object
       mat_filename = [filename_prefix '.mat'];

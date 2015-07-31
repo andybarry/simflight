@@ -282,6 +282,13 @@ classdef TrajectoryInLibrary
       
     end
     
+    function ti = IsTimeInvariant(obj)
+      if isinf(obj.utraj.tspan(2))
+        ti = true;
+      else
+        tu = false;
+      end
+    
     function dist = NearestNeighborLinear(obj, points)
       % Search through a vector of points (3xN) and
       % find the miniminum distance from those points
@@ -295,14 +302,24 @@ classdef TrajectoryInLibrary
       
       xpoints = [];
 
-      breaks = obj.xtraj.getBreaks();
+      if obj.IsTimeInvariant()
+        breaks = obj.xtraj_rollout.getBreaks();
+      else
+        breaks = obj.xtraj.getBreaks();
+      end
+      
       endT = breaks(end);
       
       dt = 0.01;
       counter = 1;
       for t = 0:dt:endT
+        if obj.IsTimeInvariant()
+          xpoints(:,counter) = [t; obj.xtraj_rollout.eval(t)];
+        else
+          % normal trajectory
           xpoints(:,counter) = [t; obj.xtraj.eval(t)];
-          counter = counter + 1;
+        end
+        counter = counter + 1;
       end
       
       min_dist = -1;
@@ -322,11 +339,14 @@ classdef TrajectoryInLibrary
 
           this_dist = sqrt( (points(1, i) - xpoints(2, j))^2 + (points(2, i) - xpoints(3, j))^2 + (points(3, i) - xpoints(4, j))^2 );
           
-          %disp(['Searching at: (' num2str(xpoints(2,j)) ', ' num2str(xpoints(3,j)) ', ' num2str(xpoints(4,j))]);
-          %disp(['Distance is: ' num2str(this_dist)]);
+          disp(['Searching at: t = ' num2str(xpoints(1, j)) ', (' num2str(xpoints(2,j)) ', ' num2str(xpoints(3,j)) ', ' num2str(xpoints(4,j)) ')']);
+          disp(['Distance is: ' num2str(this_dist)]);
+          
+          
           
           if (min_dist < 0 || this_dist < min_dist)
             min_dist = this_dist;
+            
           end
           
         end
