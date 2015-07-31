@@ -5,8 +5,6 @@ classdef TrajectoryInLibrary
     xtraj;
     utraj;
     lqrsys; % LQR controller
-    xtraj_rollout = []; % for TI trajectories, we include a rollout to be
-                        % written to a file (for online collision checking)
     state_frame; % state frame of the plant
     body_coordinate_frame;
     name; % name to prepend in the filename
@@ -43,7 +41,7 @@ classdef TrajectoryInLibrary
       str = regexprep(name,'[^a-zA-Z0-9_-]','');
       
       if ~strcmp(str, name)
-        error('Special characters not allowed in string names.');
+        error(['Special characters not allowed in string names.  Your name: ' name ' a valid name: ' str]);
       end
       
       obj.name = name;
@@ -94,6 +92,10 @@ classdef TrajectoryInLibrary
       DrawTrajectoryLcmGl(obj.xtraj, 'trajectory', options);
     end
     
+    function obj = Rename(obj, name)
+      obj.name = name;
+    end
+    
     
     function WriteToFile(obj, filename_prefix, dt, overwrite_files)
       %
@@ -120,8 +122,6 @@ classdef TrajectoryInLibrary
       
       comment_filename = [filename_prefix '-comments.txt'];
       
-      rollout_filename = [filename_prefix '-rollout.csv'];
-      
       if ~overwrite_files && exist(state_filename, 'file') ~= 0
         error(['Not writing trajectory since "' state_filename '" exists.']);
       end
@@ -142,14 +142,16 @@ classdef TrajectoryInLibrary
         error(['Not writing trajectory since "' comment_filename '" exists.']);
       end
       
-      if ~overwrite_files && exist(rollout_filename, 'file') ~= 0
-        error(['Not writing trajectory since "' rollout_filename '" exists.']);
-      end
-      
       xpoints = [];
 
       breaks = obj.xtraj.getBreaks();
       endT = breaks(end);
+      
+      if obj.IsTimeInvariant()
+        endT_u = 0;
+      else
+        endT_u = endT;
+      end
 
       counter = 1;
       for t = 0:dt:endT
@@ -160,7 +162,7 @@ classdef TrajectoryInLibrary
       upoints = [];
 
       counter = 1;
-      for t = 0:dt:endT
+      for t = 0:dt:endT_u
           upoints(:,counter) = [t; obj.utraj.eval(t)];
           counter = counter + 1;
       end
@@ -177,7 +179,7 @@ classdef TrajectoryInLibrary
            
       
       counter = 1;
-      for t = 0:dt:endT
+      for t = 0:dt:endT_u
         
         this_k = obj.lqrsys.D.eval(t);
         
@@ -196,20 +198,9 @@ classdef TrajectoryInLibrary
       affine_points = [];
 
       counter = 1;
-      for t = 0:dt:endT
+      for t = 0:dt:endT_u
           affine_points(:,counter) = [t; obj.lqrsys.y0.eval(t)];
           counter = counter + 1;
-      end
-      
-      if ~isempty(obj.xtraj_rollout)
-        rollout_points = [];
-        counter = 1;
-        rollout_breaks = obj.xtraj_rollout.getBreaks();
-        rollout_endT = rollout_breaks(end);
-        for t = 0:dt:rollout_endT
-            rollout_points(:,counter) = [t; obj.xtraj_rollout.eval(t)];
-            counter = counter + 1;
-        end
       end
       
 
@@ -233,11 +224,6 @@ classdef TrajectoryInLibrary
       
       disp(['Writing: ' affine_filename]);
       TrajectoryInLibrary.csvwrite_wtih_headers(affine_filename, affine_headers, affine_points');
-      
-      if ~isempty(obj.xtraj_rollout)
-        disp(['Writing: ' rollout_filename]);
-        TrajectoryInLibrary.csvwrite_wtih_headers(rollout_filename, xpoint_headers, rollout_points');
-      end
       
       disp(['Writing: ' comment_filename]);
       fid = fopen(comment_filename, 'w');
@@ -286,8 +272,9 @@ classdef TrajectoryInLibrary
       if isinf(obj.utraj.tspan(2))
         ti = true;
       else
-        tu = false;
+        ti = false;
       end
+    end
     
     function dist = NearestNeighborLinear(obj, points)
       % Search through a vector of points (3xN) and
@@ -302,23 +289,15 @@ classdef TrajectoryInLibrary
       
       xpoints = [];
 
-      if obj.IsTimeInvariant()
-        breaks = obj.xtraj_rollout.getBreaks();
-      else
-        breaks = obj.xtraj.getBreaks();
-      end
+      breaks = obj.xtraj.getBreaks();
       
       endT = breaks(end);
       
       dt = 0.01;
       counter = 1;
       for t = 0:dt:endT
-        if obj.IsTimeInvariant()
-          xpoints(:,counter) = [t; obj.xtraj_rollout.eval(t)];
-        else
-          % normal trajectory
-          xpoints(:,counter) = [t; obj.xtraj.eval(t)];
-        end
+        % normal trajectory
+        xpoints(:,counter) = [t; obj.xtraj.eval(t)];
         counter = counter + 1;
       end
       
@@ -339,8 +318,8 @@ classdef TrajectoryInLibrary
 
           this_dist = sqrt( (points(1, i) - xpoints(2, j))^2 + (points(2, i) - xpoints(3, j))^2 + (points(3, i) - xpoints(4, j))^2 );
           
-          disp(['Searching at: t = ' num2str(xpoints(1, j)) ', (' num2str(xpoints(2,j)) ', ' num2str(xpoints(3,j)) ', ' num2str(xpoints(4,j)) ')']);
-          disp(['Distance is: ' num2str(this_dist)]);
+          %disp(['Searching at: t = ' num2str(xpoints(1, j)) ', (' num2str(xpoints(2,j)) ', ' num2str(xpoints(3,j)) ', ' num2str(xpoints(4,j)) ')']);
+          %disp(['Distance is: ' num2str(this_dist)]);
           
           
           

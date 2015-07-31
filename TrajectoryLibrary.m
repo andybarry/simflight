@@ -59,6 +59,18 @@ classdef TrajectoryLibrary
       obj.trajectories{end+1} = traj;
     end
     
+    function obj = RenameTrajectory(obj, traj_num, new_name)
+      traj = obj.GetTrajectoryByNumber(traj_num);
+      traj = traj.Rename(new_name);
+      
+      obj.trajectories{TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num)} = traj;
+      
+    end
+    
+    function obj = RemoveTrajectroy(obj, traj_num)
+      obj.trajectories(TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num)) = [];
+    end
+    
     function DrawTrajectories(obj)
       
       options = struct();
@@ -99,7 +111,7 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
-    function [ytraj, xtraj, utraj] = SimulateTrajectory(obj, traj_num_from_filename, tf, x0)
+    function [ytraj, xtraj, utraj] = Trajectory(obj, traj_num_from_filename, tf, x0)
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
@@ -194,17 +206,18 @@ classdef TrajectoryLibrary
         simtraj = xtraj_rollout;
       end
       
-      traj.xtraj_rollout = simtraj;
+      traj.xtraj = simtraj;
       
       % replace the object with the updated one
-      obj.stabilization_trajectories{end} = traj;
+      obj.trajectories{end} = traj;
       
       new_traj_num = traj_num;
       
     end
     
     function traj = GetTrajectoryByNumber(obj, traj_num_from_filename)
-        traj = obj.trajectories{traj_num_from_filename + 1};
+      index = TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num_from_filename);
+      traj = obj.trajectories{index};
     end
     
     function WriteToFile(obj, filename_prefix, overwrite_files)
@@ -244,7 +257,47 @@ classdef TrajectoryLibrary
       
     end
     
+    function [best_traj, max_dist] = FindFarthestTrajectoryLinear(obj, points, threshold)
+
+      if nargin < 3
+        threshold = 50;
+      end
+
+      % run nearest neighbor on each trajectory we want to use
+
+      max_dist = -1;
+      best_traj = -1;
+
+      for i = 0 : length(obj.trajectories) - 1
+
+        fprintf('Checking trajectory %d...', i);
+
+        traj = obj.GetTrajectoryByNumber(i);
+
+        dist = traj.NearestNeighborLinear(points);
+        
+        fprintf(' %f\n', dist);
+        
+
+        if (max_dist < 0 || dist > max_dist)
+          max_dist = dist;
+          best_traj = i;
+
+          if ( max_dist > threshold )
+            disp('exiting because we found a good enough trajectory');
+            break;
+          end
+
+        end
+      end
+    end
     
+  end
+  
+  methods (Static)
+    function index = IndexFromTrajectoryNumber(traj_num)
+      index = traj_num + 1;
+    end
   end
   
   

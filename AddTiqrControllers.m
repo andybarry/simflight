@@ -31,7 +31,7 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   %}
   [lib, traj_num] = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
   
-  xtraj_rollout = lib.GetTrajectoryByNumber(traj_num).xtraj_rollout;
+  xtraj_rollout = lib.GetTrajectoryByNumber(traj_num).xtraj;
   
   %{
   
