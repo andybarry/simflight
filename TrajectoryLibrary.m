@@ -257,10 +257,22 @@ classdef TrajectoryLibrary
       
     end
     
-    function [best_traj, max_dist] = FindFarthestTrajectoryLinear(obj, points, threshold)
+    function [best_traj, max_dist] = FindFarthestTrajectoryLinear(obj, points, threshold, t_start, position)
 
       if nargin < 3
         threshold = 50;
+      end
+      
+      if nargin < 4
+        t_start = 0;
+      end
+      
+      if nargin < 5
+        position = [0; 0; 0; 0];
+      else
+        if length(position) ~= 4
+          error('Position must be in the form [x; y; z; yaw]');
+        end
       end
 
       % run nearest neighbor on each trajectory we want to use
@@ -274,7 +286,7 @@ classdef TrajectoryLibrary
 
         traj = obj.GetTrajectoryByNumber(i);
 
-        dist = traj.NearestNeighborLinear(points);
+        dist = traj.NearestNeighborLinear(points, t_start, position);
         
         fprintf(' %f\n', dist);
         

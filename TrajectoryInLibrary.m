@@ -276,16 +276,37 @@ classdef TrajectoryInLibrary
       end
     end
     
-    function dist = NearestNeighborLinear(obj, points)
+    function dist = NearestNeighborLinear(obj, points, t_start, position)
       % Search through a vector of points (3xN) and
       % find the miniminum distance from those points
       % to any point on the trajectory
       %
       % @param points 3xN vector of points
+      % @param t_start (optional) statring time to check (ignores trajectory before
+      %   t_start)
+      % @param position (optional) position of the aircraft in the global
+      % frame in the form: [x; y; z; yaw (rad)]
       %
       % @retval dist distance between closest point on the trajectory and a
       %   point in "points"
       
+      if nargin < 3
+        t_start = 0;
+      end
+      
+      if nargin < 4
+        position = [0; 0; 0; 0];
+      else
+        if length(position) ~= 4
+          error('Position must be in the form [x; y; z; yaw]');
+        end
+      end
+      
+      rpy = [0; 0; position(4)];
+      rotmat = rpy2rotmat(rpy);
+      
+      xyz_add = position(1:3);
+        
       
       xpoints = [];
 
@@ -295,9 +316,16 @@ classdef TrajectoryInLibrary
       
       dt = 0.01;
       counter = 1;
-      for t = 0:dt:endT
+      for t = t_start:dt:endT
         % normal trajectory
-        xpoints(:,counter) = [t; obj.xtraj.eval(t)];
+        this_point = obj.xtraj.eval(t);
+        
+        xyz_not_tranformed = this_point(1:3);
+        xyz_tranformed = rotmat * xyz_not_tranformed + xyz_add;
+        
+
+        xpoints(:, counter) = [t; xyz_tranformed; this_point(4:12)];
+        
         counter = counter + 1;
       end
       
