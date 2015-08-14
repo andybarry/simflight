@@ -141,7 +141,7 @@ function TrajectoryToDataComparisonPlotter(u, est, tvlqr_out, lib, t_start, t_en
       figure(i);
       
       DrawLinesAtTimes(traj_end_t, 'k--');
-      %DrawLinesAtTimes(trajectory_timeout_times, 'k-.');
+      drawnow
   end
 
 

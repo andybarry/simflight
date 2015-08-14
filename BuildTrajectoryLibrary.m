@@ -410,13 +410,13 @@ bounds = [
   deg2rad(70) % yaw-dot
   ];
 
-tf_roll = 2;
+tf_roll = 3;
 xf_roll = x0;
 xf_roll(1) = x0(7)*tf_roll;
-xf_roll(4) = deg2rad(360);
+xf_roll(4) = deg2rad(330);
 
 
 [utraj_roll1, xtraj_roll1] = runDircol(parameters, x0, xf_roll, tf_roll, bounds, u0, [], 11);
 [utraj_roll2, xtraj_roll2] = runDircol(parameters, x0, xf_roll, xtraj_roll1.tspan(2), bounds, u0, [], 31, utraj_roll1, xtraj_roll1);
 
-lib = AddLqrControllersToLib('knife-edge', lib, xtraj_roll2, utraj_roll2, gains);
+lib = AddLqrControllersToLib('alieron-roll', lib, xtraj_roll2, utraj_roll2, gains);

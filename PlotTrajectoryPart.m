@@ -2,6 +2,8 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
 
   figure_num = 1;
   
+  title_font_size = 5;
+  
   %% plot x and y
   
   % first, compute the mulipliers on x and y that come from the fact that
@@ -33,6 +35,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -48,6 +51,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -67,9 +71,9 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
-  
 
   %% plot roll
   
@@ -88,6 +92,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -108,6 +113,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -127,6 +133,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
  
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -146,6 +153,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   xlabel('Time (s)');
   ylabel(label);
   title([ 'LEFT: ' label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   legend('Actual', 'Planned')
   
   subplot(3,1,2);
@@ -158,6 +166,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   xlabel('Time (s)');
   ylabel(label);
   title([ 'RIGHT: ' label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -171,6 +180,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   xlabel('Time (s)');
   ylabel(label);
   title([ 'THROTTLE: ' label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -198,6 +208,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -212,6 +223,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   %legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -226,6 +238,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   %legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -246,6 +259,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -260,6 +274,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   %legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
@@ -274,6 +289,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   ylabel(label);
   %legend('Actual', 'Planned')
   title([ label ': ' title_str]);
+  set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   

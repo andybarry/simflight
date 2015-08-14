@@ -5,12 +5,13 @@ clear
 % TODO: detect these?
 %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-05-14';
-name = 'field-test';
-log_number = '01';
-stabilization_trajectory = 10005;
+date = '2015-08-14';
+name = 'field-test-realtime-planning';
+log_number = '04';
+stabilization_trajectory = 0;
+hostname = 'odroid-gps2';
 
-trajectory_library = 'traj-archive/may-14-2.mat';
+trajectory_library = 'traj-archive/aug14-2.mat';
 
 use_simulation = false;
 
@@ -21,7 +22,7 @@ load(trajectory_library);
 
 
 
-dir = [date '-' name '/odroid-gps1/'];
+dir = [date '-' name '/' hostname '/'];
 filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
 
 

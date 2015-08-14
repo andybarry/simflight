@@ -111,7 +111,7 @@ classdef TrajectoryLibrary
       traj.playback(obj.p);
     end
     
-    function [ytraj, xtraj, utraj] = Trajectory(obj, traj_num_from_filename, tf, x0)
+    function [ytraj, xtraj, utraj] = SimulateTrajectory(obj, traj_num_from_filename, tf, x0)
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
@@ -309,6 +309,37 @@ classdef TrajectoryLibrary
   methods (Static)
     function index = IndexFromTrajectoryNumber(traj_num)
       index = traj_num + 1;
+    end
+    
+    function lib = RebuildControllers(old_lib)
+      % Creates a new library by rebuilding controllers using the existing
+      % open loop trajectories.
+      %
+      % @param old_lib old library to use the open-loop trajectories from
+      %
+      % @retval new library
+      
+      lib = TrajectoryLibrary(old_lib.p);
+      lib.ti_rollout_time = old_lib.ti_rollout_time;
+      
+      [~, gains] = GetDefaultGains();
+      
+      for i = 0 : length(old_lib.trajectories) - 1
+        traj = old_lib.GetTrajectoryByNumber(i);
+        if traj.IsTimeInvariant()
+%            x0 = traj.xtraj.eval(0);
+%            u0 = traj.utraj.eval(0);
+%         
+%           [A, B, C, D, xdot0, y0] = lib.p.linearize(0, x0, u0);
+%           
+%           lib = AddTiqrControllers(lib, traj.name, A, B, x0, u0, gains);
+          warning('just adding TI controller, not doing anything');
+          lib.trajectories{end + 1} = traj;
+        else
+          lib = AddLqrControllersToLib(traj.name, lib, traj.xtraj, traj.utraj, gains, true, false);
+        end
+      end
+      
     end
   end
   

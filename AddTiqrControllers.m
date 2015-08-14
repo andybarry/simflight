@@ -8,6 +8,12 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   p = lib.p;
   
+  add_pd = false;
+  add_pd_yaw = false;
+  add_pd_aggressive_yaw = false;
+  add_just_roll_pitch = false;
+  add_just_roll_pitch_yaw = false;
+  add_full = true;
   % first just use the K_pd's and build trajectories
   
   %{
@@ -29,9 +35,15 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  [lib, traj_num] = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
+  if add_pd
+    [lib, traj_num] = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
+    xtraj_rollout = lib.GetTrajectoryByNumber(traj_num).xtraj;
+  else
+    [lib_just_for_rollout, traj_num] = lib.AddStabilizationTrajectory(x0, u0, K_pd, [name '-pd-no-yaw']);
+    xtraj_rollout = lib_just_for_rollout.GetTrajectoryByNumber(traj_num).xtraj;
+  end
   
-  xtraj_rollout = lib.GetTrajectoryByNumber(traj_num).xtraj;
+  
   
   %{
   
@@ -50,7 +62,9 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, [name '-pd-yaw'], [], xtraj_rollout);
+  if add_pd_yaw
+    lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_yaw, [name '-pd-yaw'], [], xtraj_rollout);
+  end
   
   
   %{
@@ -69,7 +83,10 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   
   number = number + 1;
   %}
-  lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, [name '-pd-aggressive-yaw'], [], xtraj_rollout);
+  
+  if add_pd_aggressive_yaw
+    lib = lib.AddStabilizationTrajectory(x0, u0, K_pd_aggressive_yaw, [name '-pd-aggressive-yaw'], [], xtraj_rollout);
+  end
   
   
   
@@ -108,7 +125,9 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(x0, u0, K0, trajname, comments, xtraj_rollout);
+  if add_just_roll_pitch
+    lib = lib.AddStabilizationTrajectory(x0, u0, K0, trajname, comments, xtraj_rollout);
+  end
   
   
   
@@ -136,8 +155,10 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   trajname = [name '-just-roll-pitch-yaw'];
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
-    
-  lib = lib.AddStabilizationTrajectory(x0, u0, K1, trajname, comments, xtraj_rollout);
+  
+  if add_just_roll_pitch_yaw
+    lib = lib.AddStabilizationTrajectory(x0, u0, K1, trajname, comments, xtraj_rollout);
+  end
   
   
   
@@ -163,7 +184,9 @@ function lib = AddTiqrControllers(lib, name, A, B, x0, u0, gains)
   comments = sprintf('%s\n\n%s', [trajname, prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
     
-  lib = lib.AddStabilizationTrajectory(x0, u0, K2, trajname, comments, xtraj_rollout);
+  if add_full
+    lib = lib.AddStabilizationTrajectory(x0, u0, K2, trajname, comments, xtraj_rollout);
+  end
   
 
 end

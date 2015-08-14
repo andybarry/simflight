@@ -1,8 +1,16 @@
-function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in_est_frame)
+function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in_est_frame, append_name)
 
   if nargin < 6
     already_in_est_frame = false;
   end
+  
+  if nargin < 7
+    append_name = true;
+  end
+  
+  add_pd = false;
+  add_open_loop = false;
+  add_pd_yaw = false;
 
   p = lib.p;
   p_body_frame = DeltawingPlantStateEstFrame(p);
@@ -53,9 +61,10 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in
   
   % add the open-loop trajectory twice since both of it's "gain" settings
   % are the same
-  lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
-  lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
-  
+  if add_open_loop
+    lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+    lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+  end
   
   % now just use the K_pd's and build trajectories
   
@@ -82,11 +91,17 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in
   lqrsys = lqrsys.setInputFrame(iframe);
   lqrsys = lqrsys.setOutputFrame(oframe);
   
-  trajname = [name '-PD'];
+  if append_name
+    trajname = [name '-PD'];
+  else
+    trajname = name;
+  end
   
   comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
   
-  lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+  if add_pd
+    lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+  end
   
   ktraj = ConstantTrajectory(-K_pd_yaw);
   lqrsys = AffineSystem([],[],[],[],[], [], [], ktraj, affine_traj);
@@ -108,11 +123,17 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in
   lqrsys = lqrsys.setInputFrame(iframe);
   lqrsys = lqrsys.setOutputFrame(oframe);
   
-  trajname = [name '-PD-yaw'];
+  if append_name
+    trajname = [name '-PD-yaw'];
+  else
+    trajname = name;
+  end
   
   comments = sprintf('%s\n\n%s', trajname, [prettymat('Parameters', cell2mat(p.parameters), 3)]);
   
-  lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+  if add_pd_yaw
+    lib = lib.AddTrajectory(xtraj, utraj, lqrsys, trajname, comments);
+  end
   
 %   ktraj = ConstantTrajectory(-K_pd_aggressive_yaw);
 %   lqrsys = struct();
@@ -151,7 +172,14 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in
 
     comments = sprintf('%s\n\n%s', name, [prettymat('Parameters', cell2mat(p.parameters), 3) ...
       prettymat('Q', Q, 5) prettymat('R', R)]);
-    lib = lib.AddTrajectory(xtraj, utraj, lqr_controller, [name '-R-' num2str(R_values(i))], comments);
+    
+    if append_name
+      trajname = [name '-R-' num2str(R_values(i))];
+    else
+      trajname = name;
+    end
+    
+    lib = lib.AddTrajectory(xtraj, utraj, lqr_controller, trajname, comments);
 
   end
   
