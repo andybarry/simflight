@@ -7,7 +7,7 @@ clear
 
 date = '2015-08-14';
 name = 'field-test-realtime-planning';
-log_number = '04';
+log_number = '03';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps2';
 

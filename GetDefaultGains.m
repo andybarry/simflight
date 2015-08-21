@@ -1,4 +1,4 @@
-function [parameters, gains] = GetDefaultGains()
+function [parameters, gains, ti_gains] = GetDefaultGains()
 
   %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
   %parameters = {0.904, 0.000, -0.035, -0.091, 0 };
@@ -12,7 +12,7 @@ function [parameters, gains] = GetDefaultGains()
   
   
   % EXPERIMENTAL FOR XYZ GAINS
-  Q = diag([1 1 1 10 50 .25 0.1 .0001 0.0001 .1 .01 .1]);
+  Q = diag([10 10 10 10 50 .25 0.1 .0001 0.0001 .1 .05 .1]);
    
    
    
@@ -22,15 +22,13 @@ function [parameters, gains] = GetDefaultGains()
    
 
     %R_values = [150 100];
-    R_values = [150];
+    R_values = [150, 200];
   %R_values = 0.5;
 
    Qf = eye(12);
 
 
   K_pd = zeros(3,12);
-  
-  % x, P
   
 
   % roll P
@@ -49,21 +47,24 @@ function [parameters, gains] = GetDefaultGains()
   K_pd(1,11) = -0.02;
   K_pd(2,11) = -0.02;
 
-  K_pd_yaw = K_pd;
-  K_pd_aggressive_yaw = K_pd;
-
-  K_pd_yaw(1,6) = 0.25;
-  K_pd_yaw(2,6) = -0.25;
-
-  K_pd_aggressive_yaw(1,6) = 0.5;
-  K_pd_aggressive_yaw(2,6) = -0.5;
+  
+  K_pd_xyz = K_pd;
+  % x, P -- still zeros
+  
+  % y, P
+  K_pd_xyz(1,2) = 0.1;
+  K_pd_xyz(2,2) = -0.1;
+  
+  % z, P
+  K_pd_xyz(1,3) = 0.1;
+  K_pd_xyz(2,3) = 0.1;
+  
 
   gains.Q = Q;
   gains.Qf = Qf;
   gains.R_values = R_values;
   gains.K_pd = K_pd;
-  gains.K_pd_yaw = K_pd_yaw;
-  gains.K_pd_aggressive_yaw = K_pd_aggressive_yaw;
+  gains.K_pd_xyz = K_pd_xyz;
 
 
 end
