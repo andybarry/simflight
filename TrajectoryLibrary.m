@@ -115,7 +115,11 @@ classdef TrajectoryLibrary
       
       traj = obj.GetTrajectoryByNumber(traj_num_from_filename);
       
-      if nargin < 3
+      options = struct();
+      options.color = [1, 0, 0];
+      DrawTrajectoryLcmGl(traj.xtraj, ['Nominal: ' traj.name], options);
+      
+      if nargin < 3 || tf < 0
         if traj.IsTimeInvariant()
           tf = 1;
         else
@@ -155,7 +159,9 @@ classdef TrajectoryLibrary
       
       utraj = PPTrajectory(u_spline);
       
-      DrawTrajectoryLcmGl(xtraj);
+      DrawTrajectoryLcmGl(xtraj, ['Sim: ' traj.name]);
+      
+      
       obj.p.playback(xtraj, utraj, struct('slider', true));
       
     end
@@ -311,7 +317,7 @@ classdef TrajectoryLibrary
       index = traj_num + 1;
     end
     
-    function lib = RebuildControllers(old_lib)
+    function lib = RebuildTvControllers(old_lib, gains)
       % Creates a new library by rebuilding controllers using the existing
       % open loop trajectories.
       %
@@ -319,10 +325,12 @@ classdef TrajectoryLibrary
       %
       % @retval new library
       
+      if nargin < 2
+        [~, gains] = GetDefaultGains();
+      end
+      
       lib = TrajectoryLibrary(old_lib.p);
       lib.ti_rollout_time = old_lib.ti_rollout_time;
-      
-      [~, gains] = GetDefaultGains();
       
       for i = 0 : length(old_lib.trajectories) - 1
         traj = old_lib.GetTrajectoryByNumber(i);
@@ -333,10 +341,12 @@ classdef TrajectoryLibrary
 %           [A, B, C, D, xdot0, y0] = lib.p.linearize(0, x0, u0);
 %           
 %           lib = AddTiqrControllers(lib, traj.name, A, B, x0, u0, gains);
-          warning('just adding TI controller, not doing anything');
+          %warning('just adding TI controller, not doing anything');
           lib.trajectories{end + 1} = traj;
         else
-          lib = AddLqrControllersToLib(traj.name, lib, traj.xtraj, traj.utraj, gains, true, false);
+          traj2 = traj.StripControllerFromName();
+          disp(['Rebuilding controllers for ' traj2.name '...']);
+          lib = AddLqrControllersToLib(traj2.name, lib, traj2.xtraj, traj2.utraj, gains, true, true);
         end
       end
       

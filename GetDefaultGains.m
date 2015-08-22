@@ -1,4 +1,4 @@
-function [parameters, gains, ti_gains] = GetDefaultGains()
+function [parameters, gains] = GetDefaultGains()
 
   %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
   %parameters = {0.904, 0.000, -0.035, -0.091, 0 };
@@ -22,7 +22,8 @@ function [parameters, gains, ti_gains] = GetDefaultGains()
    
 
     %R_values = [150 100];
-    R_values = [150, 200];
+    %R_values = [150, 200];
+    R_values = [150];
   %R_values = 0.5;
 
    Qf = eye(12);
@@ -56,8 +57,8 @@ function [parameters, gains, ti_gains] = GetDefaultGains()
   K_pd_xyz(2,2) = -0.1;
   
   % z, P
-  K_pd_xyz(1,3) = 0.1;
-  K_pd_xyz(2,3) = 0.1;
+  K_pd_xyz(1,3) = 0.25;
+  K_pd_xyz(2,3) = 0.25;
   
 
   gains.Q = Q;

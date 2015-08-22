@@ -366,6 +366,24 @@ classdef TrajectoryInLibrary
       
     end
     
+    function obj = StripControllerFromName(obj)
+      % search for -R- and -PD and strip it
+      loc = strfind(obj.name, '-R-');
+      
+      if isempty(loc)
+        loc = strfind(obj.name, '-PD');
+      end
+      
+      if isempty(loc)
+        warning('Failed to strip controller name.');
+        return;
+      end
+
+      obj.name = obj.name(1:loc-1);
+      obj.comments = obj.name;
+      
+    end
+    
   end
   
   methods (Static)
