@@ -2,7 +2,11 @@ function [parameters, gains] = GetDefaultGains()
 
   %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
   %parameters = {0.904, 0.000, -0.035, -0.091, 0 };
-  parameters = {1.027, 0.001, -0.094, -0.115, 0 };
+  
+  % HAD THESE FOR A LONG TIME (SUMMER 2015)
+  %parameters = {1.027, 0.001, -0.094, -0.115, 0 };
+  
+  parameters = {1.027, 0.001, -0.059, -0.363, 0.054 };
 
   % WORKING WELL 
   %Q = diag([10 10 10 10 50 .25 0.1 .0001 0.0001 .1 .01 .1]);

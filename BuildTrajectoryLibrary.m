@@ -22,10 +22,10 @@ max_climb = 1.0; % m/s
 lib = AddTakeoffNoThrottleTraj(lib, lib.GetTrajectoryByNumber(0));
 
 % aggressive left turn
-[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-55), 0, 12, lib, 'TI-aggressive-left-turn2');
+%[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-55), 0, 12, lib, 'TI-aggressive-left-turn2');
 
 % agressive right turn
-[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(55), 0, 12, lib, 'TI-aggressive-right-turn2');
+%[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(55), 0, 12, lib, 'TI-aggressive-right-turn2');
 
 
 %% left turn 45 deg
@@ -351,8 +351,8 @@ lib = AddLqrControllersToLib('super-aggressive-dive', lib, xtraj_turn2, utraj_tu
 
 bounds = [ 
   10          % x
-  0.5         % y
-  1.0         % z
+  15.0         % y
+  5.0         % z
   deg2rad(5)  % roll
   deg2rad(10) % pitch
   deg2rad(28) % yaw
@@ -365,7 +365,7 @@ bounds = [
   ];
 
 
-tf_knife_edge = 1.75;
+tf_knife_edge = 1.5;
 
 xf_knife_edge = x0;
 xf_knife_edge(1) = x0(7)*tf_knife_edge;

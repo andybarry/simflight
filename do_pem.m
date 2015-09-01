@@ -4,9 +4,9 @@ clear
 
 %% setup
 realtime_path = '/home/abarry/realtime/';
-logfile_path = '/home/abarry/rlg/logs/2015-03-31-field-test/gps-logs/';
+logfile_path = '/home/abarry/rlg/logs/2015-09-01-field-test/odroid-gps2/';
 
-logfile_name = 'lcmlog_2015_03_31_11.mat';
+logfile_name = 'lcmlog_2015_09_01_04.mat';
 
 % add log parsing scripts to path
 
@@ -29,6 +29,7 @@ delay_ms = 20;
 
 
 use_airspeed = true;
+pull_to_default_gains = false;
 
 %% trim to flight times only and setup comparison to model output for orientation PEM
 
@@ -63,15 +64,18 @@ end
     dat = airspeed_dat;
    
 %end
+
+
+%% plot
 %   
-% for i = 57 : length(airspeed_dat)
-%   plot(airspeed_dat{i})
-%   title(i)
-%   drawnow
-%   pause
-% end
+for i = 20 : length(airspeed_dat)
+  plot(airspeed_dat{i})
+  title(i)
+  drawnow
+  pause
+end
 
-
+%% merge
 %merge_nums = [1, 2, 3, 4];
 %merge_nums = [1, 2, 3];
 %merge_nums = [100, 150, 200];
@@ -79,7 +83,7 @@ end
 % interesting data: 4, 8, 9, 16, 20
 % aileron roll at about data = 63, 65
 %merge_nums = [8, 63, 100];
-merge_nums = [8, 9, 63, 100, 103];
+merge_nums = [32, 58, 61, 84];
 %merge_nums = [8];
 
 
@@ -121,32 +125,41 @@ x0_dat_full = FixInitialConditionsForData(merged_airspeed_dat);
 
 %parameters = [1.92; 1.84; 2.41; 0.48; 0.57; 0.0363];
 %parameters = [1; 1; 0; 0; 0];
-parameters = [0.904, 0.000, -0.134, -0.049, 0];
+
+if pull_to_default_gains
+    default_params = GetDefaultGains();
+    for i = 1 : length(default_params)
+        parameters(i) = default_params{i};
+    end
+else
+    %parameters = [0.904, 0.000, -0.134, -0.049, 0];
+    parameters = [0; 0; 0];
+end
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
-nlgr.Parameters(1).Name = 'Elift';
-nlgr.Parameters(2).Name = 'Edrag';
-nlgr.Parameters(3).Name = 'M_P_fac';
-nlgr.Parameters(4).Name = 'M_Q_fac';
-nlgr.Parameters(5).Name = 'M_R_fac';
+%nlgr.Parameters(1).Name = 'Elift';
+%nlgr.Parameters(2).Name = 'Edrag';
+nlgr.Parameters(1).Name = 'M_P_fac';
+nlgr.Parameters(2).Name = 'M_Q_fac';
+nlgr.Parameters(3).Name = 'M_R_fac';
 % nlgr.Parameters(7).Name = 'By_dr';
 
 
-nlgr.Parameters(1).Minimum = 0;
-nlgr.Parameters(2).Minimum = 0;
+%nlgr.Parameters(1).Minimum = 0;
+%nlgr.Parameters(2).Minimum = 0;
+nlgr.Parameters(1).Minimum = -10;
+nlgr.Parameters(2).Minimum = -10;
 nlgr.Parameters(3).Minimum = -10;
-nlgr.Parameters(4).Minimum = -10;
-nlgr.Parameters(5).Minimum = -10;
 %nlgr.Parameters(6).Minimum = -5;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
-nlgr.Parameters(1).Maximum = 5;
-nlgr.Parameters(2).Maximum = 5;
+%nlgr.Parameters(1).Maximum = 5;
+%nlgr.Parameters(2).Maximum = 5;
+nlgr.Parameters(1).Maximum = 10;
+nlgr.Parameters(2).Maximum = 10;
 nlgr.Parameters(3).Maximum = 10;
-nlgr.Parameters(4).Maximum = 10;
-nlgr.Parameters(5).Maximum = 10;
 %nlgr.Parameters(6).Maximum = 5;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -285,6 +298,7 @@ plot(merged_dat);
 
 disp('Running pem...');
 nlgr_fit = pem(merged_dat, nlgr, 'Display', 'Full', 'MaxIter', 20);
+disp('done.');
 
 %% display results
 
@@ -300,7 +314,7 @@ disp('Simulating...');
 
 
 % get initial conditions
-
+clear x0_out;
 for i = 1 : num_states
   
   x0_out(i,:) = nlgr_fit.InitialStates(i).Value;
