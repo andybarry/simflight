@@ -49,14 +49,22 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = AddExistingTrajectory(obj, traj)
+    function obj = InsertExistingTrajectory(obj, traj, traj_num)
       % Adds a trajectory to the library
       %
       % @param traj TrajectoryInLibrary object
+      % @param traj_num (optional) what number it should be
       %
       % @retval obj updated object
       
-      obj.trajectories{end+1} = traj;
+      if nargin < 3
+        obj.trajectories{end+1} = traj;
+      else
+        
+        index = TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num);
+        obj.trajectories = [obj.trajectories(1:index-1) {traj} obj.trajectories(index:end)];
+        
+      end
     end
     
     function obj = RenameTrajectory(obj, traj_num, new_name)

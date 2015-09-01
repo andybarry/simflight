@@ -19,6 +19,8 @@ p = DeltawingPlantStateEstFrame(deltawing_plant);
 max_climb = 1.0; % m/s
 [~, ~, lib] = FindClimbTrimDrake(p, max_climb, lib);
 
+lib = AddTakeoffNoThrottleTraj(lib, lib.GetTrajectoryByNumber(0));
+
 % aggressive left turn
 [~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-55), 0, 12, lib, 'TI-aggressive-left-turn2');
 

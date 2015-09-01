@@ -116,6 +116,8 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
+  % pitch should be plotted on a reverse axis
+  set(gca, 'Ydir', 'reverse');
   
   
   %% plot yaw

@@ -12,7 +12,7 @@ function [parameters, gains] = GetDefaultGains()
   
   
   % EXPERIMENTAL FOR XYZ GAINS
-  Q = diag([10 10 10 10 50 .25 0.1 .0001 0.0001 .1 .05 .1]);
+  Q = diag([10 10 10 5 30 .25 0.1 .0001 0.0001 .1 .05 .1]);
    
    
    
@@ -23,7 +23,7 @@ function [parameters, gains] = GetDefaultGains()
 
     %R_values = [150 100];
     %R_values = [150, 200];
-    R_values = [150];
+    R_values = [200, 150];
   %R_values = 0.5;
 
    Qf = eye(12);
