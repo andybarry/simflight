@@ -75,8 +75,12 @@ classdef TrajectoryLibrary
       
     end
     
-    function obj = RemoveTrajectroy(obj, traj_num)
-      obj.trajectories(TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num)) = [];
+    function obj = RemoveTrajectroy(obj, traj_nums)
+      traj_nums = sort(traj_nums, 'descend');
+      for i = 1 : length(traj_nums)
+          num = traj_nums(i);
+          obj.trajectories(TrajectoryLibrary.IndexFromTrajectoryNumber(num)) = [];
+      end
     end
     
     function DrawTrajectories(obj)

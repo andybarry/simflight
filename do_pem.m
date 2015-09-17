@@ -4,9 +4,9 @@ clear
 
 %% setup
 realtime_path = '/home/abarry/realtime/';
-logfile_path = '/home/abarry/rlg/logs/2015-09-01-field-test/odroid-gps2/';
+logfile_path = '/home/abarry/rlg/logs/2015-09-17-field-test/odroid-gps2/';
 
-logfile_name = 'lcmlog_2015_09_01_04.mat';
+logfile_name = 'lcmlog_2015_09_17_04.mat';
 
 % add log parsing scripts to path
 
@@ -33,18 +33,21 @@ pull_to_default_gains = false;
 
 %% trim to flight times only and setup comparison to model output for orientation PEM
 
-[start_time, end_time] = FindActiveTimes(est.logtime, est.pos.z, 9.0);
+%[start_time, end_time] = FindActiveTimes(est.logtime, est.pos.z, 9.0);
+
+start_time = 145;
+end_time = 155;
 
 assert(length(start_time) == 1, 'Number of active times ~= 1');
 
 %% temp %%
 
-start_time = start_time + 50;
+%start_time = start_time + 50;
 %end_time = start_time + 20;
 
 %%
 
-t_block = 1;
+t_block = .5;
 
 t_shift = 0;
 
@@ -68,7 +71,7 @@ end
 
 %% plot
 %   
-for i = 20 : length(airspeed_dat)
+for i = 1 : length(airspeed_dat)
   plot(airspeed_dat{i})
   title(i)
   drawnow
@@ -83,8 +86,10 @@ end
 % interesting data: 4, 8, 9, 16, 20
 % aileron roll at about data = 63, 65
 %merge_nums = [8, 63, 100];
-merge_nums = [32, 58, 61, 84];
+%merge_nums = [32, 58, 61, 84];
 %merge_nums = [8];
+
+merge_nums = [3, 5, 9, 14, 17]; %6, 7, 10, 43];
 
 
 
@@ -133,33 +138,33 @@ if pull_to_default_gains
     end
 else
     %parameters = [0.904, 0.000, -0.134, -0.049, 0];
-    parameters = [0; 0; 0];
+    parameters = [1; .1; -.5; -.1; 0];
 end
 
 nlgr = idnlgrey(file_name, order, parameters, x0_dat_full);
 
-%nlgr.Parameters(1).Name = 'Elift';
-%nlgr.Parameters(2).Name = 'Edrag';
-nlgr.Parameters(1).Name = 'M_P_fac';
-nlgr.Parameters(2).Name = 'M_Q_fac';
-nlgr.Parameters(3).Name = 'M_R_fac';
+nlgr.Parameters(1).Name = 'Elift';
+nlgr.Parameters(2).Name = 'Edrag';
+nlgr.Parameters(3).Name = 'M_P_fac';
+nlgr.Parameters(4).Name = 'M_Q_fac';
+nlgr.Parameters(5).Name = 'M_R_fac';
 % nlgr.Parameters(7).Name = 'By_dr';
 
 
-%nlgr.Parameters(1).Minimum = 0;
-%nlgr.Parameters(2).Minimum = 0;
-nlgr.Parameters(1).Minimum = -10;
-nlgr.Parameters(2).Minimum = -10;
+nlgr.Parameters(1).Minimum = 0;
+nlgr.Parameters(2).Minimum = 0;
 nlgr.Parameters(3).Minimum = -10;
+nlgr.Parameters(4).Minimum = -10;
+nlgr.Parameters(5).Minimum = -10;
 %nlgr.Parameters(6).Minimum = -5;
 % nlgr.Parameters(7).Minimum = 0;
 % nlgr.Parameters(8).Minimum = 0;
 
-%nlgr.Parameters(1).Maximum = 5;
-%nlgr.Parameters(2).Maximum = 5;
-nlgr.Parameters(1).Maximum = 10;
-nlgr.Parameters(2).Maximum = 10;
-nlgr.Parameters(3).Maximum = 10;
+nlgr.Parameters(1).Maximum = 5;
+nlgr.Parameters(2).Maximum = 5;
+nlgr.Parameters(3).Maximum = 0;
+nlgr.Parameters(4).Maximum = 0;
+nlgr.Parameters(5).Maximum = 0;
 %nlgr.Parameters(6).Maximum = 5;
 % nlgr.Parameters(7).Maximum = 0.5;
 % nlgr.Parameters(8).Maximum = 0.5;
@@ -324,7 +329,7 @@ end
 compare_options = compareOptions('InitialCondition',x0_out);
 
 %[y_out, fit_out, x0_out] = compare(merged_dat, nlgr_fit);
-figure(26);
+
 compare(merged_dat, nlgr_fit, compare_options);
 
 disp('done.');
@@ -333,7 +338,7 @@ disp('done.');
 
 %compare_to = [26, 27];
 
-compare_to = [27, 66, 84];
+compare_to = [1, 2, 10];
 %compare_to = [];
 
 if (~isempty(compare_to))

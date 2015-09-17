@@ -3,32 +3,76 @@
 
 %clear
 
-FindTrimDrake
+date = '2015-09-17';
+name = 'field-test';
+log_number = '00';
+stabilization_trajectory = 0;
+hostname = 'odroid-gps2';
+
+trajectory_library = 'traj-archive/sept16.mat';
 
 
-dir = '2015-03-31-field-test/gps-logs/';
-filename = 'lcmlog_2015_03_31_11.mat';
+disp(['Loading ' trajectory_library '...']);
+load(trajectory_library);
 
+
+
+dir = [date '-' name '/' hostname '/'];
+filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
 
 
 dir_prefix = '/home/abarry/rlg/logs/';
 dir = [ dir_prefix dir ];
 
 addpath('/home/abarry/realtime/scripts/logs');
+
+disp(['Loading ' filename '...']);
+
 loadDeltawing
 
 
-[t_starts, t_ends] = FindActiveTimes(u.logtime, u.is_autonomous, 0.5);
+disp('done.');
 
-t_start = t_starts(6);
-t_end = t_ends(6);
+%% remove trajectories on the ground
+
+[t_starts_unfiltered, t_ends_unfiltered] = FindActiveTimes(u.logtime, u.is_autonomous, 0.5);
+
+t_starts = [];
+t_ends = [];
+
+for i = 1 : length(t_starts_unfiltered)
+  [~, idx] = min(abs(est.logtime - t_starts_unfiltered(i)));
+  [~, idx_end] = min(abs(est.logtime - t_ends_unfiltered(i)));
+  
+  this_alt = est.pos.z(idx);
+  this_alt_end = est.pos.z(idx_end);
+  this_alt_mid = est.pos.z( round((idx-idx_end)/2) + idx );
+  
+  if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5)
+    t_starts = [t_starts t_starts_unfiltered(i)];
+    t_ends = [t_ends t_ends_unfiltered(i)];
+  else
+    disp(['t = ' num2str(t_starts_unfiltered(i)) ' to ' num2str(t_ends_unfiltered(i)) ' filtered for being on the ground.']);
+  end
+end
 %%
+
+run_num = 3;
+
+% t_start = t_starts(run_num);
+% t_end = t_ends(run_num);
+t_start = 170.8562
+
+t_end = 173.54
+
+%%
+
 u = TrimU(t_start, t_end, u);
 est = TrimEst(t_start, t_end, est);
 
 %%
 
-init_state = ConvertStateEstimatorToDrakeFrame(est.est_frame(1,:));
+init_state = ConvertStateEstimatorToDrakeFrame(est.est_frame(1,:)');
 rpy = init_state(4:6);
 Mz = rotz(-rpy(3));
 
@@ -45,7 +89,7 @@ for i = 1 : length(u.logtime)
   
   this_x = est.est_frame(idx, :);
   
-  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x, Mz);
+  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x', Mz);
 
   est.drake_frame(i,:) = x_drake_frame;
   

@@ -1,6 +1,6 @@
 function lib = AddTakeoffNoThrottleTraj(lib, straight_traj)
 
-  assert(strcmp(straight_traj.name, 'TI-straight-full'), 'straight traj name doesnt match.');
+  assert(strcmp(straight_traj.name, 'TI-straight-R-200'), 'straight traj name doesnt match.');
   
   % use the same trajectory but zap the throttle
   

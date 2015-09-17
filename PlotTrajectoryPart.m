@@ -2,7 +2,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
 
   figure_num = 1;
   
-  title_font_size = 5;
+  title_font_size = 8;
   
   %% plot x and y
   
@@ -19,7 +19,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
     traj_points_local(i, :) = R * this_point;
   end
   
-  label = 'X (m);';
+  label = 'X (m)';
   
   figure(figure_num)
   figure_num = figure_num + 1;
@@ -39,7 +39,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   set(gca, 'XLimMode', 'auto');
   set(gca, 'YLimMode', 'auto');
   
-  label = 'Y (m);';
+  label = 'Y (m)';
   subplot(3,1,2);
   
   plot(est.logtime, est.pos.y, 'b-');
@@ -59,7 +59,7 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   
   subplot(3,1,3);
   
-  label = 'Z (ft)';
+  label = 'Z (m)';
   
   plot(est.logtime, est.pos.z, 'b-');
   hold on

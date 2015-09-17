@@ -1,17 +1,18 @@
 %% load data
 
 clear
+%%
 
 % TODO: detect these?
 %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-09-01';
+date = '2015-09-17';
 name = 'field-test';
-log_number = '04';
+log_number = '00';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps2';
 
-trajectory_library = 'traj-archive/sept1-2.mat';
+trajectory_library = 'traj-archive/sept16.mat';
 
 use_simulation = false;
 
@@ -47,10 +48,13 @@ t_ends = [];
 
 for i = 1 : length(t_starts_unfiltered)
   [~, idx] = min(abs(est.logtime - t_starts_unfiltered(i)));
+  [~, idx_end] = min(abs(est.logtime - t_ends_unfiltered(i)));
   
   this_alt = est.pos.z(idx);
+  this_alt_end = est.pos.z(idx_end);
+  this_alt_mid = est.pos.z( round((idx-idx_end)/2) + idx );
   
-  if (this_alt > 7.5)
+  if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5)
     t_starts = [t_starts t_starts_unfiltered(i)];
     t_ends = [t_ends t_ends_unfiltered(i)];
   else
@@ -86,3 +90,29 @@ for i = 1:length(t_starts)
   pause
   
 end
+
+%% create plots for papers/talks
+tmin = 169.9;
+tmax = 171.2;
+
+for i = 1 : 5
+  figure(i)
+  for j = 1 : 3
+    subplot(3,1,j)
+    xlim([tmin tmax]);
+  end
+end
+
+%% save files
+
+name_str = 'knife-edge-xyz';
+
+SaveComparison([name_str '-x'], 1, 1);
+SaveComparison([name_str '-y'], 1, 2);
+SaveComparison([name_str '-z'], 1, 3);
+
+SaveComparison([name_str '-roll'], 2, 1);
+SaveComparison([name_str '-pitch'], 2, 2);
+
+SaveComparison([name_str '-u-left'], 3, 1);
+SaveComparison([name_str '-u-right'], 3, 2);

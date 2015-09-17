@@ -7,6 +7,7 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
     additional_constraints.c = [];
     additional_constraints.N_fac = [];
     additional_constraints.final_cost_on_time_gain = 1;
+    additional_constraints.final_cost_on_state_gain = 1;
   end
   
   
@@ -156,7 +157,7 @@ function [utraj, xtraj, prog, r] = runDircol(parameters, x0, xf, tf0, bounds_del
 
   function [h] = FinalCostOnState(x, xf0)
 
-    h = norm(x(4:12) - xf0(4:12));
+    h = additional_constraints.final_cost_on_state_gain * norm(x(4:12) - xf0(4:12));
     
     %h = 0;
     

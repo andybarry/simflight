@@ -4,28 +4,39 @@ megaclear
 %% trim conditions
 
 
-[parameters, gains] = GetDefaultGains();
+[parameters, gains, gains_ti] = GetDefaultGains();
 
 deltawing_plant = DeltawingPlant(parameters);
 p = DeltawingPlantStateEstFrame(deltawing_plant);
 
-
-[x0, u0, lib] = FindTrimDrake(p);
+lib = TrajectoryLibrary(p);
+[x0, u0, lib] = FindTrimDrake(p, lib, gains_ti);
 
 %% more trim conditions
 
 % climb
 
 max_climb = 1.0; % m/s
-[~, ~, lib] = FindClimbTrimDrake(p, max_climb, lib);
+[~, ~, lib] = FindClimbTrimDrake(p, max_climb, lib, gains_ti);
 
+%% takeoff no throttle
 lib = AddTakeoffNoThrottleTraj(lib, lib.GetTrajectoryByNumber(0));
 
-% aggressive left turn
-%[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-55), 0, 12, lib, 'TI-aggressive-left-turn2');
+%% TI turns
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-20), 0, 12, lib, 'TI-left-turn1', gains_ti);
 
 % agressive right turn
-%[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(55), 0, 12, lib, 'TI-aggressive-right-turn2');
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(20), 0, 12, lib, 'TI-right-turn1', gains_ti);
+
+%% aggressive TI turns
+
+
+% aggressive left turn
+%
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(-55), 0, 12, lib, 'TI-aggressive-left-turn2', gains_ti);
+
+% agressive right turn
+[~, ~, lib] = FindLeftTrimDrake(p, deg2rad(55), 0, 12, lib, 'TI-aggressive-right-turn2', gains_ti);
 
 
 %% left turn 45 deg
@@ -36,7 +47,7 @@ bounds = [
   deg2rad(10)  % roll
   deg2rad(20) % pitch
   deg2rad(10) % yaw
-  30           % x-dot
+  1           % x-dot
   30           % y-dot
   5           % z-dot
   deg2rad(70) % roll-dot
@@ -67,6 +78,7 @@ cons = struct();
 cons.c = [];
 cons.N_fac = [];
 cons.final_cost_on_time_gain = 4;
+cons.final_cost_on_state_gain = 0;
 
 checkDependency('lcmgl');
 lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
@@ -93,7 +105,7 @@ bounds = [
   deg2rad(10)  % roll
   deg2rad(20) % pitch
   deg2rad(10) % yaw
-  30           % x-dot
+  1           % x-dot
   30           % y-dot
   5           % z-dot
   deg2rad(70) % roll-dot
@@ -124,6 +136,7 @@ cons = struct();
 cons.c = [];
 cons.N_fac = [];
 cons.final_cost_on_time_gain = 4;
+cons.final_cost_on_state_gain = 0;
 
 checkDependency('lcmgl');
 lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
@@ -153,7 +166,7 @@ bounds = [
   deg2rad(10) % yaw
   30           % x-dot
   30           % y-dot
-  5           % z-dot
+  5           % z-dotcons = [];
   deg2rad(70) % roll-dot
   deg2rad(70) % pitch-dot
   deg2rad(70) % yaw-dot
@@ -178,7 +191,8 @@ xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
 
 xf_turn(7:9) = xf_drake(7:9);
 
-cons = [];
+%cons = [];
+cons.final_cost_on_state_gain = 0;
 
 checkDependency('lcmgl');
 lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
@@ -232,7 +246,8 @@ xf_drake = ConvertToDrakeFrameFromModelFrame(model_xf);
 
 xf_turn(7:9) = xf_drake(7:9);
 
-cons = [];
+%cons = [];
+cons.final_cost_on_state_gain = 0;
 
 checkDependency('lcmgl');
 lcmgl_f = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(),'deltawing-dircol-final-condition');
