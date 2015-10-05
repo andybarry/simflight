@@ -9,3 +9,5 @@ trajlib/
 abort.txt
 funnels/funnelStuff.mat
 funnels/inside_verification0.mat
+funnels/*.gz
+*.slx

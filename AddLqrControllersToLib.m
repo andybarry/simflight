@@ -10,7 +10,7 @@ function lib = AddLqrControllersToLib(name, lib, xtraj, utraj, gains, already_in
   
   add_open_loop = false;
   add_pd = false;
-  add_pd_xyz = true;
+  add_pd_xyz = false;
 
   p = lib.p;
   p_body_frame = DeltawingPlantStateEstFrame(p);
