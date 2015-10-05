@@ -145,7 +145,7 @@ ylabel('Deflection (rad)');
 
 %% aircraft #2
 
-command_us_left2 = [
+command_us_left3 = [
   1377
   1327
   1276
@@ -179,12 +179,12 @@ degrees_left2 = [
   ];
 
 
-radians_left2 = deg2rad(degrees_left2);
+radians_left3 = deg2rad(degrees_left2);
 
 figure(1)
 clf
 
-plot(command_us_left2, radians_left2, '*');
+plot(command_us_left3, radians_left3, '*');
 xlabel('Command (us)');
 ylabel('Deflection (rad)');
 title('Airplane #2, Elevon Left');
@@ -207,10 +207,10 @@ grid on
 % 
 
 
-fit_us2 = 1100:1950;
-fit_left2 = 0.002195 * fit_us2 - 3.017;
+fit_us3 = 1100:1950;
+fit_left3 = 0.002195 * fit_us3 - 3.017;
 hold on
-plot(fit_us2, fit_left2, 'r-');
+plot(fit_us3, fit_left3, 'r-');
 legend('Data', 'Linear Fit', 'Location', 'NorthWest');
 
 
@@ -229,7 +229,7 @@ legend('Data', 'Linear Fit', 'Location', 'NorthWest');
 
 
 
-command_us_right2 = [
+command_us_right3 = [
   
   1470
   1520
@@ -246,7 +246,7 @@ command_us_right2 = [
   ];
 
 
-degrees_right2 = [
+degrees_right3 = [
   0
   -2.9
   -10.6
@@ -261,12 +261,12 @@ degrees_right2 = [
   36.3
   ];
 
-radians_right2 = deg2rad(degrees_right2);
+radians_right3 = deg2rad(degrees_right3);
 
 figure(2)
 clf
 
-plot(command_us_right2, radians_right2, '*');
+plot(command_us_right3, radians_right3, '*');
 xlabel('Command (us)');
 ylabel('Deflection (rad)');
 title('Airplane #2, Elevon Right');
@@ -286,9 +286,146 @@ grid on
 %   Adjusted R-square: 0.9946
 %   RMSE: 0.02518
 
-fit_us2 = 1100:1950;
-fit_right2 = -0.0019 * fit_us2 + 2.811; % min = 1209, max = 1809
+fit_us3 = 1100:1950;
+fit_right3 = -0.0019 * fit_us3 + 2.811; % min = 1209, max = 1809
 hold on
-plot(fit_us2, fit_right2, 'r-');
+plot(fit_us3, fit_right3, 'r-');
 %legend('Data', 'Linear Fit');
+
+
+
+
+%% aircraft #3
+
+command_us_left3 = [
+  1400
+  1500
+  1600
+  1700
+  1800
+  1300
+  1200
+  1100
+  ];
+
+
+degrees_left3 = [
+  0
+  16
+  30
+  44
+  56
+  -13.6
+  -21.4
+  -27.8
+  ];
+
+
+radians_left3 = deg2rad(degrees_left3);
+
+figure(1)
+clf
+
+plot(command_us_left3, radians_left3, '*');
+xlabel('Command (us)');
+ylabel('Deflection (rad)');
+title('Airplane #3, Elevon Left');
+
+grid on
+
+% -- cftool --
+% Linear model Poly1:
+%      f(x) = p1*x + p2
+% Coefficients (with 95% confidence bounds):
+%        p1 =    0.002203  (0.001955, 0.002452)
+%        p2 =      -3.013  (-3.378, -2.648)
+% 
+% Goodness of fit:
+%   SSE: 0.02599
+%   R-square: 0.9874
+%   Adjusted R-square: 0.9853
+%   RMSE: 0.06582
+
+% 
+
+
+fit_us3 = 1100:1950;
+fit_left3 = 0.002203 * fit_us3 -3.013;
+hold on
+plot(fit_us3, fit_left3, 'r-');
+legend('Data', 'Linear Fit', 'Location', 'NorthWest');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+command_us_right3 = [
+ 1400
+ 1500
+ 1600
+ 1700
+ 1300
+ 1200
+ 1100
+ 1000
+  ];
+
+
+degrees_right3 = [
+  0
+ -9.7
+ -23.2
+ -27
+ 7
+ 20.2
+ 36
+ 51
+  ];
+
+radians_right3 = deg2rad(degrees_right3);
+
+figure(2)
+clf
+
+plot(command_us_right3, radians_right3, '*');
+xlabel('Command (us)');
+ylabel('Deflection (rad)');
+title('Airplane #3, Elevon Right');
+
+grid on
+
+% -- cftool --
+% Linear model Poly1:
+%      f(x) = p1*x + p2
+% Coefficients (with 95% confidence bounds):
+%        p1 =    -0.00195  (-0.002222, -0.001679)
+%        p2 =       2.752  (2.38, 3.123)
+% 
+% Goodness of fit:
+%   SSE: 0.03102
+%   R-square: 0.981
+%   Adjusted R-square: 0.9778
+%   RMSE: 0.0719
+
+
+fit_us3 = 1100:1950;
+fit_right3 =  -0.00195 * fit_us3 + 2.752; % min = 1209, max = 1809
+hold on
+plot(fit_us3, fit_right3, 'r-');
+%legend('Data', 'Linear Fit');
+
+disp('--------');
+disp('Use wolfram alpha to compute inverse of lines');
 

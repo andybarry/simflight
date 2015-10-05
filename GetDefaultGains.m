@@ -13,7 +13,13 @@ function [parameters, gains, gains_ti] = GetDefaultGains()
   %parameters = {0.727, 0.616, 0.237, -0.092, -3.357 };
   %parameters = {0.727, 0.616, 0.237, -0.092, 0 };
   
-  parameters = {0.223, 0.001, -0.065, -0.039, -0.005 };
+  % not great 9/18/2015, overrolls
+  %parameters = {0.223, 0.001, -0.065, -0.039, -0.005 };
+  
+  % produced a very stable TI roll, but was supposed to be 11 deg and was
+  % 50 deg
+  % 9/28/15
+  parameters = {1.3, 0.101, -0.074, -0.115, 0 };
   
   % pretty bad
   %parameters = {1.027, 0.001, -0.054, -0.115, 0 };

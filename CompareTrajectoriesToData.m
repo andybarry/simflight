@@ -8,11 +8,11 @@ clear
 
 date = '2015-09-17';
 name = 'field-test';
-log_number = '00';
+log_number = '04';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps2';
 
-trajectory_library = 'traj-archive/sept16.mat';
+trajectory_library = 'traj-archive/sept18-test-turns.mat';
 
 use_simulation = false;
 
