@@ -6,13 +6,13 @@ clear
 % TODO: detect these?
 %parameters = {0.904, 0.000, -0.134, -0.049, 0 };
 
-date = '2015-09-17';
+date = '2015-10-06';
 name = 'field-test';
-log_number = '04';
+log_number = '12';
 stabilization_trajectory = 0;
-hostname = 'odroid-gps2';
+hostname = 'odroid-gps3';
 
-trajectory_library = 'traj-archive/sept18-test-turns.mat';
+trajectory_library = 'traj-archive/oct6-from-data.mat';
 
 use_simulation = false;
 

@@ -11,10 +11,10 @@ load(trajectory_library);
 
 %%
 
-date = '2015-09-17';
+date = '2015-10-08';
 name = 'field-test';
-log_number = '04';
-hostname = 'odroid-gps2';
+log_number = '07';
+hostname = 'odroid-gps3';
 
 
 dir = [date '-' name '/' hostname '/'];
@@ -32,9 +32,14 @@ loadDeltawing
 
 disp('done.');
 
-%% extract time
+%% extract trajectories
 
-start_t = 127.629;
-end_t = 131.0;
+start_t = 140.2;
+end_t = 142.7;
 
-lib = AddTrajectoryFromData(lib, est, u, start_t, end_t, 'right-turn-from-data');
+lib = AddTrajectoryFromData(lib, est, u, start_t, end_t, 'left-jog-from-data');
+
+start_t = 135.24;
+end_t = 137.7;
+
+lib = AddTrajectoryFromData(lib, est, u, start_t, end_t, 'right-jog-from-data');
