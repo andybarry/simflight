@@ -234,6 +234,9 @@ classdef TrajectoryLibrary
     end
     
     function traj = GetTrajectoryByNumber(obj, traj_num_from_filename)
+      if (traj_num_from_filename > 1000)
+        traj_num_from_filename = 12;
+      end
       index = TrajectoryLibrary.IndexFromTrajectoryNumber(traj_num_from_filename);
       traj = obj.trajectories{index};
     end

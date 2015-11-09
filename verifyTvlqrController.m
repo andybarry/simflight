@@ -1,99 +1,57 @@
 
-% load logs
-
-%clear
-
-date = '2015-09-17';
-name = 'field-test';
-log_number = '00';
-stabilization_trajectory = 0;
-hostname = 'odroid-gps2';
-
-trajectory_library = 'traj-archive/sept16.mat';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% TO USE THIS SCRIPT, LOAD DATA WITH CompareTrajectoriesToData.m %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-disp(['Loading ' trajectory_library '...']);
-load(trajectory_library);
+%t_start_approx = 125.6;
+t_start_approx = 121.166;
 
+% find the nearest trajectory start
 
+[error_t, idx] = min(abs(tvlqr_out.logtime - t_start_approx));
 
-dir = [date '-' name '/' hostname '/'];
-filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
-
-
-dir_prefix = '/home/abarry/rlg/logs/';
-dir = [ dir_prefix dir ];
-
-addpath('/home/abarry/realtime/scripts/logs');
-
-disp(['Loading ' filename '...']);
-
-loadDeltawing
-
-
-disp('done.');
-
-%% remove trajectories on the ground
-
-[t_starts_unfiltered, t_ends_unfiltered] = FindActiveTimes(u.logtime, u.is_autonomous, 0.5);
-
-t_starts = [];
-t_ends = [];
-
-for i = 1 : length(t_starts_unfiltered)
-  [~, idx] = min(abs(est.logtime - t_starts_unfiltered(i)));
-  [~, idx_end] = min(abs(est.logtime - t_ends_unfiltered(i)));
-  
-  this_alt = est.pos.z(idx);
-  this_alt_end = est.pos.z(idx_end);
-  this_alt_mid = est.pos.z( round((idx-idx_end)/2) + idx );
-  
-  if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5)
-    t_starts = [t_starts t_starts_unfiltered(i)];
-    t_ends = [t_ends t_ends_unfiltered(i)];
-  else
-    disp(['t = ' num2str(t_starts_unfiltered(i)) ' to ' num2str(t_ends_unfiltered(i)) ' filtered for being on the ground.']);
-  end
+if error_t > 0.1
+  error(['No trajectory found near t_start_approx (' num2str(t_start_approx) ').  Nearest trajectory start is ' num2str(tvlqr_out.logtime(idx))]);
 end
-%%
 
-run_num = 3;
+t_start = tvlqr_out.logtime(idx);
+t_end = tvlqr_out.logtime(idx+1);
 
-% t_start = t_starts(run_num);
-% t_end = t_ends(run_num);
-t_start = 170.8562
+traj_num = tvlqr_out.trajectory_number(idx);
+traj = lib.GetTrajectoryByNumber(traj_num);
 
-t_end = 173.54
-
-%%
-
-u = TrimU(t_start, t_end, u);
-est = TrimEst(t_start, t_end, est);
+disp(['Analyzing trajectory #' num2str(tvlqr_out.trajectory_number(idx)) ' from ' num2str(t_start) ' to ' num2str(t_end)]);
+disp(['Traj #' num2str(traj_num) ': ' traj.name]);
 
 %%
 
-init_state = ConvertStateEstimatorToDrakeFrame(est.est_frame(1,:)');
+u_trim = TrimU(t_start, t_end, u);
+est_trim = TrimEst(t_start, t_end, est);
+
+%%
+
+init_state = ConvertStateEstimatorToDrakeFrame(est_trim.est_frame(1,:)');
 rpy = init_state(4:6);
 Mz = rotz(-rpy(3));
 
-x0 = traj.xtraj.eval(0);
-u0 = traj.utraj.eval(0);
+x0 = traj.xtraj.eval(0); % TODO FIXME SHOULD BE Time varying!
+u0 = traj.utraj.eval(0); % TODO FIXME SHOULD BE Time varying!
 
-K = traj.lqrsys.D.eval(0);
+K = traj.lqrsys.D.eval(0); % TODO FIXME SHOULD BE Time varying!
 
-est.drake_frame = zeros(length(u.logtime), 12);
-for i = 1 : length(u.logtime)
-  
-  [~, idx] = min(abs(u.logtime(i) - est.logtime));
+est_trim.drake_frame = zeros(length(u_trim.logtime), 12);
+
+clear u_out_servo contrib_elevL contrib_elevR u_out
+for i = 1 : length(u_trim.logtime)
+
+  [~, idx] = min(abs(u_trim.logtime(i) - est_trim.logtime));
   %idx = i;
-  
-  this_x = est.est_frame(idx, :);
-  
-  x_drake_frame = ConvertStateEstimatorToDrakeFrame(this_x', Mz);
 
-  est.drake_frame(i,:) = x_drake_frame;
   
-  error = x_drake_frame - x0;
+  x_est_frame_converted = PoseToStateEstimatorVector(est_trim, idx, init_state(1:3), Mz);
+  
+  error = x_est_frame_converted - x0;
 
   u_out(:,i) = u0 + K * error;
   
@@ -119,43 +77,48 @@ u_out_servo(3,:) = round(u_out(3,:) * rad_to_servo.throttle_slope + rad_to_servo
 
 figure(1)
 clf
-plot(u.logtime, u.elevonL)
+plot(u_trim.logtime, u_trim.elevonL)
 hold on
-plot(u.logtime, u_out_servo(1,:)','r');
-
+plot(u_trim.logtime, u_out_servo(1,:)','r');
+xlabel('Time (s)');
+ylabel('Pulse (us)');
 legend('Actual','Replay');
-
+title('Left elevon');
 
 
 figure(2)
 clf
-plot(u.logtime, u.elevonR)
+plot(u_trim.logtime, u_trim.elevonR)
 hold on
-plot(u.logtime, u_out_servo(2,:)','r');
-
+plot(u_trim.logtime, u_out_servo(2,:)','r');
+xlabel('Time (s)');
+ylabel('Pulse (us)');
 legend('Actual','Replay');
+title('Right elevon');
 
 
 figure(3)
 clf
-plot(u.logtime, u.throttle)
+plot(u_trim.logtime, u_trim.throttle)
 hold on
-plot(u.logtime, u_out_servo(3,:)','r');
-
+plot(u_trim.logtime, u_out_servo(3,:)','r');
+xlabel('Time (s)');
+ylabel('Pulse (us)');
 legend('Actual','Replay');
+title('Throttle');
 
 figure(4)
 clf
-plot(u.logtime, rad2deg(contrib_elevL(4, :)'), 'b');
+plot(u_trim.logtime, rad2deg(contrib_elevL(4, :)'), 'b');
 hold on
-plot(u.logtime, rad2deg(contrib_elevL(5, :)'), 'r');
-plot(u.logtime, rad2deg(contrib_elevL(6, :)'), 'k');
-plot(u.logtime, rad2deg(contrib_elevL(7, :)'), '--b');
-plot(u.logtime, rad2deg(contrib_elevL(8, :)'), '--r');
-plot(u.logtime, rad2deg(contrib_elevL(9, :)'), '--k');
-plot(u.logtime, rad2deg(contrib_elevL(10, :)'), 'g');
-plot(u.logtime, rad2deg(contrib_elevL(11, :)'), '--g');
-plot(u.logtime, rad2deg(contrib_elevL(12, :)'), '-.b');
+plot(u_trim.logtime, rad2deg(contrib_elevL(5, :)'), 'r');
+plot(u_trim.logtime, rad2deg(contrib_elevL(6, :)'), 'k');
+plot(u_trim.logtime, rad2deg(contrib_elevL(7, :)'), '--b');
+plot(u_trim.logtime, rad2deg(contrib_elevL(8, :)'), '--r');
+plot(u_trim.logtime, rad2deg(contrib_elevL(9, :)'), '--k');
+plot(u_trim.logtime, rad2deg(contrib_elevL(10, :)'), 'g');
+plot(u_trim.logtime, rad2deg(contrib_elevL(11, :)'), '--g');
+plot(u_trim.logtime, rad2deg(contrib_elevL(12, :)'), '-.b');
 xlabel('Time (s)');
 ylabel('Deg deflection');
 %legend('x', 'y', 'z', 'roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');
@@ -164,16 +127,16 @@ legend('roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'y
 
 figure(5)
 clf
-plot(u.logtime, rad2deg(contrib_elevR(4, :)'), 'b');
+plot(u_trim.logtime, rad2deg(contrib_elevR(4, :)'), 'b');
 hold on
-plot(u.logtime, rad2deg(contrib_elevR(5, :)'), 'r');
-plot(u.logtime, rad2deg(contrib_elevR(6, :)'), 'k');
-plot(u.logtime, rad2deg(contrib_elevR(7, :)'), '--b');
-plot(u.logtime, rad2deg(contrib_elevR(8, :)'), '--r');
-plot(u.logtime, rad2deg(contrib_elevR(9, :)'), '--k');
-plot(u.logtime, rad2deg(contrib_elevR(10, :)'), 'g');
-plot(u.logtime, rad2deg(contrib_elevR(11, :)'), '--g');
-plot(u.logtime, rad2deg(contrib_elevR(12, :)'), '-.b');
+plot(u_trim.logtime, rad2deg(contrib_elevR(5, :)'), 'r');
+plot(u_trim.logtime, rad2deg(contrib_elevR(6, :)'), 'k');
+plot(u_trim.logtime, rad2deg(contrib_elevR(7, :)'), '--b');
+plot(u_trim.logtime, rad2deg(contrib_elevR(8, :)'), '--r');
+plot(u_trim.logtime, rad2deg(contrib_elevR(9, :)'), '--k');
+plot(u_trim.logtime, rad2deg(contrib_elevR(10, :)'), 'g');
+plot(u_trim.logtime, rad2deg(contrib_elevR(11, :)'), '--g');
+plot(u_trim.logtime, rad2deg(contrib_elevR(12, :)'), '-.b');
 xlabel('Time (s)');
 ylabel('Deg deflection');
 %legend('x', 'y', 'z', 'roll', 'pitch', 'yaw', 'xdot', 'ydot', 'zdot', 'rolldot', 'pitchdot', 'yawdot');

@@ -7,5 +7,5 @@ function SaveComparison(name_str, fig_num, subplot_num)
   set(plot_new, 'Position', get(0, 'DefaultAxesPosition'));
   title('')
   legend('Actual','Planned');
-  saveasAll(['figures/' name_str], 20);
+  saveasAll(['figures/' name_str], 17);
 end

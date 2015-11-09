@@ -1,5 +1,6 @@
 function [rad_to_servo, servo_to_rad, minmaxtrim] = ReadSimpleConfigServos(filename)
   % Reads a .cfg file for bot-param-server and looks for particular fields
+  disp(['Reading ' filename ' for config info']);
 
   
   rad_to_servo = struct();
@@ -48,7 +49,7 @@ function [rad_to_servo, servo_to_rad, minmaxtrim] = ReadSimpleConfigServos(filen
     end
     
     value = ReadKeyLine(tline, 'elevR_y_intercept');
-    if ~isempty(value)
+   if ~isempty(value)
       if current_obj == 1
         rad_to_servo.elevR_y_intercept = value;
       else

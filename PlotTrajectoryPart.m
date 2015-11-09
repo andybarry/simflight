@@ -143,29 +143,31 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   
   %% plot u
   
-  label = 'Control surface deflection (deg)';
+  
   figure_num = figure_num + 1;
   figure(figure_num)
   
   subplot(3,1,1);
   plot(u.logtime, rad2deg(u.rad.elevonL), 'b-');
   hold on
-  plot(traj_t, rad2deg(traj_u(1,:)), 'b--');
+  plot(traj_t, rad2deg(traj_u(1,:)), 'r-');
   grid on
   xlabel('Time (s)');
+  label = 'Left control surface deflection (deg)';
   ylabel(label);
   title([ 'LEFT: ' label ': ' title_str]);
   set(gca, 'FontSize', title_font_size);
   legend('Actual', 'Planned')
   
   subplot(3,1,2);
-  plot(u.logtime, rad2deg(u.rad.elevonR), 'k-');
+  plot(u.logtime, rad2deg(u.rad.elevonR), 'b-');
   hold on
-  plot(traj_t, rad2deg(traj_u(2, :)), 'k--');
+  plot(traj_t, rad2deg(traj_u(2, :)), 'r-');
   
 
   grid on
   xlabel('Time (s)');
+  label = 'Right control surface deflection (deg)';
   ylabel(label);
   title([ 'RIGHT: ' label ': ' title_str]);
   set(gca, 'FontSize', title_font_size);
@@ -173,14 +175,14 @@ function PlotTrajectoryPart(est, u, traj_t, traj_x, traj_u, title_str, plot_deri
   set(gca, 'YLimMode', 'auto');
   
   subplot(3,1,3);
-  plot(u.logtime, u.rad.throttle, 'r-');
+  plot(u.logtime, u.rad.throttle, 'b-');
   hold on
-  plot(traj_t, traj_u(3, :), 'r--');
+  plot(traj_t, traj_u(3, :), 'r-');
   
 
   grid on
   xlabel('Time (s)');
-  ylabel(label);
+  label = 'Throttle';
   title([ 'THROTTLE: ' label ': ' title_str]);
   set(gca, 'FontSize', title_font_size);
   set(gca, 'XLimMode', 'auto');

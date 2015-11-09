@@ -1,27 +1,25 @@
 %% load data
 
 clear
-%%
+%% setup loading variables
 
-% TODO: detect these?
-%parameters = {0.904, 0.000, -0.134, -0.049, 0 };
-
-date = '2015-10-06';
+date = '2015-10-10';
 name = 'field-test';
-log_number = '12';
+log_number = '06';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps3';
 
-trajectory_library = 'traj-archive/oct6-from-data.mat';
+trajectory_library = 'traj-archive/oct8-from-data-obstacle-ready.mat';
 
 use_simulation = false;
 
-
+%% load trajectory library
 
 disp(['Loading ' trajectory_library '...']);
 load(trajectory_library);
+disp('done.');
 
-
+%% load log data
 
 dir = [date '-' name '/' hostname '/'];
 filename = ['lcmlog_' strrep(date, '-', '_') '_' log_number '.mat'];
@@ -53,8 +51,9 @@ for i = 1 : length(t_starts_unfiltered)
   this_alt = est.pos.z(idx);
   this_alt_end = est.pos.z(idx_end);
   this_alt_mid = est.pos.z( round((idx-idx_end)/2) + idx );
+  this_alt_max = max(est.pos.z);
   
-  if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5)
+  if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5 || this_alt_max > 7.5)
     t_starts = [t_starts t_starts_unfiltered(i)];
     t_ends = [t_ends t_ends_unfiltered(i)];
   else
@@ -92,8 +91,8 @@ for i = 1:length(t_starts)
 end
 
 %% create plots for papers/talks
-tmin = 169.9;
-tmax = 171.2;
+tmin = 125.4;
+tmax = 126.2;
 
 for i = 1 : 5
   figure(i)
@@ -105,7 +104,8 @@ end
 
 %% save files
 
-name_str = 'knife-edge-xyz';
+name_str = '2015-10-08_10';
+disp(['Saving ' name_str '...']);
 
 SaveComparison([name_str '-x'], 1, 1);
 SaveComparison([name_str '-y'], 1, 2);
@@ -113,6 +113,9 @@ SaveComparison([name_str '-z'], 1, 3);
 
 SaveComparison([name_str '-roll'], 2, 1);
 SaveComparison([name_str '-pitch'], 2, 2);
+SaveComparison([name_str '-yaw'], 2, 3);
 
 SaveComparison([name_str '-u-left'], 3, 1);
 SaveComparison([name_str '-u-right'], 3, 2);
+
+disp('done.');
