@@ -91,7 +91,8 @@ for i = 1:length(t_starts)
 end
 
 %% create plots for papers/talks
-tmin = 125.4;
+%tmin = 125.4;
+tmin = 120;
 tmax = 126.2;
 
 for i = 1 : 5
