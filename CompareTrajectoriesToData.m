@@ -1,6 +1,7 @@
 %% load data
 
 clear
+addpath('/home/abarry/realtime/scripts/logs');
 %% setup loading variables
 
 date = '2015-10-10';
