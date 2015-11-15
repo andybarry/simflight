@@ -4,13 +4,13 @@ clear
 addpath('/home/abarry/realtime/scripts/logs');
 %% setup loading variables
 
-date = '2015-10-10';
+date = '2015-10-06';
 name = 'field-test';
-log_number = '06';
+log_number = '11';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps3';
 
-trajectory_library = 'traj-archive/oct8-from-data-obstacle-ready.mat';
+trajectory_library = 'traj-archive/oct6-from-data.mat';
 
 use_simulation = false;
 
@@ -51,7 +51,7 @@ for i = 1 : length(t_starts_unfiltered)
   
   this_alt = est.pos.z(idx);
   this_alt_end = est.pos.z(idx_end);
-  this_alt_mid = est.pos.z( round((idx-idx_end)/2) + idx );
+  this_alt_mid = est.pos.z( round((idx_end-idx)/2) + idx );
   this_alt_max = max(est.pos.z);
   
   if (this_alt > 5 || this_alt_end > 5 || this_alt_mid > 7.5 || this_alt_max > 7.5)
@@ -93,8 +93,8 @@ end
 
 %% create plots for papers/talks
 %tmin = 125.4;
-tmin = 120;
-tmax = 126.2;
+tmin = 155;
+tmax = 170;
 
 for i = 1 : 5
   figure(i)

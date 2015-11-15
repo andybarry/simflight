@@ -43,6 +43,10 @@ classdef FlightLog
     u
     log
     
+    
+    t_start;
+    t_end;
+    
   end
   
   methods
@@ -132,6 +136,9 @@ classdef FlightLog
       obj.tvlqr_out = tvlqr_out;
       obj.u = u;
       obj.log = log42;
+      
+      % compute start and end for the flight
+      [obj.t_start, obj.t_end] = FindAutonomousFlight(obj);
       
     end
     

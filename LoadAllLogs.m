@@ -5,6 +5,12 @@ load(trajlib_path);
 
 
 logs = [];
+% NOTE: TRAJ LIB IS WRONG FOR 09/08 FLIGHTS
+logs = [ logs FlightLog('2015-09-08', 2, '05', lib)];
+logs = [ logs FlightLog('2015-09-08', 2, '08', lib)];
+logs = [ logs FlightLog('2015-09-08', 2, '09', lib)];
+logs = [ logs FlightLog('2015-09-08', 2, '10', lib)];
+
 logs = [ logs FlightLog('2015-09-26', 1, '14', lib)];
 logs = [ logs FlightLog('2015-09-26', 1, '15', lib)];
 logs = [ logs FlightLog('2015-09-26', 1, '16', lib)];
