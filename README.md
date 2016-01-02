@@ -3,7 +3,6 @@ simflight
 
 Simulation environment for flight systems, based on drake (http://drake.mit.edu)
 
- - Use ````do_pem.m```` for system identification of the model ````tbsc_model.m````.
 ### Dependancies
 * MATLAB
 * Drake (http://drake.mit.edu)
@@ -17,6 +16,8 @@ Simulation environment for flight systems, based on drake (http://drake.mit.edu)
 
 
 #### Running system identification using logs
+
+- Use ````do_pem.m```` for system identification of the model ````tbsc_model.m````:
 
 ````matlab
 % Load dependancies
