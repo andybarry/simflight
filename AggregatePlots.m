@@ -93,3 +93,14 @@ for i = 1 : length(logs)
 end
 
 disp(['Time in autonomous mode: ' num2str(total_t) 's']);
+
+% max G
+for i = 1 : length(logs)
+  trim_est = TrimEst(logs(i).t_start, logs(i).t_end, logs(i).est);
+  
+  max_x = max(abs(trim_est.accel.x));
+  max_y = max(abs(trim_est.accel.y));
+  max_z = max(abs(trim_est.accel.z));
+end
+
+disp(['Max G: ' num2str(max_x/9.81) ' (x), ' num2str(max_y/9.81) ' (y), ' num2str(max_z/9.81)]);

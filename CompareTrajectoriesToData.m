@@ -4,9 +4,9 @@ clear
 addpath('/home/abarry/realtime/scripts/logs');
 %% setup loading variables
 
-date = '2015-10-06';
+date = '2015-10-08';
 name = 'field-test';
-log_number = '12';
+log_number = '10';
 stabilization_trajectory = 0;
 hostname = 'odroid-gps3';
 
@@ -93,8 +93,8 @@ end
 
 %% create plots for papers/talks
 %tmin = 125.4;
-tmin = 116.5;
-tmax = 119;
+tmin = 85;
+tmax = 87.5;
 
 for i = 1 : 5
   figure(i)
@@ -106,7 +106,7 @@ end
 
 %% save files
 
-name_str = '2015-10-06_12';
+name_str = '2015-10-08_10';
 disp(['Saving ' name_str '...']);
 
 SaveComparison([name_str '-x'], 1, 1);
