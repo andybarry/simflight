@@ -1,12 +1,45 @@
 function [rad_to_servo, servo_to_rad, minmaxtrim] = ReadSimpleConfigServos(filename)
   % Reads a .cfg file for bot-param-server and looks for particular fields
   disp(['Reading ' filename ' for config info']);
-
   
   rad_to_servo = struct();
   servo_to_rad = struct();
   minmaxtrim = struct();
   trim = struct();
+  
+  % check to see if the filename is valid
+  if ~exist(filename, 'file')
+    disp([filename ' does not exist, assuming default values from plane #3.']);
+    
+    rad_to_servo.elevL_slope = 453.9260;
+    rad_to_servo.elevL_y_intercept = 1.3677e+03;
+    rad_to_servo.elevR_slope = -512.8210;
+    rad_to_servo.elevR_y_intercept = 1.4113e+03;
+    rad_to_servo.throttle_slope = 99.6016;
+    rad_to_servo.throttle_y_intercept = 1.2122e+03;
+    
+    servo_to_rad.elevL_slope = 0.0022;
+    servo_to_rad.elevL_y_intercept = -3.0130;
+    servo_to_rad.elevR_slope = -0.0019;
+    servo_to_rad.elevR_y_intercept = 2.7520;
+    servo_to_rad.throttle_slope = 0.0100;
+    servo_to_rad.throttle_y_intercept = -12.1700;
+    
+    minmaxtrim.elevL_min = 1125;
+    minmaxtrim.elevL_max = 1725;
+    minmaxtrim.elevR_min = 1150;
+    minmaxtrim.elevR_max = 1800;
+    minmaxtrim.throttle_min = 1103;
+    minmaxtrim.throttle_max = 1744;
+    minmaxtrim.elevL_trim = 1372;
+    minmaxtrim.elevR_trim = 1479;
+    minmaxtrim.throttle_trim = 1103;
+    minmaxtrim.elevL_flight_trim = 1402;
+    minmaxtrim.elevR_flight_trim = 1494;
+    
+    return;
+    
+  end
 
   current_obj = 1;
   
