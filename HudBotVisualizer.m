@@ -9,9 +9,19 @@ classdef HudBotVisualizer < BotVisualizer
        
        obj = obj@BotVisualizer(manip, use_contact_shapes);
       
-       obj.pose_msg = mav.pose_t();
-       obj.airspeed_msg = mav.indexed_measurement_t();
-       obj.u_msg = lcmtypes.lcmt_deltawing_u();
+       try
+         obj.pose_msg = mav.pose_t();
+         obj.airspeed_msg = mav.indexed_measurement_t();
+         obj.u_msg = lcmtypes.lcmt_deltawing_u();
+       catch
+         disp('Error initializing LCM types.  If you want to use the HUD visualizer, you need to run:')
+         disp('    javaaddpath(''/home/abarry/realtime/LCM/LCMtypes.jar'');')
+         disp('    javaaddpath(''/home/abarry/pronto-distro/build/share/java/lcmtypes_mav-lcmtypes.jar'');');
+         disp('    javaaddpath(''/home/abarry/pronto-distro/build/share/java/lcmtypes_mav_estimator.jar'');');
+         
+         obj.hud_disabled = true;
+         
+       end
       
     end
 
@@ -19,6 +29,10 @@ classdef HudBotVisualizer < BotVisualizer
       
       % call superclass's draw
       draw@BotVisualizer(obj, t, y);
+      
+      if obj.hud_disabled == true
+        return;
+      end
       
       % send data to LCM HUD
       
@@ -121,6 +135,7 @@ classdef HudBotVisualizer < BotVisualizer
     pose_msg;
     airspeed_msg;
     u_msg;
+    hud_disabled = false;
   end
   
 end

@@ -10,7 +10,7 @@ deltawing_plant = DeltawingPlant(parameters);
 p = DeltawingPlantStateEstFrame(deltawing_plant);
 
 lib = TrajectoryLibrary(p);
-lib.ti_rollout_time = 20
+lib.ti_rollout_time = 3;
 [x0, u0, lib] = FindTrimDrake(p, lib, gains_ti);
 
 %% more trim conditions

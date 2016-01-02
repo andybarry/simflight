@@ -71,12 +71,12 @@ end
 
 %% plot
 %   
-for i = 1 : length(airspeed_dat)
-  plot(airspeed_dat{i})
-  title(i)
-  drawnow
-  pause
-end
+% for i = 1 : length(airspeed_dat)
+%   plot(airspeed_dat{i})
+%   title(i)
+%   drawnow
+%   pause
+% end
 
 %% merge
 %merge_nums = [1, 2, 3, 4];
