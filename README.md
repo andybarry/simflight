@@ -1,11 +1,11 @@
 simflight
 =========
 
-Simulation environment for flight systems, based on drake (http://drake.mit.edu)
+Simulation environment for flight systems, based on [drake](http://drake.mit.edu).
 
 ### Dependancies
 * MATLAB
-* Drake (http://drake.mit.edu)
+* [Drake](http://drake.mit.edu)
 
 
 ### Examples
@@ -13,6 +13,7 @@ Simulation environment for flight systems, based on drake (http://drake.mit.edu)
  - Example logs can be downloaded here:
   - For system identification: http://abarry.org/files/logs/odroid-gps2-2015-09-17-field-test.zip
   - Obstacle avoidance: http://abarry.org/files/logs/2015-with-obstacles-mat-and-LCM-logs.zip
+  - All logs/videos currently online: http://abarry.org/files/logs/
 
 
 #### Running system identification using logs
