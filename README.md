@@ -13,7 +13,7 @@ Simulation environment for flight systems, based on [drake](http://drake.mit.edu
  - Example logs can be downloaded here:
   - For system identification: http://abarry.org/files/logs/odroid-gps2-2015-09-17-field-test.zip
   - Obstacle avoidance: http://abarry.org/files/logs/2015-with-obstacles-mat-and-LCM-logs.zip
-  - All logs/videos currently online: http://abarry.org/files/logs/
+  - Datafiles: https://drive.google.com/drive/folders/0B504R2Bs0QpzcVlBRXhsREVLMFE
 
 
 #### Running system identification using logs
